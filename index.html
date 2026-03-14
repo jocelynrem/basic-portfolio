@@ -20,12 +20,25 @@
     <header class="hero portfolio-hero">
       <div class="hero-body">
         <div class="container">
-          <nav class="level is-mobile portfolio-nav" aria-label="Primary">
-            <div class="level-left"></div>
-            <div class="level-right nav-links">
-              <a href="#portfolio">Portfolio</a>
-              <a href="#resume">Resume</a>
-              <a href="#contact">Contact</a>
+          <nav class="portfolio-nav" aria-label="Primary">
+            <div class="nav-shell">
+              <div class="nav-brand"></div>
+              <button
+                class="nav-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="site-nav-links"
+                aria-label="Open navigation menu"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+              <div class="nav-links" id="site-nav-links">
+                <a href="#portfolio">Portfolio</a>
+                <a href="#resume">Resume</a>
+                <a href="#contact">Contact</a>
+              </div>
             </div>
           </nav>
 
@@ -886,6 +899,71 @@
                       alt="Selected UX design sample from Jocelyn Remington's portfolio"
                     />
                   </div>
+                  <div class="sample-grid">
+                    <button
+                      class="sample-thumb is-active"
+                      type="button"
+                      data-sample="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
+                      aria-label="View UX sample 1"
+                      aria-pressed="true"
+                    >
+                      <img src="./assets/ux-samples/0y8vLSS9pqIkvnb7.png" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/SdwD0OzyTssplcgW.png"
+                      aria-label="View UX sample 2"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/SdwD0OzyTssplcgW.png" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/UsONhL2AKCENq1SP.png"
+                      aria-label="View UX sample 3"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/UsONhL2AKCENq1SP.png" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/fjtXe8MoewuV5aS4.gif"
+                      aria-label="View UX sample 4"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/fjtXe8MoewuV5aS4.gif" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/hTsrbz46woXtF1yo.gif"
+                      aria-label="View UX sample 5"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/hTsrbz46woXtF1yo.gif" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/lv41crwJb0tu8eVn.png"
+                      aria-label="View UX sample 6"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/lv41crwJb0tu8eVn.png" alt="" />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/rYfjqQYPBzxrxJJz.png"
+                      aria-label="View UX sample 7"
+                      aria-pressed="false"
+                    >
+                      <img src="./assets/ux-samples/rYfjqQYPBzxrxJJz.png" alt="" />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="column is-6">
@@ -902,71 +980,6 @@
                   Select a sample below to view it more closely.
                 </p>
               </div>
-            </div>
-            <div class="sample-grid">
-              <button
-                class="sample-thumb is-active"
-                type="button"
-                data-sample="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
-                aria-label="View UX sample 1"
-                aria-pressed="true"
-              >
-                <img src="./assets/ux-samples/0y8vLSS9pqIkvnb7.png" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/SdwD0OzyTssplcgW.png"
-                aria-label="View UX sample 2"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/SdwD0OzyTssplcgW.png" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/UsONhL2AKCENq1SP.png"
-                aria-label="View UX sample 3"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/UsONhL2AKCENq1SP.png" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/fjtXe8MoewuV5aS4.gif"
-                aria-label="View UX sample 4"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/fjtXe8MoewuV5aS4.gif" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/hTsrbz46woXtF1yo.gif"
-                aria-label="View UX sample 5"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/hTsrbz46woXtF1yo.gif" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/lv41crwJb0tu8eVn.png"
-                aria-label="View UX sample 6"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/lv41crwJb0tu8eVn.png" alt="" />
-              </button>
-              <button
-                class="sample-thumb"
-                type="button"
-                data-sample="./assets/ux-samples/rYfjqQYPBzxrxJJz.png"
-                aria-label="View UX sample 7"
-                aria-pressed="false"
-              >
-                <img src="./assets/ux-samples/rYfjqQYPBzxrxJJz.png" alt="" />
-              </button>
             </div>
           </div>
         </div>

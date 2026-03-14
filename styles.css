@@ -73,6 +73,48 @@ body {
   z-index: 1;
 }
 
+.nav-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-brand {
+  min-width: 2rem;
+}
+
+.nav-toggle {
+  display: none;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgba(251, 245, 236, 0.28);
+  border-radius: 0.45rem;
+  background: rgba(251, 245, 236, 0.08);
+  color: #f7efe4;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.28rem;
+  cursor: pointer;
+  transition: background-color 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 1.2rem;
+  height: 0.12rem;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.nav-toggle:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24);
+}
+
 #main-content {
   padding-top: 2rem;
 }
@@ -543,12 +585,56 @@ body {
 
 @media (max-width: 768px) {
   .portfolio-nav {
-    align-items: flex-start;
     gap: 1rem;
   }
 
+  .nav-shell {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
   .nav-links {
-    gap: 1rem;
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1rem;
+    border-radius: 0.45rem;
+    background: rgba(18, 45, 45, 0.92);
+    border: 1px solid rgba(251, 245, 236, 0.12);
+    box-shadow: 0 12px 24px rgba(10, 26, 26, 0.18);
+  }
+
+  .nav-links.is-open {
+    display: flex;
+  }
+
+  .nav-links a {
+    display: block;
+    width: 100%;
+    padding: 0.2rem 0;
+  }
+
+  .sample-display img {
+    height: 16rem;
+  }
+
+  .sample-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 4.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+  }
+
+  .sample-thumb img {
+    height: 3.8rem;
   }
 
   .portrait-frame {
@@ -569,5 +655,10 @@ body {
 
   .portfolio-title {
     font-size: 2.7rem !important;
+  }
+
+  .portfolio-subtitle {
+    font-size: 1.1rem !important;
+    line-height: 1.65;
   }
 }
