@@ -102,11 +102,20 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.85rem;
+  border-radius: 0.35rem;
+  transition: color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
 .nav-links a:hover,
-.nav-links a:focus {
+.nav-links a:focus-visible {
   color: #f6b39e;
+}
+
+.nav-links a:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24);
 }
 
 .hero-columns {
@@ -246,6 +255,19 @@ body {
   height: 13rem;
   border: 1px solid rgba(48, 41, 35, 0.12);
   background: rgba(255, 253, 249, 0.8);
+  transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+#resume a:focus-visible {
+  outline: none;
+}
+
+#resume a:focus-visible .resume-frame {
+  border-color: var(--deep-moss);
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24);
+  transform: translateY(-1px);
 }
 
 .contact-graphic {
@@ -299,6 +321,16 @@ body {
 .project-card:focus-within {
   transform: translateY(-0.2rem);
   box-shadow:
+    rgba(0, 0, 0, 0.22) 0 4px 10px,
+    rgba(48, 41, 35, 0.2) 0 16px 28px -10px,
+    rgba(191, 111, 96, 0.22) -3px 0 0 inset;
+}
+
+.project-card:focus-within {
+  border-color: var(--deep-moss);
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24),
     rgba(0, 0, 0, 0.22) 0 4px 10px,
     rgba(48, 41, 35, 0.2) 0 16px 28px -10px,
     rgba(191, 111, 96, 0.22) -3px 0 0 inset;
@@ -362,14 +394,24 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   background: rgba(255, 253, 249, 0.6);
+  border-radius: 0.25rem;
+  transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
 
 .card-footer-item:hover,
-.card-footer-item:focus,
-.contact-links a:hover,
-.contact-links a:focus {
+.contact-links a:hover {
   color: var(--deep-moss);
   background: rgba(201, 133, 53, 0.18);
+}
+
+.card-footer-item:focus-visible,
+.contact-links a:focus-visible {
+  outline: none;
+  color: var(--deep-moss);
+  background: rgba(201, 133, 53, 0.18);
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24);
 }
 
 .button.is-link {
@@ -382,10 +424,18 @@ body {
 }
 
 .button.is-link:hover,
-.button.is-link:focus {
+.button.is-link:focus-visible {
   background: #a85b4f;
   border-color: #a85b4f;
   color: #fff9f4;
+}
+
+.button.is-link:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24),
+    0 8px 18px rgba(191, 111, 96, 0.18);
 }
 
 .button.is-light {
@@ -432,6 +482,7 @@ body {
   border-radius: 0.35rem;
   overflow: hidden;
   cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .sample-thumb img {
@@ -449,8 +500,17 @@ body {
 }
 
 .sample-thumb:hover,
-.sample-thumb:focus {
+.sample-thumb:focus-visible {
   border-color: var(--ochre);
+}
+
+.sample-thumb:focus-visible {
+  outline: none;
+  border-color: var(--deep-moss);
+  box-shadow:
+    0 0 0 3px rgba(35, 58, 57, 0.16),
+    0 0 0 6px rgba(201, 133, 53, 0.24);
+  transform: translateY(-1px);
 }
 
 .ux-sample-note {
@@ -469,6 +529,8 @@ body {
 .contact-links a {
   color: var(--deep-moss);
   font-weight: 700;
+  border-radius: 0.25rem;
+  transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
 
 .footer-card {
