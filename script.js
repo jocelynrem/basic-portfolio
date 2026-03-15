@@ -17,12 +17,17 @@ const navLinks = document.querySelector('#site-nav-links');
 if (navToggle && navLinks) {
   const closeMenu = () => {
     navToggle.setAttribute('aria-expanded', 'false');
+    navToggle.setAttribute('aria-label', 'Open navigation menu');
     navLinks.classList.remove('is-open');
   };
 
   navToggle.addEventListener('click', () => {
     const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
     navToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+    navToggle.setAttribute(
+      'aria-label',
+      isExpanded ? 'Open navigation menu' : 'Close navigation menu'
+    );
     navLinks.classList.toggle('is-open', !isExpanded);
   });
 
