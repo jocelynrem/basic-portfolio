@@ -10,11 +10,7 @@
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+      href="./vendor/bulma.min.css"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -34,7 +30,17 @@
         </span>
         <span class="presentation-banner__cta">
           View presentation
-          <span class="material-symbols-outlined presentation-banner__icon" aria-hidden="true">open_in_new</span>
+          <svg
+            class="presentation-banner__icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill="currentColor"
+              d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+            />
+          </svg>
           <span class="sr-only">(opens in new tab)</span>
         </span>
       </a>
@@ -242,7 +248,17 @@
                     aria-label="View the NCTies project. Opens in a new tab."
                   >
                     View Project
-                    <span class="material-symbols-outlined external-link-icon" aria-hidden="true">open_in_new</span>
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
                   </a>
                 </footer>
               </article>
@@ -436,7 +452,17 @@
                     aria-label="View the Ozobot Fractions project. Opens in a new tab."
                   >
                     View Project
-                    <span class="material-symbols-outlined external-link-icon" aria-hidden="true">open_in_new</span>
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
                   </a>
                 </footer>
               </article>
@@ -590,7 +616,17 @@
                     aria-label="View the Nature Scout project. Opens in a new tab."
                   >
                     View Project
-                    <span class="material-symbols-outlined external-link-icon" aria-hidden="true">open_in_new</span>
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
                   </a>
                 </footer>
               </article>
@@ -725,7 +761,17 @@
                     aria-label="View the VLE Tech Website project. Opens in a new tab."
                   >
                     View Project
-                    <span class="material-symbols-outlined external-link-icon" aria-hidden="true">open_in_new</span>
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
                   </a>
                 </footer>
               </article>
@@ -875,7 +921,17 @@
                     aria-label="View the Zoologist Academy project. Opens in a new tab."
                   >
                     View Project
-                    <span class="material-symbols-outlined external-link-icon" aria-hidden="true">open_in_new</span>
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
                   </a>
                 </footer>
               </article>
@@ -891,15 +947,17 @@
               <div class="column is-5-desktop">
                 <div class="ux-sample-stage">
                   <p class="section-kicker">UX Samples</p>
-                <div
+                  <div
                     class="sample-display"
                     id="sample-display"
                     aria-live="polite"
                   >
                     <img
                       id="sample-image"
-                      src="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
+                      src="./assets/ux-display/0y8vLSS9pqIkvnb7.png"
                       alt="Selected UX design sample from Jocelyn Remington's portfolio"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 </div>
@@ -926,8 +984,10 @@
                     aria-pressed="true"
                   >
                     <img
-                      src="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
+                      src="./assets/ux-thumbs/0y8vLSS9pqIkvnb7.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -938,8 +998,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/SdwD0OzyTssplcgW.png"
+                      src="./assets/ux-thumbs/SdwD0OzyTssplcgW.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -950,8 +1012,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/UsONhL2AKCENq1SP.png"
+                      src="./assets/ux-thumbs/UsONhL2AKCENq1SP.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -962,8 +1026,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/fjtXe8MoewuV5aS4.gif"
+                      src="./assets/ux-thumbs/fjtXe8MoewuV5aS4.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -974,8 +1040,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/hTsrbz46woXtF1yo.gif"
+                      src="./assets/ux-thumbs/hTsrbz46woXtF1yo.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -986,8 +1054,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/lv41crwJb0tu8eVn.png"
+                      src="./assets/ux-thumbs/lv41crwJb0tu8eVn.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                   <button
@@ -998,8 +1068,10 @@
                     aria-pressed="false"
                   >
                     <img
-                      src="./assets/ux-samples/rYfjqQYPBzxrxJJz.png"
+                      src="./assets/ux-thumbs/rYfjqQYPBzxrxJJz.png"
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 </div>
@@ -1024,6 +1096,8 @@
                     <img
                       src="./assets/resume.png"
                       alt="Preview of Jocelyn Remington's resume. Opens the full resume in Google Docs."
+                      loading="lazy"
+                      decoding="async"
                     />
                   </figure>
                 </a>
@@ -1061,7 +1135,17 @@
               href="mailto:jocelynrem@gmail.com"
               aria-label="Send an email to Jocelyn Remington."
             >
-              <span class="material-symbols-outlined contact-icon" aria-hidden="true">mail</span>
+              <svg
+                class="contact-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill="currentColor"
+                  d="M20 6H4c-1.1 0-2 .9-2 2v8a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-1.1-.9-2-2-2zm0 2v.01L12 13L4 8.01V8h16zM4 16V10.5l7.4 4.63a1 1 0 0 0 1.2 0L20 10.5V16H4z"
+                />
+              </svg>
             </a>
             <a
               href="https://www.linkedin.com/in/jocelynrem/"

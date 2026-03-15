@@ -1,5 +1,5 @@
 const sampleImages = [
-  './assets/ux-samples/0y8vLSS9pqIkvnb7.png',
+  './assets/ux-display/0y8vLSS9pqIkvnb7.png',
   './assets/ux-samples/SdwD0OzyTssplcgW.png',
   './assets/ux-samples/UsONhL2AKCENq1SP.png',
   './assets/ux-samples/fjtXe8MoewuV5aS4.gif',
