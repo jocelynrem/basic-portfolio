@@ -157,6 +157,25 @@
         background: rgba(255, 255, 255, 0.72);
         font-size: clamp(2.9rem, 6vw, 4.6rem);
         line-height: 0.9;
+        padding-bottom: 14px;
+      }
+
+      .sound-label {
+        position: absolute;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        padding: 5px 4px 6px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #0f172a;
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.01em;
+        text-align: center;
+        white-space: nowrap;
+        pointer-events: none;
       }
 
       .sound-toolbar {
@@ -176,9 +195,7 @@
       .toolbar-title h2 {
         margin: 0;
         font-family:
-          'Avenir Next Rounded',
-          'Arial Rounded MT Bold',
-          'Trebuchet MS',
+          'Avenir Next Rounded', 'Arial Rounded MT Bold', 'Trebuchet MS',
           sans-serif;
         font-size: 1.55rem;
         font-weight: 800;
@@ -454,7 +471,13 @@
           button.dataset.sound = sound.id;
           button.setAttribute('aria-label', sound.label);
           button.title = sound.label;
-          button.innerHTML = '<span class="icon">' + sound.icon + '</span>';
+          button.innerHTML =
+            '<span class="icon">' +
+            sound.icon +
+            '</span>' +
+            '<span class="sound-label">' +
+            sound.label +
+            '</span>';
           button.addEventListener('click', () => {
             playLibrarySound(sound);
           });
