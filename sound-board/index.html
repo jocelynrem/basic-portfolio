@@ -7,8 +7,8 @@
     <style>
       :root {
         --bg: #ecf3ff;
-        --panel: rgba(255, 255, 255, 0.92);
-        --panel-border: rgba(148, 163, 184, 0.22);
+        --panel: #ffffff;
+        --panel-border: #d8e1ef;
         --text: #0f172a;
         --muted: #475569;
         --brand: #2563eb;
@@ -25,6 +25,8 @@
         margin: 0;
         overflow: hidden;
         font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
         color: var(--text);
         background:
           radial-gradient(
@@ -50,9 +52,8 @@
       .panel {
         background: var(--panel);
         border: 1px solid var(--panel-border);
-        border-radius: 20px;
+        border-radius: 18px;
         box-shadow: var(--shadow);
-        backdrop-filter: blur(14px);
       }
 
       .widget {
@@ -85,18 +86,6 @@
 
       .panel {
         padding: 8px;
-      }
-
-      .panel h2 {
-        margin: 0;
-        font-size: 0.88rem;
-        letter-spacing: -0.02em;
-      }
-
-      .panel p {
-        color: var(--muted);
-        margin: 0 0 10px;
-        font-size: 0.82rem;
       }
 
       .sound-grid {
@@ -165,7 +154,7 @@
         width: 100%;
         height: 100%;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.42);
+        background: rgba(255, 255, 255, 0.72);
         font-size: clamp(2.9rem, 6vw, 4.6rem);
         line-height: 0.9;
       }
@@ -173,14 +162,36 @@
       .sound-toolbar {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         gap: 10px;
         margin-bottom: 6px;
         flex-wrap: wrap;
       }
 
-      .sound-toolbar h2 {
+      .toolbar-title {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .toolbar-kicker {
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brand-dark);
+      }
+
+      .toolbar-title h2 {
         margin: 0;
+        font-size: 1.15rem;
+        line-height: 1;
+        letter-spacing: -0.03em;
+      }
+
+      .toolbar-subtitle {
+        font-size: 0.72rem;
+        color: var(--muted);
       }
 
       .toolbar-controls {
@@ -195,26 +206,36 @@
       }
 
       .ghost-btn {
-        border: 1px solid rgba(239, 68, 68, 0.25);
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: #fff;
+        border: 1px solid #cbd5e1;
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        color: var(--text);
         border-radius: 999px;
-        padding: 8px 14px;
+        padding: 10px 18px;
         font: inherit;
-        font-size: 0.78rem;
+        font-size: 0.82rem;
         font-weight: 700;
-        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
         cursor: pointer;
         transition:
           transform 160ms ease,
           box-shadow 160ms ease,
-          filter 160ms ease;
+          filter 160ms ease,
+          background 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease;
       }
 
       .ghost-btn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
         filter: brightness(1.03);
+      }
+
+      .ghost-btn.is-active {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
       }
 
       @media (max-width: 560px) {
@@ -236,7 +257,11 @@
         <section class="grid">
           <section class="panel">
             <div class="sound-toolbar">
-              <h2>Sound Board</h2>
+              <div class="toolbar-title">
+                <div class="toolbar-kicker">Classroom Widget</div>
+                <h2>Sound Board</h2>
+                <div class="toolbar-subtitle">Tap a tile to play a cue.</div>
+              </div>
               <div class="toolbar-controls">
                 <div class="toolbar-volume">
                   <div class="volume-label">
@@ -363,6 +388,10 @@
       const soundLibraryWrap = document.getElementById('sound-library');
       let currentAudio = null;
 
+      function setStopButtonState(isActive) {
+        stopSoundButton.classList.toggle('is-active', isActive);
+      }
+
       function highlightSound(id) {
         state.activeSound = id;
         const soundButtons = Array.from(
@@ -371,11 +400,6 @@
         soundButtons.forEach((button) => {
           button.classList.toggle('active', button.dataset.sound === id);
         });
-        window.clearTimeout(highlightSound.timeoutId);
-        highlightSound.timeoutId = window.setTimeout(() => {
-          soundButtons.forEach((button) => button.classList.remove('active'));
-          state.activeSound = null;
-        }, 900);
       }
 
       function stopCurrentAudio() {
@@ -392,6 +416,7 @@
           document.querySelectorAll('.sound-btn'),
         );
         soundButtons.forEach((button) => button.classList.remove('active'));
+        setStopButtonState(false);
       }
 
       function stopAllPlayback() {
@@ -409,6 +434,7 @@
 
         try {
           await audio.play();
+          setStopButtonState(true);
           audio.onended = () => {
             if (currentAudio === audio) {
               currentAudio = null;
