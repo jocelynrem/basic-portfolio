@@ -80,7 +80,7 @@
 
       input[type='range'] {
         width: 100%;
-        accent-color: var(--brand);
+        accent-color: var(--tone-raspberry);
       }
 
       .grid {
@@ -206,15 +206,16 @@
         bottom: 30px;
         padding: 5px 4px 5px;
         border-radius: 9px;
-        background: rgba(255, 255, 255, 0.82);
-        color: #111827;
+        background: rgba(17, 24, 39, 0.92);
+        color: #ffffff;
         font-size: clamp(0.72rem, 1.55vw, 1.3rem);
         font-weight: 800;
         line-height: 0.9;
-        letter-spacing: -0.01em;
+        letter-spacing: 0;
         text-align: center;
         pointer-events: none;
         text-wrap: balance;
+        text-shadow: none;
       }
 
       .sound-toolbar {
@@ -283,10 +284,10 @@
       }
 
       .ghost-btn.is-active {
-        border-color: rgba(239, 68, 68, 0.3);
-        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-color: rgba(175, 27, 63, 0.34);
+        background: var(--tone-raspberry);
         color: #fff;
-        box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+        box-shadow: 0 10px 22px rgba(50, 14, 59, 0.28);
       }
 
       @media (max-width: 560px) {
