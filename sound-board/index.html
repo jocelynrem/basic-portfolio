@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classroom Sound Board</title>
+    <style>
+      :root {
+        --bg: #ecf3ff;
+        --panel: rgba(255, 255, 255, 0.92);
+        --panel-border: rgba(148, 163, 184, 0.22);
+        --text: #0f172a;
+        --muted: #475569;
+        --brand: #2563eb;
+        --brand-dark: #1d4ed8;
+        --ring: rgba(37, 99, 235, 0.24);
+        --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(251, 191, 36, 0.14),
+            transparent 26%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(96, 165, 250, 0.14),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      }
+
+      .shell {
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      .widget,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+
+      .widget {
+        padding: 4px;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-top: 0;
+        border-bottom: 0;
+      }
+
+      .volume-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      input[type='range'] {
+        width: 100%;
+        accent-color: var(--brand);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .panel {
+        padding: 8px;
+      }
+
+      .panel h2 {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: -0.02em;
+      }
+
+      .panel p {
+        color: var(--muted);
+        margin: 0 0 10px;
+        font-size: 0.82rem;
+      }
+
+      .sound-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .sound-btn,
+      .ghost-btn {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .sound-btn {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1 / 1;
+        min-height: 54px;
+        padding: 0;
+        border-radius: 12px;
+        text-align: center;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .sound-btn:hover,
+      .ghost-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .sound-btn:active,
+      .ghost-btn:active {
+        transform: translateY(0);
+      }
+
+      .sound-btn.active {
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+
+      .bell {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+      }
+
+      .success {
+        background: linear-gradient(135deg, #d1fae5, #86efac);
+      }
+
+      .buzzer {
+        background: linear-gradient(135deg, #ffe4e6, #fda4af);
+      }
+
+      .attention {
+        background: linear-gradient(135deg, #dbeafe, #93c5fd);
+      }
+
+      .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.42);
+        font-size: clamp(2.9rem, 6vw, 4.6rem);
+        line-height: 0.9;
+      }
+
+      .sound-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .sound-toolbar h2 {
+        margin: 0;
+      }
+
+      .toolbar-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .toolbar-volume {
+        min-width: 120px;
+      }
+
+      .ghost-btn {
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          filter 160ms ease;
+      }
+
+      .ghost-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+        filter: brightness(1.03);
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          width: 100%;
+        }
+
+        .widget,
+        .panel {
+          border-radius: 16px;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="widget">
+        <section class="grid">
+          <section class="panel">
+            <div class="sound-toolbar">
+              <h2>Sound Board</h2>
+              <div class="toolbar-controls">
+                <div class="toolbar-volume">
+                  <div class="volume-label">
+                    <span>Volume</span>
+                    <strong id="volume-value">50%</strong>
+                  </div>
+                  <input
+                    id="volume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="50"
+                  />
+                </div>
+                <button id="stop-sound-btn" class="ghost-btn" type="button">
+                  Stop
+                </button>
+              </div>
+            </div>
+            <div class="sound-grid" id="sound-library"></div>
+          </section>
+        </section>
+
+      </section>
+    </main>
+
+    <script>
+      const soundLibrary = [
+        {
+          id: 'school-bell',
+          label: 'Bell',
+          icon: '🔔',
+          cssClass: 'bell',
+          src: 'sounds/universfield-school-bell-199584.mp3',
+        },
+        {
+          id: 'applause',
+          label: 'Claps',
+          icon: '👏',
+          cssClass: 'success',
+          src: 'sounds/freesound_community-applause-2-31567.mp3',
+        },
+        {
+          id: 'ooh-aah',
+          label: 'Mm-Hmm...',
+          icon: '🎉',
+          cssClass: 'success',
+          src: 'sounds/freesound_community-ooh-aah-32733.mp3',
+        },
+        {
+          id: 'rimshot-drum-roll',
+          label: 'Ba Dum Bum',
+          icon: '🥁',
+          cssClass: 'attention',
+          src: 'sounds/freesound_community-sting-rimshot-drum-roll-smooth-100369.mp3',
+        },
+        {
+          id: 'arcade-game-over',
+          label: 'Game Over',
+          icon: '🕹️',
+          cssClass: 'buzzer',
+          src: 'sounds/mixkit-arcade-retro-game-over-213.wav',
+        },
+        {
+          id: 'crowd-laughing',
+          label: 'Giggles',
+          icon: '😂',
+          cssClass: 'success',
+          src: 'sounds/mixkit-big-crowd-laughing-460.wav',
+        },
+        {
+          id: 'funny-yay',
+          label: 'Yay',
+          icon: '🥳',
+          cssClass: 'success',
+          src: 'sounds/freesound_community-funny-yay-6273.mp3',
+        },
+        {
+          id: 'suspense',
+          label: 'Suspense',
+          icon: '⏳',
+          cssClass: 'attention',
+          src: 'sounds/mixkit-game-show-suspense-waiting-667.wav',
+        },
+        {
+          id: 'sad-trombone',
+          label: 'Womp Womp',
+          icon: '🎺',
+          cssClass: 'buzzer',
+          src: 'sounds/mixkit-sad-game-over-trombone-471.wav',
+        },
+        {
+          id: 'cricket',
+          label: 'Crickets',
+          icon: '🦗',
+          cssClass: 'buzzer',
+          src: 'sounds/mixkit-small-cricket-screech-1781.wav',
+        },
+        {
+          id: 'maniacal-laughter',
+          label: 'Evil Laugh',
+          icon: '😈',
+          cssClass: 'attention',
+          src: 'sounds/voicebosch-maniacal-laughter-177313.mp3',
+        },
+        {
+          id: 'air-horn',
+          label: 'Air Horn',
+          icon: '📣',
+          cssClass: 'bell',
+          src: 'sounds/waitwhatimsignedin-air-horn-273892.mp3',
+        },
+      ];
+
+      const state = {
+        volume: 0.5,
+        activeSound: null,
+      };
+
+      const volumeInput = document.getElementById('volume');
+      const volumeValue = document.getElementById('volume-value');
+      const stopSoundButton = document.getElementById('stop-sound-btn');
+      const soundLibraryWrap = document.getElementById('sound-library');
+      let currentAudio = null;
+
+      function highlightSound(id) {
+        state.activeSound = id;
+        const soundButtons = Array.from(
+          document.querySelectorAll('.sound-btn'),
+        );
+        soundButtons.forEach((button) => {
+          button.classList.toggle('active', button.dataset.sound === id);
+        });
+        window.clearTimeout(highlightSound.timeoutId);
+        highlightSound.timeoutId = window.setTimeout(() => {
+          soundButtons.forEach((button) => button.classList.remove('active'));
+          state.activeSound = null;
+        }, 900);
+      }
+
+      function stopCurrentAudio() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
+        }
+      }
+
+      function clearActiveSound() {
+        state.activeSound = null;
+        const soundButtons = Array.from(
+          document.querySelectorAll('.sound-btn'),
+        );
+        soundButtons.forEach((button) => button.classList.remove('active'));
+      }
+
+      function stopAllPlayback() {
+        stopCurrentAudio();
+        clearActiveSound();
+      }
+
+      async function playLibrarySound(sound) {
+        stopCurrentAudio();
+        highlightSound(sound.id);
+
+        const audio = new Audio(sound.src);
+        currentAudio = audio;
+        audio.volume = state.volume;
+
+        try {
+          await audio.play();
+          audio.onended = () => {
+            if (currentAudio === audio) {
+              currentAudio = null;
+            }
+            clearActiveSound();
+          };
+          audio.onerror = () => {
+            if (currentAudio === audio) {
+              currentAudio = null;
+            }
+            clearActiveSound();
+          };
+        } catch (error) {
+          if (currentAudio === audio) {
+            currentAudio = null;
+          }
+          clearActiveSound();
+        }
+      }
+
+      function renderSoundLibrary() {
+        soundLibraryWrap.innerHTML = '';
+        soundLibrary.forEach((sound) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'sound-btn ' + sound.cssClass;
+          button.dataset.sound = sound.id;
+          button.setAttribute('aria-label', sound.label);
+          button.title = sound.label;
+          button.innerHTML = '<span class="icon">' + sound.icon + '</span>';
+          button.addEventListener('click', () => {
+            playLibrarySound(sound);
+          });
+          soundLibraryWrap.appendChild(button);
+        });
+      }
+
+      volumeInput.addEventListener('input', (event) => {
+        state.volume = Number(event.target.value) / 100;
+        volumeValue.textContent = String(event.target.value) + '%';
+      });
+
+      stopSoundButton.addEventListener('click', () => {
+        stopAllPlayback();
+      });
+
+      renderSoundLibrary();
+    </script>
+  </body>
+</html>
