@@ -170,28 +170,22 @@
 
       .toolbar-title {
         display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .toolbar-kicker {
-        font-size: 0.66rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--brand-dark);
+        align-items: center;
       }
 
       .toolbar-title h2 {
         margin: 0;
-        font-size: 1.15rem;
-        line-height: 1;
-        letter-spacing: -0.03em;
-      }
-
-      .toolbar-subtitle {
-        font-size: 0.72rem;
-        color: var(--muted);
+        font-family:
+          'Avenir Next Rounded',
+          'Arial Rounded MT Bold',
+          'Trebuchet MS',
+          sans-serif;
+        font-size: 1.55rem;
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        color: #1d4ed8;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
       }
 
       .toolbar-controls {
@@ -247,7 +241,6 @@
         .panel {
           border-radius: 16px;
         }
-
       }
     </style>
   </head>
@@ -258,9 +251,7 @@
           <section class="panel">
             <div class="sound-toolbar">
               <div class="toolbar-title">
-                <div class="toolbar-kicker">Classroom Widget</div>
-                <h2>Sound Board</h2>
-                <div class="toolbar-subtitle">Tap a tile to play a cue.</div>
+                <h2>Sound Effects</h2>
               </div>
               <div class="toolbar-controls">
                 <div class="toolbar-volume">
@@ -285,7 +276,6 @@
             <div class="sound-grid" id="sound-library"></div>
           </section>
         </section>
-
       </section>
     </main>
 
