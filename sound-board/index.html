@@ -15,6 +15,11 @@
         --brand-dark: #1d4ed8;
         --ring: rgba(37, 99, 235, 0.24);
         --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        --tone-berry: #320e3b;
+        --tone-raspberry: #af1b3f;
+        --tone-olive: #4e6e5d;
+        --tone-blush: #d499b9;
+        --tone-teal: #086375;
       }
 
       * {
@@ -132,20 +137,52 @@
         box-shadow: 0 0 0 3px var(--ring);
       }
 
-      .bell {
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
+      .tone-bell {
+        background: #320e3b;
       }
 
-      .success {
-        background: linear-gradient(135deg, #d1fae5, #86efac);
+      .tone-claps {
+        background: #af1b3f;
       }
 
-      .buzzer {
-        background: linear-gradient(135deg, #ffe4e6, #fda4af);
+      .tone-hype {
+        background: #4e6e5d;
       }
 
-      .attention {
-        background: linear-gradient(135deg, #dbeafe, #93c5fd);
+      .tone-rimshot {
+        background: #d499b9;
+      }
+
+      .tone-gameover {
+        background: #086375;
+      }
+
+      .tone-giggles {
+        background: #320e3b;
+      }
+
+      .tone-yay {
+        background: #af1b3f;
+      }
+
+      .tone-suspense {
+        background: #4e6e5d;
+      }
+
+      .tone-womp {
+        background: #d499b9;
+      }
+
+      .tone-crickets {
+        background: #086375;
+      }
+
+      .tone-evil {
+        background: #320e3b;
+      }
+
+      .tone-airhorn {
+        background: #af1b3f;
       }
 
       .icon {
@@ -155,10 +192,11 @@
         width: 100%;
         height: 100%;
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.72);
+        background: rgba(255, 255, 255, 0.16);
         font-size: clamp(2.9rem, 6vw, 4.6rem);
         line-height: 0.9;
         padding-bottom: 12px;
+        text-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
       }
 
       .sound-label {
@@ -168,8 +206,8 @@
         bottom: 30px;
         padding: 5px 4px 5px;
         border-radius: 9px;
-        background: rgba(255, 255, 255);
-        color: #0f172a;
+        background: rgba(255, 255, 255, 0.82);
+        color: #111827;
         font-size: clamp(0.72rem, 1.55vw, 1.3rem);
         font-weight: 800;
         line-height: 0.9;
@@ -316,84 +354,84 @@
           id: 'school-bell',
           label: 'Bell',
           icon: '🔔',
-          cssClass: 'bell',
+          cssClass: 'tone-yay',
           src: 'sounds/universfield-school-bell-199584.mp3',
         },
         {
           id: 'applause',
           label: 'Claps',
           icon: '👏',
-          cssClass: 'success',
+          cssClass: 'tone-gameover',
           src: 'sounds/freesound_community-applause-2-31567.mp3',
         },
         {
           id: 'ooh-aah',
           label: 'Mm-Hmm...',
           icon: '🎉',
-          cssClass: 'success',
+          cssClass: 'tone-rimshot',
           src: 'sounds/freesound_community-ooh-aah-32733.mp3',
         },
         {
           id: 'rimshot-drum-roll',
           label: 'Ba Dum Bum',
           icon: '🥁',
-          cssClass: 'attention',
+          cssClass: 'tone-claps',
           src: 'sounds/freesound_community-sting-rimshot-drum-roll-smooth-100369.mp3',
         },
         {
           id: 'arcade-game-over',
           label: 'Game Over',
           icon: '🕹️',
-          cssClass: 'buzzer',
+          cssClass: 'tone-evil',
           src: 'sounds/mixkit-arcade-retro-game-over-213.wav',
         },
         {
           id: 'crowd-laughing',
           label: 'Giggles',
           icon: '😂',
-          cssClass: 'success',
+          cssClass: 'tone-bell',
           src: 'sounds/mixkit-big-crowd-laughing-460.wav',
         },
         {
           id: 'funny-yay',
           label: 'Yay',
           icon: '🥳',
-          cssClass: 'success',
+          cssClass: 'tone-crickets',
           src: 'sounds/freesound_community-funny-yay-6273.mp3',
         },
         {
           id: 'suspense',
           label: 'Suspense',
           icon: '⏳',
-          cssClass: 'attention',
+          cssClass: 'tone-hype',
           src: 'sounds/mixkit-game-show-suspense-waiting-667.wav',
         },
         {
           id: 'sad-trombone',
           label: 'Womp Womp',
           icon: '🎺',
-          cssClass: 'buzzer',
+          cssClass: 'tone-airhorn',
           src: 'sounds/mixkit-sad-game-over-trombone-471.wav',
         },
         {
           id: 'cricket',
           label: 'Crickets',
           icon: '🦗',
-          cssClass: 'buzzer',
+          cssClass: 'tone-suspense',
           src: 'sounds/mixkit-small-cricket-screech-1781.wav',
         },
         {
           id: 'maniacal-laughter',
           label: 'Evil Laugh',
           icon: '😈',
-          cssClass: 'attention',
+          cssClass: 'tone-womp',
           src: 'sounds/voicebosch-maniacal-laughter-177313.mp3',
         },
         {
           id: 'air-horn',
           label: 'Air Horn',
           icon: '📣',
-          cssClass: 'bell',
+          cssClass: 'tone-giggles',
           src: 'sounds/waitwhatimsignedin-air-horn-273892.mp3',
         },
       ];
