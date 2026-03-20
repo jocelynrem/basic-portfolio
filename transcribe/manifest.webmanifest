@@ -1,0 +1,10 @@
+{
+  "name": "NoteFlow OCR",
+  "short_name": "NoteFlow",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5efe6",
+  "theme_color": "#133b5c",
+  "description": "Scan handwritten notes, transcribe them, and save them to Google Docs.",
+  "icons": []
+}

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Scan handwritten notes, turn them into typed text, and save the result to Google Docs."
+    />
+    <meta name="theme-color" content="#133b5c" />
+    <title>NoteFlow OCR</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Capture Handwriting</p>
+          <h1>Scan notes to Google Docs.</h1>
+        </div>
+        <button
+          id="install-button"
+          class="secondary-button hidden"
+          type="button"
+        >
+          Install app
+        </button>
+      </header>
+
+      <div
+        id="toast"
+        class="toast hidden"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+      <main class="layout">
+        <section class="card capture-card">
+          <div class="section-heading">
+            <h2>1. Scan a note</h2>
+            <p>Use your camera or choose an existing photo.</p>
+          </div>
+
+          <div class="capture-actions">
+            <label class="capture-action primary-action">
+              <input
+                id="camera-image-input"
+                type="file"
+                accept="image/*"
+                capture="environment"
+              />
+              <span class="capture-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path
+                    d="M9 4.5h6l1.2 2H19A2.5 2.5 0 0 1 21.5 9v8A2.5 2.5 0 0 1 19 19.5H5A2.5 2.5 0 0 1 2.5 17V9A2.5 2.5 0 0 1 5 6.5h2.8L9 4.5Zm3 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+                  />
+                </svg>
+              </span>
+              <span class="capture-action-label">Take photo</span>
+            </label>
+
+            <label class="capture-action">
+              <input id="library-image-input" type="file" accept="image/*" />
+              <span class="capture-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path
+                    d="M5 4.5h14A2.5 2.5 0 0 1 21.5 7v10A2.5 2.5 0 0 1 19 19.5H5A2.5 2.5 0 0 1 2.5 17V7A2.5 2.5 0 0 1 5 4.5Zm0 2A.5.5 0 0 0 4.5 7v10c0 .28.22.5.5.5h14a.5.5 0 0 0 .5-.5V7a.5.5 0 0 0-.5-.5H5Zm2.5 8.75 2.1-2.55a1 1 0 0 1 1.54 0l1.78 2.14 1.34-1.57a1 1 0 0 1 1.52-.01l2.06 2.49H7.5Zm1.75-5.5a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z"
+                  />
+                </svg>
+              </span>
+              <span class="capture-action-label">Select photo</span>
+            </label>
+          </div>
+
+          <div
+            id="upload-feedback"
+            class="upload-feedback hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+          <div
+            id="transcribe-feedback"
+            class="upload-feedback hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <div id="preview-card" class="preview-card empty compact-preview">
+            <img id="preview-image" alt="Selected handwritten note preview" />
+            <p>Your note preview shows up here.</p>
+          </div>
+
+          <div class="actions">
+            <button
+              id="transcribe-button"
+              class="primary-button"
+              type="button"
+              disabled
+            >
+              Transcribe handwriting
+            </button>
+            <button
+              id="reset-image"
+              class="ghost-button"
+              type="button"
+              disabled
+            >
+              Remove image
+            </button>
+          </div>
+        </section>
+
+        <section class="card result-card">
+          <div class="section-heading">
+            <h2>2. Review and export</h2>
+            <p>Edit the transcription before saving it into Docs.</p>
+          </div>
+
+          <div class="actions auth-actions">
+            <button
+              id="google-auth-button"
+              class="secondary-button"
+              type="button"
+            >
+              Sign in with Google
+            </button>
+            <button
+              id="google-signout-button"
+              class="ghost-button"
+              type="button"
+              disabled
+            >
+              Sign out
+            </button>
+            <span id="google-session-label" class="session-label"
+              >Not signed in</span
+            >
+          </div>
+          <div
+            id="google-feedback"
+            class="upload-feedback hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <label class="field">
+            <span>Google Doc title</span>
+            <input id="doc-title" type="text" value="Transcribed Note" />
+          </label>
+
+          <label class="field">
+            <span>Transcribed text</span>
+            <textarea
+              id="transcript-output"
+              rows="14"
+              placeholder="Your typed-up notes will appear here."
+            ></textarea>
+          </label>
+
+          <div class="actions">
+            <button
+              id="save-doc-button"
+              class="primary-button"
+              type="button"
+              disabled
+            >
+              Save to Google Docs
+            </button>
+          </div>
+          <div
+            id="save-feedback"
+            class="upload-feedback hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <div id="doc-link-wrap" class="doc-link-wrap hidden">
+            <a id="doc-link" href="#" target="_blank" rel="noreferrer">
+              Open created Google Doc
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
