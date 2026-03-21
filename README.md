@@ -12,7 +12,6 @@ Static portfolio site for Jocelyn Remington's accessible digital learning and UX
 You can open `index.html` directly in a browser, or serve the folder:
 
 ```bash
-cd /Users/jremington/Desktop/Coding/basic-portfolio
 python3 -m http.server 8000
 ```
 
