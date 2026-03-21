@@ -51,6 +51,20 @@ textarea {
   margin-bottom: 24px;
 }
 
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(19, 59, 92, 0.16);
+  flex: 0 0 auto;
+}
+
 .eyebrow {
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -372,6 +386,25 @@ textarea {
   font-weight: 700;
 }
 
+.app-footer {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  padding: 22px 0 4px;
+}
+
+.app-footer a {
+  color: var(--brand);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-footer a:hover,
+.app-footer a:focus-visible {
+  text-decoration: underline;
+}
+
 .hidden {
   display: none;
 }
@@ -383,6 +416,16 @@ textarea {
 
   .hero {
     flex-direction: column;
+  }
+
+  .brand-lockup {
+    align-items: flex-start;
+  }
+
+  .brand-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
   }
 
   .app-shell {
