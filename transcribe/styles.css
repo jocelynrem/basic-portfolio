@@ -113,6 +113,33 @@ textarea {
   color: var(--muted);
 }
 
+.instruction-callout {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(19, 59, 92, 0.08);
+  border: 1px solid rgba(19, 59, 92, 0.12);
+}
+
+.instruction-callout__title {
+  margin: 0 0 8px;
+  color: var(--brand);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instruction-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink);
+}
+
+.instruction-list li + li {
+  margin-top: 6px;
+}
+
 .stack {
   display: grid;
   gap: 14px;
@@ -226,15 +253,16 @@ textarea {
 .capture-action {
   position: relative;
   display: grid;
-  place-items: center;
-  gap: 10px;
-  aspect-ratio: 1 / 1;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
   border-radius: 20px;
   border: 1px solid rgba(19, 59, 92, 0.18);
   background: var(--panel);
-  padding: 14px;
+  min-height: 96px;
+  padding: 14px 16px;
   cursor: pointer;
-  text-align: center;
+  text-align: left;
 }
 
 .capture-action.primary-action {
@@ -268,9 +296,21 @@ textarea {
 }
 
 .capture-action-label {
+  display: block;
   font-size: 0.98rem;
   font-weight: 800;
   line-height: 1.2;
+}
+
+.capture-action-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.capture-action-hint {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 .preview-card {
@@ -431,6 +471,10 @@ textarea {
 
   .brand-lockup {
     align-items: flex-start;
+  }
+
+  .capture-actions {
+    grid-template-columns: 1fr;
   }
 
   .install-button {

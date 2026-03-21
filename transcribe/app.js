@@ -14,6 +14,7 @@ const state = {
   googleClientId: "",
   googleScriptPromise: null,
   deferredInstallPrompt: null,
+  inlineFeedbackTimers: new Map(),
   toastTimer: null,
 };
 
@@ -53,6 +54,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 function bindEvents() {
   elements.cameraImageInput.addEventListener("change", handleImageSelection);
   elements.libraryImageInput.addEventListener("change", handleImageSelection);
+  elements.cameraImageInput.addEventListener("click", clearImageWorkflowSuccessFeedback);
+  elements.libraryImageInput.addEventListener("click", clearImageWorkflowSuccessFeedback);
   elements.resetImage.addEventListener("click", resetSelectedImage);
   elements.transcribeButton.addEventListener("click", transcribeImage);
   elements.googleAuthButton.addEventListener("click", requestGoogleToken);
@@ -139,6 +142,17 @@ async function handleImageSelection(event) {
 }
 
 function resetSelectedImage(options = {}) {
+  clearSelectedImagePreview();
+  clearUploadFeedback();
+  clearTranscribeFeedback();
+  clearInlineFeedback(elements.saveFeedback);
+
+  if (!options.silent) {
+    showToast("Image removed.", "info");
+  }
+}
+
+function clearSelectedImagePreview() {
   state.imageDataUrl = "";
   elements.cameraImageInput.value = "";
   elements.libraryImageInput.value = "";
@@ -147,13 +161,6 @@ function resetSelectedImage(options = {}) {
   elements.resetImage.disabled = true;
   hideDocLink();
   refreshActionState();
-  clearUploadFeedback();
-  clearTranscribeFeedback();
-  clearInlineFeedback(elements.saveFeedback);
-
-  if (!options.silent) {
-    showToast("Image removed.", "info");
-  }
 }
 
 async function transcribeImage() {
@@ -183,13 +190,20 @@ async function transcribeImage() {
       throw new Error(payload.error || "Transcription failed.");
     }
 
-    elements.transcriptOutput.value = payload.text || "";
+    const addedText = appendTranscriptText(payload.text || "");
     elements.transcriptOutput.focus();
-    elements.transcriptOutput.setSelectionRange(0, 0);
+    const endPosition = elements.transcriptOutput.value.length;
+    elements.transcriptOutput.setSelectionRange(endPosition, endPosition);
     elements.transcriptOutput.scrollIntoView({ behavior: "smooth", block: "start" });
-    refreshActionState();
-    setTranscribeFeedback("Your note was transcribed.", "success");
-    showToast("Transcription complete.", "success");
+    if (addedText) {
+      clearSelectedImagePreview();
+      clearUploadFeedback();
+      setTranscribeFeedback("Your note was added to the transcript.", "success");
+      showToast("Transcription added.", "success");
+    } else {
+      setTranscribeFeedback("No text was found in that note.", "warning");
+      showToast("No text was found in that note.", "warning");
+    }
   } catch (error) {
     console.error(error);
     const message = simplifyTranscriptionError(error);
@@ -198,6 +212,21 @@ async function transcribeImage() {
   } finally {
     setBusy(elements.transcribeButton, false, "Transcribe handwriting");
   }
+}
+
+function appendTranscriptText(text) {
+  const normalizedText = String(text || "").trim();
+
+  if (!normalizedText) {
+    return "";
+  }
+
+  const existingText = elements.transcriptOutput.value.trim();
+  elements.transcriptOutput.value = existingText
+    ? `${existingText}\n\n${normalizedText}`
+    : normalizedText;
+
+  return normalizedText;
 }
 
 function loadGoogleIdentityScript() {
@@ -476,13 +505,47 @@ function simplifyGoogleDocsError(error) {
 }
 
 function setInlineFeedback(element, message, tone = "info") {
+  clearInlineFeedbackTimer(element);
   element.textContent = message;
   element.className = `upload-feedback ${tone}`;
+
+  if (tone === "success") {
+    const timer = window.setTimeout(() => {
+      clearInlineFeedback(element);
+    }, 3200);
+    state.inlineFeedbackTimers.set(element, timer);
+  }
 }
 
 function clearInlineFeedback(element) {
+  clearInlineFeedbackTimer(element);
   element.textContent = "";
   element.className = "upload-feedback hidden";
+}
+
+function clearInlineFeedbackTimer(element) {
+  const timer = state.inlineFeedbackTimers.get(element);
+
+  if (!timer) {
+    return;
+  }
+
+  clearTimeout(timer);
+  state.inlineFeedbackTimers.delete(element);
+}
+
+function clearImageWorkflowSuccessFeedback() {
+  clearSuccessInlineFeedback(elements.uploadFeedback);
+  clearSuccessInlineFeedback(elements.transcribeFeedback);
+  clearSuccessInlineFeedback(elements.saveFeedback);
+}
+
+function clearSuccessInlineFeedback(element) {
+  if (!element.classList.contains("success")) {
+    return;
+  }
+
+  clearInlineFeedback(element);
 }
 
 function showToast(message, tone = "info") {

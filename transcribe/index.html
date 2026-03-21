@@ -44,7 +44,16 @@
         <section class="card capture-card">
           <div class="section-heading">
             <h2>1. Scan a note</h2>
-            <p>Use your camera or choose an existing photo.</p>
+            <p>Use your camera or choose an existing photo, then transcribe one note at a time.</p>
+          </div>
+
+          <div class="instruction-callout">
+            <p class="instruction-callout__title">How it works</p>
+            <ol class="instruction-list">
+              <li>Take or choose a photo of one note page.</li>
+              <li>Tap <strong>Transcribe handwriting</strong> to add it to the text box.</li>
+              <li>Repeat with another photo to keep building the same transcript.</li>
+            </ol>
           </div>
 
           <div class="capture-actions">
@@ -62,7 +71,10 @@
                   />
                 </svg>
               </span>
-              <span class="capture-action-label">Take photo</span>
+              <span class="capture-action-copy">
+                <span class="capture-action-label">Take photo</span>
+                <span class="capture-action-hint">Open the camera for a new page</span>
+              </span>
             </label>
 
             <label class="capture-action">
@@ -74,7 +86,10 @@
                   />
                 </svg>
               </span>
-              <span class="capture-action-label">Select photo</span>
+              <span class="capture-action-copy">
+                <span class="capture-action-label">Select photo</span>
+                <span class="capture-action-hint">Use an image already on your device</span>
+              </span>
             </label>
           </div>
 
@@ -119,7 +134,11 @@
         <section class="card result-card">
           <div class="section-heading">
             <h2>2. Review and export</h2>
-            <p>Edit the transcription before saving it into Docs.</p>
+            <p>
+              Edit the transcription before saving it into Docs. Additional
+              note photos will be added to the bottom of this text area in the
+              order you scan them.
+            </p>
           </div>
 
           <div class="actions auth-actions">
