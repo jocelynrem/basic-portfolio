@@ -12,6 +12,7 @@ const state = {
   oauthToken: "",
   tokenClient: null,
   googleClientId: "",
+  googleScriptPromise: null,
   deferredInstallPrompt: null,
   toastTimer: null,
 };
@@ -43,10 +44,10 @@ const elements = {
 document.addEventListener("DOMContentLoaded", async () => {
   bindEvents();
   registerServiceWorker();
+  syncInstallButtonVisibility();
   setDefaultTitle();
   refreshActionState();
   await loadPublicConfig();
-  initGoogleTokenClientWhenReady();
 });
 
 function bindEvents() {
@@ -64,7 +65,12 @@ function bindEvents() {
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     state.deferredInstallPrompt = event;
-    elements.installButton.classList.remove("hidden");
+    syncInstallButtonVisibility();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    state.deferredInstallPrompt = null;
+    syncInstallButtonVisibility();
   });
 }
 
@@ -194,44 +200,76 @@ async function transcribeImage() {
   }
 }
 
-function initGoogleTokenClientWhenReady() {
-  if (!window.google?.accounts?.oauth2) {
-    window.setTimeout(initGoogleTokenClientWhenReady, 250);
-    return;
+function loadGoogleIdentityScript() {
+  if (window.google?.accounts?.oauth2) {
+    return Promise.resolve();
   }
 
-  if (!state.googleClientId) {
-    window.setTimeout(initGoogleTokenClientWhenReady, 250);
-    return;
+  if (state.googleScriptPromise) {
+    return state.googleScriptPromise;
   }
 
-  state.tokenClient = window.google.accounts.oauth2.initTokenClient({
-    client_id: state.googleClientId,
-    scope: GOOGLE_SCOPES,
-    callback: handleGoogleAuthResponse,
+  state.googleScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Google sign-in failed to load."));
+    document.head.append(script);
   });
+
+  return state.googleScriptPromise;
 }
 
-function requestGoogleToken() {
+async function initGoogleTokenClient() {
+  if (!state.googleClientId) {
+    throw new Error("Google sign-in is not available right now.");
+  }
+
+  await loadGoogleIdentityScript();
+
+  if (!window.google?.accounts?.oauth2) {
+    throw new Error("Google sign-in is still loading. Try again in a moment.");
+  }
+
+  if (!state.tokenClient) {
+    state.tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: state.googleClientId,
+      scope: GOOGLE_SCOPES,
+      callback: handleGoogleAuthResponse,
+    });
+  }
+
+  return state.tokenClient;
+}
+
+async function requestGoogleToken() {
   if (!state.googleClientId) {
     setInlineFeedback(elements.googleFeedback, "Google sign-in is not available right now.", "warning");
     showToast("Google sign-in is not available right now.", "warning");
     return;
   }
 
-  if (!state.tokenClient) {
-    initGoogleTokenClientWhenReady();
+  try {
+    setBusy(elements.googleAuthButton, true, "Loading Google...");
+    const tokenClient = await initGoogleTokenClient();
+    clearInlineFeedback(elements.googleFeedback);
+    tokenClient.requestAccessToken({
+      prompt: state.oauthToken ? "" : "consent",
+    });
+  } catch (error) {
+    console.error(error);
+    const message = error?.message || "Google sign-in is still loading. Try again in a moment.";
+    setInlineFeedback(elements.googleFeedback, message, "warning");
+    showToast(message, "warning");
+  } finally {
+    setBusy(
+      elements.googleAuthButton,
+      false,
+      state.oauthToken ? "Reconnect Google" : "Sign in with Google",
+    );
   }
-
-  if (!state.tokenClient) {
-    setInlineFeedback(elements.googleFeedback, "Google sign-in is still loading. Try again in a moment.", "warning");
-    showToast("Google sign-in is still loading. Try again in a moment.", "warning");
-    return;
-  }
-
-  state.tokenClient.requestAccessToken({
-    prompt: state.oauthToken ? "" : "consent",
-  });
 }
 
 function handleGoogleAuthResponse(response) {
@@ -519,8 +557,20 @@ function promptInstall() {
   state.deferredInstallPrompt.prompt();
   state.deferredInstallPrompt.userChoice.finally(() => {
     state.deferredInstallPrompt = null;
-    elements.installButton.classList.add("hidden");
+    syncInstallButtonVisibility();
   });
+}
+
+function isInstalledApp() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function syncInstallButtonVisibility() {
+  const shouldShow = Boolean(state.deferredInstallPrompt) && !isInstalledApp();
+  elements.installButton.classList.toggle("hidden", !shouldShow);
 }
 
 function registerServiceWorker() {

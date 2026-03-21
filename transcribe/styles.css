@@ -186,6 +186,16 @@ textarea {
   font-weight: 700;
 }
 
+.install-button {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(19, 59, 92, 0.08);
+}
+
 .ghost-button {
   background: transparent;
   border: 1px dashed var(--line);
@@ -416,10 +426,15 @@ textarea {
 
   .hero {
     flex-direction: column;
+    gap: 14px;
   }
 
   .brand-lockup {
     align-items: flex-start;
+  }
+
+  .install-button {
+    align-self: flex-start;
   }
 
   .brand-logo {
