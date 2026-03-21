@@ -1,6 +1,6 @@
 {
-  "name": "NoteFlow OCR",
-  "short_name": "NoteFlow",
+  "name": "Transcribe",
+  "short_name": "Transcribe",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5efe6",

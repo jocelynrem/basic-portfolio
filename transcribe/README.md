@@ -1,194 +1,83 @@
-# NoteFlow OCR
+# Transcribe
 
-Scan handwritten notes in the browser, transcribe them with Gemini, and save the cleaned text into a Google Doc owned by the signed-in user.
+Scan handwritten notes, turn them into typed text, and save the result to Google Docs.
 
-## How it works
+## What it needs
 
-- The browser uploads a note image to a Cloudflare Pages Function.
-- Cloudflare reads `GEMINI_API_KEY` from your Pages environment variables and sends the image to Gemini.
-- The browser receives the transcription and lets the user edit it.
-- The user signs into Google with their own account.
-- The browser creates a Google Doc in that user's Drive and inserts the transcribed text.
+- Cloudflare Pages
+- `GEMINI_API_KEY`
+- `GOOGLE_CLIENT_ID`
+- `GEMINI_MODEL=gemini-flash-latest`
+- Google Docs API enabled
+- Google Drive API enabled
 
-## Project files
+## Cloudflare setup
 
-- [index.html](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/index.html): app markup
-- [styles.css](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/styles.css): app styling
-- [app.js](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/app.js): browser logic
-- [config.js](/Users/jremington/Desktop/Coding/basic-portfolio/functions/transcribe/api/config.js): Google client ID endpoint for `/transcribe/api/config`
-- [transcribe.js](/Users/jremington/Desktop/Coding/basic-portfolio/functions/transcribe/api/transcribe.js): Gemini transcription endpoint for `/transcribe/api/transcribe`
-- [manifest.webmanifest](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/manifest.webmanifest): PWA manifest
-- [sw.js](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/sw.js): service worker
-- [.dev.vars.example](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/.dev.vars.example): local development variables for `wrangler pages dev`
+Deploy this repo from the repo root, not from the `transcribe` folder.
 
-## Requirements
+Use these Cloudflare Pages settings:
 
-- A Gemini API key
-- A Google Cloud project
-- A Google OAuth 2.0 Web application client ID
+- Production branch: `main`
+- Framework preset: `None`
+- Build command: blank
+- Build output directory: `.`
+- Root directory: repo root
 
-## 1. Add Cloudflare environment variables
-
-In Cloudflare Pages for this project, add these environment variables:
+Add these environment variables in Cloudflare Pages:
 
 - `GEMINI_API_KEY`
 - `GOOGLE_CLIENT_ID`
-- `GEMINI_MODEL`
+- `GEMINI_MODEL=gemini-flash-latest`
 
-Recommended value for `GEMINI_MODEL`:
+The app lives at:
 
-```env
-GEMINI_MODEL=gemini-flash-latest
-```
+- `https://jocelynrem.com/transcribe/`
 
-Notes:
-- `GEMINI_API_KEY` stays in Cloudflare and is never exposed to browsers.
-- `GOOGLE_CLIENT_ID` is safe to expose to the browser. It identifies your app for Google sign-in.
+The backend routes are:
 
-## 2. Local development with Cloudflare
+- `https://jocelynrem.com/transcribe/api/config`
+- `https://jocelynrem.com/transcribe/api/transcribe`
 
-For local testing with `wrangler pages dev`, create `.dev.vars` from [.dev.vars.example](/Users/jremington/Desktop/Coding/basic-portfolio/transcribe/.dev.vars.example).
+## Google setup
 
-## 3. Get a Gemini API key
+In Google Cloud:
 
-1. Go to [Google AI Studio](https://aistudio.google.com/).
-2. Open the API key page.
-3. Create a key for your project.
-4. Add it to your Cloudflare Pages environment variables as `GEMINI_API_KEY`.
-
-## 4. Set up Google Cloud for Docs sign-in
-
-### Enable APIs
-
-In your Google Cloud project, enable:
-
-- Google Docs API
-- Google Drive API
-
-### Configure the OAuth consent screen
-
-1. Open Google Cloud Console.
-2. Go to `APIs & Services` > `OAuth consent screen`.
-3. Choose `External` if multiple people outside your organization will use it.
-4. Fill in the app name, support email, and developer contact info.
-5. Add scopes as needed. The app requests:
-   - `.../auth/documents`
-   - `.../auth/drive.file`
+1. Enable `Google Docs API`
+2. Enable `Google Drive API`
+3. Create an OAuth `Web application` client
+4. Add authorized JavaScript origins:
+   - `http://localhost:3000`
+   - `http://127.0.0.1:3000`
+   - `https://jocelynrem.com`
+5. Use these scopes:
    - `openid`
-   - `email`
-   - `profile`
-6. If the app is still in testing mode, add your test users.
+   - `https://www.googleapis.com/auth/userinfo.email`
+   - `https://www.googleapis.com/auth/userinfo.profile`
+   - `https://www.googleapis.com/auth/documents`
+   - `https://www.googleapis.com/auth/drive.file`
 
-### Create the OAuth client
+Use these public URLs for verification:
 
-1. Go to `APIs & Services` > `Credentials`.
-2. Click `Create Credentials`.
-3. Choose `OAuth client ID`.
-4. Choose `Web application`.
-5. Add allowed JavaScript origins for every place you will run the app.
+- Home page: `https://jocelynrem.com/transcribe`
+- Privacy policy: `https://jocelynrem.com/privacy.html`
+- Terms: `https://jocelynrem.com/terms.html`
 
-Examples:
-- `http://localhost:3000`
-- `http://127.0.0.1:3000`
-- Your deployed HTTPS origin later, such as `https://your-domain.com`
+## Local testing
 
-6. Copy the generated client ID into your Cloudflare Pages environment variables as `GOOGLE_CLIENT_ID`.
+Run the Cloudflare dev server from the repo root:
 
-Important:
-- The origin must match exactly, including protocol and port.
-- For production, serve the app over HTTPS.
-
-## 5. Deploy on Cloudflare Pages
-
-In Cloudflare Pages:
-
-1. Create a new Pages project.
-2. Point it at this repo.
-3. Keep the project root as the repo root so the portfolio and `/transcribe` route deploy together.
-4. Build command:
-
-```text
-(leave blank)
+```bash
+cd /Users/jremington/Desktop/Coding/basic-portfolio
+PATH="/usr/local/opt/node@20/bin:$PATH" npm_config_cache=/tmp/wrangler-cache npx wrangler pages dev . --port 3000
 ```
 
-5. Build output directory:
+Then open:
 
-```text
-.
-```
-
-6. Add the environment variables:
-   - `GEMINI_API_KEY`
-   - `GOOGLE_CLIENT_ID`
-   - `GEMINI_MODEL`
-7. Deploy.
-
-The app will then live at:
-
-```text
-https://jocelynrem.com/transcribe/
-```
-
-Its API routes will live at:
-
-```text
-https://jocelynrem.com/transcribe/api/config
-https://jocelynrem.com/transcribe/api/transcribe
-```
-
-## 6. Use the app
-
-1. Open the app in your browser.
-2. Upload or photograph a handwritten note.
-3. Click `Transcribe handwriting`.
-4. Review or edit the text.
-5. Click `Sign in with Google`.
-6. Click `Save to Google Docs`.
-7. Open the created Doc from the link shown in the app.
-
-## Multi-user behavior
-
-- All users share the same Cloudflare-side Gemini key.
-- Each user signs into their own Google account.
-- Each created Doc is saved into the currently signed-in user's Drive.
-- No user's Google token is stored in Cloudflare.
+- `http://localhost:3000/transcribe/`
 
 ## Troubleshooting
 
-### `Google sign-in is not ready yet for this app`
-
-Add `GOOGLE_CLIENT_ID` to your Cloudflare Pages environment variables and redeploy.
-
-### `Transcription failed`
-
-Check:
-
-- `GEMINI_API_KEY` is valid
-- The image is clear and readable
-- `GEMINI_MODEL` is set to `gemini-flash-latest`
-- The Pages deployment includes your latest environment variables
-
-### `Google sign-in was cancelled or failed`
-
-Check:
-
-- The OAuth consent screen is configured
-- Your account is listed as a test user if the app is still in testing
-- Your current origin is added to allowed JavaScript origins
-- `https://jocelynrem.com` is added as an allowed JavaScript origin for production
-
-### `Google Doc creation failed`
-
-Check:
-
-- Google Docs API is enabled
-- Google Drive API is enabled
-- The user granted permissions during sign-in
-- The access token has not expired
-
-## Production notes
-
-- This app now uses Cloudflare Pages Functions for `/api/config` and `/api/transcribe`.
-- If you deploy it publicly, add request limits and abuse protection around `/api/transcribe`.
-- Store secrets only in Cloudflare environment variables, not in committed files.
-- Small documentation-only commits can be used to trigger a fresh deployment when needed.
+- If `/transcribe/api/config` returns 404, the site is not being served by Cloudflare Pages correctly.
+- If transcription fails, check `GEMINI_API_KEY` and `GEMINI_MODEL`.
+- If Google sign-in fails, check the OAuth client origins and test-user settings.
+- If Docs saving fails, make sure the Docs and Drive APIs are enabled.
