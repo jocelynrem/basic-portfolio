@@ -7,5 +7,4 @@
   <rect x="160" y="168" width="192" height="30" rx="15" fill="#133b5c"/>
   <rect x="240" y="168" width="32" height="164" rx="16" fill="#133b5c"/>
   <path d="M176 366h160" fill="none" stroke="#f08a5d" stroke-linecap="round" stroke-width="22"/>
-  <rect x="88" y="144" width="336" height="224" rx="52" fill="none" opacity=".9" stroke="#f0d7bc" stroke-dasharray="20 18" stroke-width="14"/>
 </svg>
