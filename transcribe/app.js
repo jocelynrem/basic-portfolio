@@ -32,6 +32,7 @@ const elements = {
   googleSignoutButton: document.querySelector("#google-signout-button"),
   googleSessionLabel: document.querySelector("#google-session-label"),
   googleFeedback: document.querySelector("#google-feedback"),
+  copyTextButton: document.querySelector("#copy-text-button"),
   saveDocButton: document.querySelector("#save-doc-button"),
   saveFeedback: document.querySelector("#save-feedback"),
   docTitle: document.querySelector("#doc-title"),
@@ -55,6 +56,7 @@ function bindEvents() {
   elements.transcribeButton.addEventListener("click", transcribeImage);
   elements.googleAuthButton.addEventListener("click", requestGoogleToken);
   elements.googleSignoutButton.addEventListener("click", signOutGoogle);
+  elements.copyTextButton.addEventListener("click", copyTranscriptText);
   elements.saveDocButton.addEventListener("click", saveToGoogleDocs);
   elements.installButton.addEventListener("click", promptInstall);
   elements.transcriptOutput.addEventListener("input", refreshActionState);
@@ -176,6 +178,9 @@ async function transcribeImage() {
     }
 
     elements.transcriptOutput.value = payload.text || "";
+    elements.transcriptOutput.focus();
+    elements.transcriptOutput.setSelectionRange(0, 0);
+    elements.transcriptOutput.scrollIntoView({ behavior: "smooth", block: "start" });
     refreshActionState();
     setTranscribeFeedback("Your note was transcribed.", "success");
     showToast("Transcription complete.", "success");
@@ -238,7 +243,7 @@ function handleGoogleAuthResponse(response) {
   }
 
   state.oauthToken = response.access_token;
-  elements.googleSessionLabel.textContent = "Signed in for Google Docs";
+  elements.googleSessionLabel.textContent = "Google connected";
   elements.googleAuthButton.textContent = "Reconnect Google";
   elements.googleSignoutButton.disabled = false;
   setInlineFeedback(elements.googleFeedback, "Signed in to Google Docs.", "success");
@@ -339,7 +344,26 @@ async function saveToGoogleDocs() {
 
 function refreshActionState() {
   elements.transcribeButton.disabled = !state.imageDataUrl;
+  elements.copyTextButton.disabled = !elements.transcriptOutput.value.trim();
   elements.saveDocButton.disabled = !(elements.transcriptOutput.value.trim() && state.oauthToken);
+}
+
+async function copyTranscriptText() {
+  const transcript = elements.transcriptOutput.value.trim();
+
+  if (!transcript) {
+    setTranscribeFeedback("There is no text to copy yet.", "warning");
+    showToast("There is no text to copy yet.", "warning");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(transcript);
+    showToast("Text copied.", "success");
+  } catch (error) {
+    console.error(error);
+    showToast("Copy failed. You can still select the text manually.", "error");
+  }
 }
 
 function setBusy(button, isBusy, label) {
