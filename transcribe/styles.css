@@ -273,6 +273,21 @@ textarea {
   );
 }
 
+.capture-action:hover {
+  transform: translateY(-1px);
+}
+
+.capture-action:focus-within {
+  border-color: var(--brand);
+  box-shadow:
+    0 0 0 3px rgba(19, 59, 92, 0.16),
+    0 0 0 6px rgba(240, 138, 93, 0.2);
+}
+
+.capture-action input:focus-visible {
+  outline: none;
+}
+
 .capture-icon {
   width: 52px;
   height: 52px;
