@@ -23,6 +23,10 @@ body {
   font-family: Georgia, "Times New Roman", serif;
 }
 
+img {
+  max-width: 100%;
+}
+
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -163,6 +167,50 @@ body {
   z-index: 1;
 }
 
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.1rem;
+  padding: 0.55rem 0.8rem 0.55rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(251, 245, 236, 0.12);
+  border: 1px solid rgba(251, 245, 236, 0.18);
+  box-shadow: 0 10px 24px rgba(18, 32, 31, 0.14);
+}
+
+.brand-lockup__mark {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  flex: 0 0 3.25rem;
+}
+
+.brand-lockup__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.brand-lockup__name,
+.brand-lockup__tag {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brand-lockup__name {
+  color: #fff6ee;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.brand-lockup__tag {
+  color: rgba(247, 239, 228, 0.82);
+  font-size: 0.88rem;
+}
+
 .eyebrow,
 .section-kicker {
   color: #9f5d51;
@@ -196,6 +244,15 @@ body {
 
 .portfolio-subtitle {
   color: rgba(247, 239, 228, 0.9) !important;
+}
+
+.hero-supporting-copy {
+  max-width: 42rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  color: rgba(247, 239, 228, 0.78);
+  font-size: 1rem;
+  line-height: 1.75;
 }
 
 .hero-panel,
@@ -269,6 +326,86 @@ body {
   pointer-events: none;
 }
 
+.disclosure-card {
+  padding: 0;
+}
+
+.disclosure-summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem;
+  cursor: pointer;
+}
+
+.disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure-summary .section-kicker,
+.disclosure-summary .section-title,
+.disclosure-summary .disclosure-preview {
+  margin-bottom: 0;
+}
+
+.disclosure-summary .section-title {
+  margin-top: 0.2rem;
+}
+
+.disclosure-preview {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 42rem;
+}
+
+.disclosure-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(201, 133, 53, 0.14);
+  color: var(--deep-moss);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.disclosure-chip::before {
+  content: "+";
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.disclosure-chip__open {
+  display: none;
+}
+
+.disclosure-card[open] .disclosure-chip::before {
+  content: "−";
+}
+
+.disclosure-card[open] .disclosure-chip__closed {
+  display: none;
+}
+
+.disclosure-card[open] .disclosure-chip__open {
+  display: inline;
+}
+
+.disclosure-content {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.disclosure-card:not([open]) .disclosure-summary {
+  padding-bottom: 1.55rem;
+}
+
 .portrait-frame {
   width: 12rem;
   height: 12rem;
@@ -327,6 +464,16 @@ body {
   font-size: 1.1rem;
   line-height: 1.75;
   font-weight: 500;
+}
+
+.project-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+.project-grid__item {
+  min-width: 0;
 }
 
 .project-card {
@@ -394,6 +541,13 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.project-emblem img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .project-card .section-kicker {
@@ -464,6 +618,18 @@ body {
   box-shadow:
     0 0 0 3px rgba(35, 58, 57, 0.16),
     0 0 0 6px rgba(201, 133, 53, 0.24);
+}
+
+@media screen and (min-width: 769px) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .project-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .button.is-link {
@@ -619,10 +785,28 @@ body {
 }
 
 @media (max-width: 768px) {
+  .disclosure-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .presentation-banner {
     padding: 0.75rem 0.9rem;
     flex-direction: column;
     gap: 0.2rem;
+  }
+
+  .brand-lockup {
+    width: 100%;
+    max-width: 28rem;
+    border-radius: 1.1rem;
+    align-items: flex-start;
+  }
+
+  .brand-lockup__mark {
+    width: 3rem;
+    height: 3rem;
+    flex-basis: 3rem;
   }
 
   .presentation-banner__text {
@@ -685,5 +869,10 @@ body {
   .portfolio-subtitle {
     font-size: 1.1rem !important;
     line-height: 1.65;
+  }
+
+  .hero-supporting-copy {
+    font-size: 0.98rem;
+    line-height: 1.68;
   }
 }

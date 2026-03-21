@@ -1,6 +1,6 @@
-# Basic Portfolio
+# Jocelyn Remington Portfolio
 
-Simple static portfolio prototype built with:
+Static portfolio site for Jocelyn Remington's accessible digital learning and UX work, built with:
 
 - HTML
 - Bulma

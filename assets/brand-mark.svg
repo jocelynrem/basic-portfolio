@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Jocelyn Remington brand mark</title>
+  <desc id="desc">A modern sans-serif J brand mark in warm neutral colors.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#143434" />
+      <stop offset="100%" stop-color="#315e5f" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d79d8f" />
+      <stop offset="100%" stop-color="#c98535" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#bg)" />
+  <path
+    d="M76 28v47c0 17.121-13.879 31-31 31c-10.707 0-19.992-5.432-25.5-14"
+    fill="none"
+    stroke="url(#accent)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="16"
+  />
+</svg>

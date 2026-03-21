@@ -3,11 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jocelyn Remington Portfolio</title>
+    <title>Jocelyn Remington | Digital Learning & UX</title>
     <meta
       name="description"
-      content="Portfolio for Jocelyn Remington, digital accessibility specialist, educator, and former UX/UI developer."
+      content="Portfolio for Jocelyn Remington featuring accessible digital learning, design systems, educator support, and UX-focused web projects."
     />
+    <meta name="theme-color" content="#143434" />
+    <meta
+      property="og:title"
+      content="Jocelyn Remington | Digital Learning & UX"
+    />
+    <meta
+      property="og:description"
+      content="Accessible digital learning, educator support, and UX-minded web work for students, families, and schools."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/IMG_7518.JPG" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Jocelyn Remington | Digital Learning & UX"
+    />
+    <meta
+      name="twitter:description"
+      content="Accessible digital learning, educator support, and UX-minded web work for students, families, and schools."
+    />
+    <meta name="twitter:image" content="./assets/IMG_7518.JPG" />
+    <link rel="icon" type="image/svg+xml" href="./assets/brand-mark.svg" />
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-1PY3PWPCF4"
@@ -63,17 +85,17 @@
               <p class="subtitle is-4 portfolio-subtitle">
                 Design systems specialist, educator, and UX/UI developer with
                 experience supporting accessible technology in K-12 schools and
-                creating thoughtful digital experiences for schools, families,
-                and public-facing work.
+                creating thoughtful digital experiences for students and
+                educators.
               </p>
             </div>
             <div class="column is-4-desktop">
               <div class="hero-panel">
-                <p class="panel-label">Focus Areas</p>
+                <p class="panel-label">Brand Focus</p>
                 <ul>
-                  <li>WCAG-informed content and design</li>
+                  <li>Accessible digital learning experiences</li>
                   <li>Educator training and technology guidance</li>
-                  <li>Usability-minded content and digital tools</li>
+                  <li>Design systems and usability-minded front-end work</li>
                 </ul>
               </div>
             </div>
@@ -86,16 +108,89 @@
       <section id="portfolio" class="section pt-0">
         <div class="container">
           <div class="section-heading">
-            <p class="section-kicker">Developer Portfolio</p>
+            <p class="section-kicker">Featured Work</p>
             <h2 class="title is-3 section-title">Recent Projects</h2>
             <p class="section-copy">
-              Recent work centered on digital experiences for students,
-              families, and educators.
+              A selection of projects shaped by accessibility, classroom
+              usability, and learning-centered product thinking.
             </p>
           </div>
 
-          <div class="columns is-multiline">
-            <div class="column is-6-tablet is-one-fifth-desktop">
+          <div class="project-grid">
+            <div class="project-grid__item">
+              <article class="card project-card project-card--transcribe">
+                <div class="card-content">
+                  <div class="project-emblem" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 512 512"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect width="512" height="512" rx="120" fill="#133b5c" />
+                      <rect
+                        x="108"
+                        y="82"
+                        width="296"
+                        height="348"
+                        rx="42"
+                        fill="#fff7ee"
+                      />
+                      <path d="M330 82v86h74" fill="#f0d7bc" />
+                      <rect
+                        x="160"
+                        y="168"
+                        width="192"
+                        height="30"
+                        rx="15"
+                        fill="#133b5c"
+                      />
+                      <rect
+                        x="240"
+                        y="168"
+                        width="32"
+                        height="164"
+                        rx="16"
+                        fill="#133b5c"
+                      />
+                      <path
+                        d="M176 366h160"
+                        fill="none"
+                        stroke="#f08a5d"
+                        stroke-linecap="round"
+                        stroke-width="22"
+                      />
+                    </svg>
+                  </div>
+                  <p class="section-kicker">For Educators</p>
+                  <h3 class="title is-4 section-title">Transcribe</h3>
+                  <p class="content">
+                    Mobile-friendly handwriting capture app that turns note
+                    photos into editable text and saves them to Google Docs.
+                  </p>
+                </div>
+                <footer class="card-footer">
+                  <a
+                    class="card-footer-item"
+                    href="/transcribe/"
+                    aria-label="View the Transcribe project."
+                  >
+                    View Project
+                    <svg
+                      class="external-link-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M14 3h7v7h-2V6.41l-9.29 9.3l-1.42-1.42l9.3-9.29H14V3zm5 16V12h2v9H3V3h9v2H5v14h14z"
+                      />
+                    </svg>
+                  </a>
+                </footer>
+              </article>
+            </div>
+
+            <div class="project-grid__item">
               <article class="card project-card project-card--ncties">
                 <div class="card-content">
                   <div class="project-emblem" aria-hidden="true">
@@ -242,7 +337,7 @@
                       </g>
                     </svg>
                   </div>
-                  <p class="section-kicker">Educator Training</p>
+                  <p class="section-kicker">For Educators</p>
                   <h3 class="title is-4 section-title">NCTies</h3>
                   <p class="content">
                     Beginner-friendly workshop pages for learning AI web design
@@ -274,7 +369,7 @@
               </article>
             </div>
 
-            <div class="column is-6-tablet is-one-fifth-desktop">
+            <div class="project-grid__item">
               <article class="card project-card project-card--ozobot">
                 <div class="card-content">
                   <div class="project-emblem" aria-hidden="true">
@@ -478,137 +573,16 @@
               </article>
             </div>
 
-            <div class="column is-6-tablet is-one-fifth-desktop">
+            <div class="project-grid__item">
               <article class="card project-card project-card--nature-scout">
                 <div class="card-content">
                   <div class="project-emblem" aria-hidden="true">
-                    <svg
-                      viewBox="0 0 512 512"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g>
-                        <polygon
-                          points="366.48,402.12 366.48,462.12 156.49,462.12 156.49,402.12 256.49,402.12 296.48,402.12"
-                          fill="#9b7b58"
-                        ></polygon>
-                        <polygon
-                          points="167.821,413.62 267.82,413.62 307.811,413.62 366.48,413.62 366.48,402.12 296.48,402.12 256.49,402.12 156.49,402.12 156.49,462.12 167.821,462.12"
-                          fill="#7e5b3e"
-                        ></polygon>
-                        <path
-                          d="M220.687,377.025c-43.586,0-87.214-15.685-121.586-47.204l-17.439,18.007c-1.922,1.983-5.087,2.034-7.07,0.113 s-2.034-5.087-0.113-7.07l20.87-21.55c0.923-0.952,2.186-1.5,3.512-1.521c1.327-0.049,2.606,0.486,3.559,1.408 c67.323,65.219,175.162,63.515,240.391-3.799c31.596-32.615,48.602-75.582,47.883-120.985 c-0.719-45.403-19.076-87.809-51.69-119.404c-0.953-0.923-1.5-2.186-1.521-3.512c-0.021-1.326,0.485-2.606,1.408-3.558 L359.77,46.4c1.922-1.983,5.088-2.032,7.07-0.111c1.983,1.921,2.033,5.087,0.111,7.07l-17.447,18.008 c32.317,33.05,50.453,76.496,51.188,122.9c0.761,48.073-17.245,93.568-50.7,128.101 C314.742,358.745,267.739,377.025,220.687,377.025z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M256.49,407.12c-2.761,0-5-2.238-5-5V369.06c0-2.762,2.239-5,5-5c2.762,0,5,2.238,5,5v33.061 C261.49,404.882,259.252,407.12,256.49,407.12z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M296.48,407.12c-2.762,0-5-2.238-5-5v-40c0-2.762,2.238-5,5-5s5,2.238,5,5v40 C301.48,404.882,299.242,407.12,296.48,407.12z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M366.48,467.12c-2.762,0-5-2.238-5-5v-55H161.49v55c0,2.762-2.239,5-5,5s-5-2.238-5-5v-60c0-2.762,2.239-5,5-5h209.99 c2.762,0,5,2.238,5,5v60C371.48,464.882,369.242,467.12,366.48,467.12z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M436.48,467.12H76.49c-2.761,0-5-2.238-5-5s2.239-5,5-5h359.99c2.762,0,5,2.238,5,5S439.242,467.12,436.48,467.12z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M186.963,263.922l-29.041,52.101c-19.689-10.978-25.912-40.713-19.28-77.152 c15.388,7.011,31.278,15.189,47.273,24.446C186.262,263.517,186.617,263.722,186.963,263.922z"
-                          fill="#8fc8a0"
-                        ></path>
-                        <path
-                          d="M183.444,270.235c-12.958-7.193-25.801-13.677-38.309-19.375 c-3.983,21.885-3.323,41.346,2.101,55.783c3.607,9.582,9.311,16.951,17.164,21.329l29.041-52.1 c-0.346-0.2-0.701-0.406-1.047-0.606c-2.812-1.627-5.619-3.209-8.423-4.77L183.444,270.235z"
-                          fill="#74b58b"
-                        ></path>
-                        <path
-                          d="M232.159,293.196c-27.028,23.826-54.902,33.6-74.236,22.826l29.041-52.101 C203.146,273.333,218.306,283.192,232.159,293.196z"
-                          fill="#bddda3"
-                        ></path>
-                        <path
-                          d="M279.088,332.311c-39.536,16.393-85.909,15.207-126.198-7.253 c-0.697-0.392-1.386-0.779-2.069-1.175c-40.542-23.46-65.547-63.685-71.15-106.972c18.099,5.043,38.073,12.432,58.972,21.959 c-6.632,36.439-0.41,66.174,19.28,77.152c19.334,10.773,47.208,1,74.236-22.826C250.205,306.215,266.054,319.477,279.088,332.311z"
-                          fill="#99cce0"
-                        ></path>
-                        <path
-                          d="M350.137,268.992c-16.528,29.66-41.934,51.261-71.049,63.318 c-13.034-12.834-28.883-26.096-46.929-39.114c17.6-15.5,34.829-36.967,49.113-62.588c0.005-0.008,0.015-0.025,0.021-0.035 L350.137,268.992z"
-                          fill="#c8e6cb"
-                        ></path>
-                        <path
-                          d="M281.292,230.573c-0.006,0.009-0.016,0.026-0.021,0.035 c-14.284,25.622-31.513,47.088-49.113,62.588c-13.853-10.004-29.013-19.863-45.196-29.274l36.553-65.581L281.292,230.573z"
-                          fill="#8fc8a0"
-                        ></path>
-                        <path
-                          d="M223.516,198.341l-36.553,65.581c-0.346-0.2-0.701-0.405-1.047-0.605 c-15.995-9.256-31.886-17.435-47.273-24.446c4.117-22.607,13.172-47.8,27.048-72.675c0.015-0.026,0.035-0.061,0.05-0.087 L223.516,198.341z"
-                          fill="#9fd8ee"
-                        ></path>
-                        <path
-                          d="M138.643,238.871c-20.898-9.527-40.873-16.917-58.972-21.959c-3.858-29.73,1.436-60.9,17.154-89.1 c0.025-0.043,0.045-0.078,0.07-0.121l68.846,38.418c-0.015,0.026-0.035,0.061-0.05,0.087 C151.815,191.071,142.76,216.263,138.643,238.871z"
-                          fill="#c8e6cb"
-                        ></path>
-                        <path
-                          d="M158.504,68.764c13.255,13.61,29.8,27.806,48.892,41.753 c-14.97,14.709-29.405,33.624-41.655,55.591L96.895,127.69C111.628,101.313,133.373,81.326,158.504,68.764z"
-                          fill="#bddda3"
-                        ></path>
-                        <path
-                          d="M350.137,268.992l-68.845-38.419c11.853-21.262,20.19-42.757,24.923-62.675 c22.149,9.941,43.221,17.432,62.041,22.245C369.797,216.709,364.053,244.025,350.137,268.992z"
-                          fill="#8fc8a0"
-                        ></path>
-                        <path
-                          d="M281.292,230.573l-57.776-32.232l31.612-56.724c0.303,0.175,0.605,0.351,0.909,0.526 c17.008,9.842,33.88,18.461,50.178,25.756C301.482,187.816,293.145,209.311,281.292,230.573z"
-                          fill="#bddda3"
-                        ></path>
-                        <path
-                          d="M255.128,141.617l-31.612,56.724l-57.775-32.232c12.25-21.968,26.685-40.882,41.655-55.591 C221.936,121.15,237.959,131.635,255.128,141.617z"
-                          fill="#99cce0"
-                        ></path>
-                        <path
-                          d="M289.039,80.78l-33.911,60.836c-17.169-9.982-33.192-20.467-47.732-31.099 C236.634,81.754,267.933,69.017,289.039,80.78z"
-                          fill="#c8e6cb"
-                        ></path>
-                        <path
-                          d="M289.039,80.78c21.467,11.96,26.912,46.214,17.176,87.118 c-16.298-7.294-33.17-15.914-50.178-25.756c-0.303-0.175-0.606-0.351-0.909-0.526L289.039,80.78z"
-                          fill="#8fc8a0"
-                        ></path>
-                        <path
-                          d="M294.071,71.746c44.981,25.071,71.415,70.535,74.185,118.398 c-18.82-4.813-39.892-12.304-62.041-22.245c9.736-40.904,4.291-75.158-17.176-87.118L294.071,71.746z"
-                          fill="#bddda3"
-                        ></path>
-                        <path
-                          d="M294.071,71.746l-5.032,9.035c-21.106-11.763-52.405,0.974-81.643,29.737 c-19.092-13.948-35.636-28.143-48.892-41.753C199.931,48.048,250.558,47.491,294.071,71.746z"
-                          fill="#99cce0"
-                        ></path>
-                        <path
-                          d="M154.957,320.088c-20.496-11.86-28.433-42.557-21.233-82.113c4.375-24.026,13.919-49.688,27.6-74.215l0.09-0.156 c12.022-21.56,26.725-41.174,42.479-56.654c32.24-31.716,64.981-43.133,87.582-30.538c0.18,0.101,0.36,0.203,0.54,0.307 c22.589,13.072,29.716,47.59,19.064,92.337c-4.972,20.923-13.762,43.039-25.42,63.951c-0.012,0.023-0.046,0.082-0.059,0.104 c-14.089,25.271-31.439,47.369-50.137,63.836c-30.038,26.48-59.188,35.024-79.974,23.441L154.957,320.088z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M94.389,132.018c-2.358-1.365-3.193-4.375-1.86-6.763c1.345-2.411,4.391-3.275,6.802-1.93l253.242,141.301 c0.023,0.013,0.047,0.026,0.069,0.04c2.358,1.364,3.193,4.375,1.86,6.763c-1.347,2.412-4.392,3.275-6.802,1.93L94.458,132.057 C94.436,132.044,94.412,132.031,94.389,132.018z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M77.17,221.241c-1.301-0.752-2.249-2.081-2.457-3.686c-4.155-32.02,1.98-63.895,17.745-92.178l0.11-0.19 c14.714-26.346,36.755-47.425,63.702-60.896c2.47-1.234,5.473-0.233,6.708,2.238c1.234,2.47,0.233,5.473-2.237,6.708 c-25.143,12.568-45.71,32.241-59.479,56.892l-0.107,0.187c-14.673,26.327-20.4,56.072-16.524,85.952 c0.356,2.738-1.576,5.246-4.314,5.602C79.181,222.017,78.088,221.772,77.17,221.241z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M276.58,336.637c-0.917-0.531-1.674-1.357-2.111-2.412c-1.057-2.552,0.155-5.477,2.706-6.533 c29.365-12.162,53.085-33.301,68.595-61.133c12.982-23.295,19.032-49.618,17.494-76.125c-0.16-2.756,1.945-5.122,4.702-5.282 c2.758-0.159,5.121,1.946,5.281,4.702c1.648,28.409-4.832,56.616-18.743,81.572c-16.617,29.82-42.034,52.472-73.502,65.505 C279.506,337.55,277.882,337.39,276.58,336.637z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M253.533,146.47l-0.909-0.526c-17.005-9.885-33.211-20.446-48.179-31.391c-19.145-13.988-35.807-28.221-49.522-42.301 c-1.114-1.143-1.615-2.749-1.349-4.322c0.266-1.572,1.267-2.925,2.693-3.638c44.461-22.234,96.887-21.08,140.238,3.086 c45.042,25.098,73.767,71.063,76.741,122.476c0.092,1.592-0.582,3.134-1.813,4.148c-1.231,1.014-2.872,1.38-4.418,0.984 c-19.521-4.991-40.665-12.571-62.85-22.527C287.41,164.96,270.372,156.215,253.533,146.47z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M148.316,328.211c-40.725-23.567-67.552-63.9-73.604-110.658c-0.216-1.663,0.417-3.323,1.685-4.421 c1.268-1.098,3.001-1.488,4.616-1.038c18.689,5.208,38.776,12.686,59.704,22.227c15.835,7.214,31.886,15.514,47.703,24.667 l1.047,0.606c16.024,9.319,31.37,19.259,45.619,29.548c18.088,13.049,34.073,26.375,47.511,39.605 c1.194,1.177,1.72,2.873,1.399,4.519s-1.444,3.021-2.993,3.663c-42.672,17.692-90.255,14.956-130.547-7.505 C149.713,329.008,149.012,328.613,148.316,328.211z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M155.417,320.35c-2.357-1.364-3.193-4.373-1.861-6.762L289.703,69.313c1.343-2.411,4.388-3.278,6.801-1.935 c2.449,1.355,3.278,4.389,1.936,6.801L162.29,318.457c-1.344,2.412-4.389,3.277-6.802,1.933 C155.464,320.377,155.44,320.363,155.417,320.35z"
-                          fill="#302923"
-                        ></path>
-                      </g>
-                    </svg>
+                    <img
+                      src="./assets/project-icons/nature-scout-icon.png"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                   <p class="section-kicker">For Students</p>
                   <h3 class="title is-4 section-title">Nature Scout</h3>
@@ -642,7 +616,7 @@
               </article>
             </div>
 
-            <div class="column is-6-tablet is-one-fifth-desktop">
+            <div class="project-grid__item">
               <article class="card project-card project-card--vle-tech">
                 <div class="card-content">
                   <div class="project-emblem" aria-hidden="true">
@@ -787,133 +761,16 @@
               </article>
             </div>
 
-            <div class="column is-6-tablet is-one-fifth-desktop">
+            <div class="project-grid__item">
               <article class="card project-card project-card--zoologist">
                 <div class="card-content">
                   <div class="project-emblem" aria-hidden="true">
-                    <svg
-                      viewBox="0 0 512 512"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g>
-                        <path
-                          d="M21,161c81.6-44.17,147.51-73.99,233.82-120L491,161h-50H71H21z"
-                          fill="#f6eee0"
-                        ></path>
-                        <path
-                          d="M257.486,51.333L473.328,161H491L254.82,41C168.51,87.01,102.6,116.83,21,161h21.961 C115.935,122.297,178.082,93.662,257.486,51.333z"
-                          fill="#e9dcc6"
-                        ></path>
-                        <polygon
-                          points="451,431 451,471 61,471 61,431 91.56,431 420.44,431"
-                          fill="#6f665c"
-                        ></polygon>
-                        <polygon
-                          points="69.667,440.833 100.227,440.833 429.107,440.833 451,440.833 451,431 420.44,431 91.56,431 61,431 61,471 69.667,471"
-                          fill="#302923"
-                        ></polygon>
-                        <polygon
-                          points="420.44,391 420.44,431 91.56,431 91.56,391 111,391 161,391 231,391 281,391 351,391 401,391"
-                          fill="#f6eee0"
-                        ></polygon>
-                        <polygon
-                          points="100.227,399.834 119.667,399.834 169.667,399.834 239.667,399.834 289.667,399.834 359.667,399.834 409.667,399.834 420.44,399.834 420.44,391 401,391 351,391 281,391 231,391 161,391 111,391 91.56,391 91.56,431 100.227,431"
-                          fill="#e9dcc6"
-                        ></polygon>
-                        <polygon
-                          points="441,161 441,201 70.45,201 71,161"
-                          fill="#6f665c"
-                        ></polygon>
-                        <polygon
-                          points="80,171.333 441,171.333 441,161 71,161 70.45,201 79.592,201"
-                          fill="#5a4c41"
-                        ></polygon>
-                        <path
-                          d="M401,256v135h-50V256c0-13.81,11.19-25,25-25c6.9,0,13.16,2.8,17.68,7.32 C398.2,242.84,401,249.1,401,256z"
-                          fill="#d3bb7d"
-                        ></path>
-                        <path
-                          d="M360.72,263.666c0-13.81,11.19-25,25-25c3.608,0,7.038,0.771,10.138,2.148 c-0.672-0.878-1.397-1.714-2.178-2.495C389.16,233.8,382.9,231,376,231c-13.81,0-25,11.19-25,25v135h9.72V263.666z"
-                          fill="#b49456"
-                        ></path>
-                        <path
-                          d="M281,256v135h-50V256c0-13.81,11.19-25,25-25c6.9,0,13.16,2.8,17.68,7.32 C278.2,242.84,281,249.1,281,256z"
-                          fill="#d3bb7d"
-                        ></path>
-                        <path
-                          d="M239.333,265.333c0-13.81,11.19-25,25-25c5.134,0,9.911,1.552,13.883,4.207 c-1.19-2.305-2.722-4.405-4.537-6.22C269.16,233.8,262.9,231,256,231c-13.81,0-25,11.19-25,25v135h8.333V265.333z"
-                          fill="#b49456"
-                        ></path>
-                        <path
-                          d="M161,256v135h-50V256c0-13.81,11.19-25,25-25c6.9,0,13.16,2.8,17.68,7.32S161,249.1,161,256z"
-                          fill="#d3bb7d"
-                        ></path>
-                        <path
-                          d="M120.667,266c0-13.81,11.19-25,25-25c4.525,0,8.771,1.21,12.436,3.314 c-1.174-2.217-2.666-4.238-4.422-5.994C149.16,233.8,142.9,231,136,231c-13.81,0-25,11.19-25,25v135h9.667V266z"
-                          fill="#b49456"
-                        ></path>
-                        <path
-                          d="M256,81c13.81,0,25,11.19,25,25s-11.19,25-25,25c-13.81,0-25-11.19-25-25S242.19,81,256,81z"
-                          fill="#c98535"
-                        ></path>
-                        <path
-                          d="M238.333,118c0-13.81,11.19-25,25-25c6.471,0,12.365,2.457,16.805,6.489 C277.273,88.838,267.557,81,256,81c-13.81,0-25,11.19-25,25c0,7.339,3.161,13.938,8.195,18.511 C238.636,122.435,238.333,120.253,238.333,118z"
-                          fill="#a96e27"
-                        ></path>
-                        <path
-                          d="M441,206H70.45c-1.338,0-2.62-0.536-3.56-1.489c-0.94-0.953-1.458-2.242-1.44-3.58l0.55-40 c0.038-2.738,2.269-4.931,4.998-4.931c0.023,0,0.047,0,0.07,0c2.761,0.038,4.969,2.307,4.931,5.068L75.52,196H436v-35 c0-2.761,2.238-5,5-5s5,2.239,5,5v40C446,203.761,443.762,206,441,206z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M91.56,436c-2.761,0-5-2.238-5-5v-40c0-2.762,2.239-5,5-5H111c2.761,0,5,2.238,5,5s-2.239,5-5,5H96.56v35 C96.56,433.762,94.321,436,91.56,436z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M231,396h-70c-2.761,0-5-2.238-5-5s2.239-5,5-5h70c2.761,0,5,2.238,5,5S233.761,396,231,396z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M351,396h-70c-2.762,0-5-2.238-5-5s2.238-5,5-5h70c2.762,0,5,2.238,5,5S353.762,396,351,396z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M420.44,436c-2.762,0-5-2.238-5-5v-35H401c-2.762,0-5-2.238-5-5s2.238-5,5-5h19.44c2.762,0,5,2.238,5,5v40 C425.44,433.762,423.202,436,420.44,436z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M161,396h-50c-2.761,0-5-2.238-5-5V256c0-16.542,13.458-30,30-30c8.017,0,15.551,3.12,21.216,8.784S166,247.983,166,256 v135C166,393.762,163.761,396,161,396z M116,386h40V256c0-5.345-2.08-10.369-5.855-14.145S141.345,236,136,236 c-11.028,0-20,8.972-20,20V386z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M491,166H21c-2.289,0-4.285-1.554-4.847-3.772c-0.562-2.218,0.455-4.535,2.467-5.625 c42.55-23.032,80.129-41.813,119.914-61.697c35.698-17.841,72.612-36.29,113.934-58.318c1.44-0.768,3.163-0.784,4.617-0.045 l236.18,120c2.063,1.047,3.137,3.373,2.598,5.622C495.324,164.414,493.313,166,491,166z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M281,396h-50c-2.761,0-5-2.238-5-5V256c0-16.542,13.458-30,30-30c8.017,0,15.552,3.12,21.216,8.785 C282.88,240.449,286,247.983,286,256v135C286,393.762,283.762,396,281,396z M236,386h40V256c0-5.346-2.079-10.369-5.855-14.145 S261.346,236,256,236c-11.028,0-20,8.972-20,20V386z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M401,396h-50c-2.762,0-5-2.238-5-5V256c0-16.542,13.458-30,30-30c8.017,0,15.552,3.12,21.216,8.785 C402.88,240.449,406,247.983,406,256v135C406,393.762,403.762,396,401,396z M356,386h40V256c0-5.346-2.079-10.369-5.855-14.145 S381.346,236,376,236c-11.028,0-20,8.972-20,20V386z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M451,476c-2.762,0-5-2.238-5-5v-35H66v35c0,2.762-2.239,5-5,5s-5-2.238-5-5v-40c0-2.762,2.239-5,5-5h390 c2.762,0,5,2.238,5,5v40C456,473.762,453.762,476,451,476z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M256,136c-16.542,0-30-13.458-30-30s13.458-30,30-30s30,13.458,30,30S272.542,136,256,136z M256,86 c-11.028,0-20,8.972-20,20s8.972,20,20,20c11.028,0,20-8.972,20-20S267.028,86,256,86z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M146,137.33H76c-2.761,0-5-2.239-5-5s2.239-5,5-5h70c2.761,0,5,2.239,5,5S148.761,137.33,146,137.33z"
-                          fill="#302923"
-                        ></path>
-                        <path
-                          d="M491,476H21c-2.761,0-5-2.238-5-5s2.239-5,5-5h470c2.762,0,5,2.238,5,5S493.762,476,491,476z"
-                          fill="#302923"
-                        ></path>
-                      </g>
-                    </svg>
+                    <img
+                      src="./assets/project-icons/zoologist-academy-icon.png"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                   <p class="section-kicker">For students</p>
                   <h3 class="title is-4 section-title">Zoologist Academy</h3>
@@ -952,183 +809,219 @@
 
       <section class="section pt-0">
         <div class="container">
-          <div class="box surface-card">
-            <div class="columns is-variable is-5 is-vcentered">
-              <div class="column is-5-desktop">
-                <div class="ux-sample-stage">
-                  <p class="section-kicker">UX Samples</p>
-                  <div
-                    class="sample-display"
-                    id="sample-display"
-                    aria-live="polite"
-                  >
-                    <img
-                      id="sample-image"
-                      src="./assets/ux-display/0y8vLSS9pqIkvnb7.png"
-                      alt="Selected UX design sample from Jocelyn Remington's portfolio"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="column is-7-desktop ux-sample-copy">
-                <p class="section-kicker">UX / UI</p>
+          <details class="box surface-card disclosure-card">
+            <summary class="disclosure-summary">
+              <div>
+                <p class="section-kicker">UX Samples</p>
                 <h2 class="title is-4 section-title">
                   Selected Design Samples
                 </h2>
-                <p class="content lead-copy">
-                  These samples showcase a user-centered design approach with a
-                  strong focus on clarity, accessibility, and practical visual
-                  hierarchy.
+                <p class="disclosure-preview">
+                  Peek at a curated set of UI and accessibility-focused design
+                  samples.
                 </p>
-                <p class="content project-meta ux-sample-note">
-                  Select a sample below to view it more closely.
-                </p>
-                <div class="sample-grid">
-                  <button
-                    class="sample-thumb is-active"
-                    type="button"
-                    data-sample="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
-                    aria-label="View UX sample 1"
-                    aria-pressed="true"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/0y8vLSS9pqIkvnb7.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/SdwD0OzyTssplcgW.png"
-                    aria-label="View UX sample 2"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/SdwD0OzyTssplcgW.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/UsONhL2AKCENq1SP.png"
-                    aria-label="View UX sample 3"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/UsONhL2AKCENq1SP.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/fjtXe8MoewuV5aS4.gif"
-                    aria-label="View UX sample 4"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/fjtXe8MoewuV5aS4.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/hTsrbz46woXtF1yo.gif"
-                    aria-label="View UX sample 5"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/hTsrbz46woXtF1yo.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/lv41crwJb0tu8eVn.png"
-                    aria-label="View UX sample 6"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/lv41crwJb0tu8eVn.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                  <button
-                    class="sample-thumb"
-                    type="button"
-                    data-sample="./assets/ux-samples/rYfjqQYPBzxrxJJz.png"
-                    aria-label="View UX sample 7"
-                    aria-pressed="false"
-                  >
-                    <img
-                      src="./assets/ux-thumbs/rYfjqQYPBzxrxJJz.png"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
+              </div>
+              <span class="disclosure-chip" aria-hidden="true">
+                <span class="disclosure-chip__closed">Show</span>
+                <span class="disclosure-chip__open">Hide</span>
+              </span>
+            </summary>
+
+            <div class="disclosure-content">
+              <div class="columns is-variable is-5 is-vcentered">
+                <div class="column is-5-desktop">
+                  <div class="ux-sample-stage">
+                    <div
+                      class="sample-display"
+                      id="sample-display"
+                      aria-live="polite"
+                    >
+                      <img
+                        id="sample-image"
+                        src="./assets/ux-display/0y8vLSS9pqIkvnb7.png"
+                        alt="Selected UX design sample from Jocelyn Remington's portfolio"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="column is-7-desktop ux-sample-copy">
+                  <p class="section-kicker">UX / UI</p>
+                  <h3 class="title is-4 section-title">
+                    Selected Design Samples
+                  </h3>
+                  <p class="content lead-copy">
+                    These samples showcase a user-centered design approach with
+                    a strong focus on clarity, accessibility, and practical
+                    visual hierarchy.
+                  </p>
+                  <p class="content project-meta ux-sample-note">
+                    Select a sample below to view it more closely.
+                  </p>
+                  <div class="sample-grid">
+                    <button
+                      class="sample-thumb is-active"
+                      type="button"
+                      data-sample="./assets/ux-samples/0y8vLSS9pqIkvnb7.png"
+                      aria-label="View UX sample 1"
+                      aria-pressed="true"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/0y8vLSS9pqIkvnb7.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/SdwD0OzyTssplcgW.png"
+                      aria-label="View UX sample 2"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/SdwD0OzyTssplcgW.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/UsONhL2AKCENq1SP.png"
+                      aria-label="View UX sample 3"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/UsONhL2AKCENq1SP.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/fjtXe8MoewuV5aS4.gif"
+                      aria-label="View UX sample 4"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/fjtXe8MoewuV5aS4.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/hTsrbz46woXtF1yo.gif"
+                      aria-label="View UX sample 5"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/hTsrbz46woXtF1yo.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/lv41crwJb0tu8eVn.png"
+                      aria-label="View UX sample 6"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/lv41crwJb0tu8eVn.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                    <button
+                      class="sample-thumb"
+                      type="button"
+                      data-sample="./assets/ux-samples/rYfjqQYPBzxrxJJz.png"
+                      aria-label="View UX sample 7"
+                      aria-pressed="false"
+                    >
+                      <img
+                        src="./assets/ux-thumbs/rYfjqQYPBzxrxJJz.png"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </details>
         </div>
       </section>
 
       <section id="resume" class="section pt-0 pb-6">
         <div class="container">
-          <div class="box surface-card">
-            <div class="columns is-variable is-5 is-vcentered">
-              <div class="column is-narrow">
-                <a
-                  href="https://docs.google.com/document/d/1EXa5iFyinKh5faImrttYxJuqe4G8j8VMO66CiqANvVM/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open Jocelyn Remington's resume in Google Docs. Opens in a new tab."
-                >
-                  <figure class="image portrait-frame resume-frame">
-                    <img
-                      src="./assets/resume.png"
-                      alt="Preview of Jocelyn Remington's resume. Opens the full resume in Google Docs."
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </figure>
-                </a>
-              </div>
-              <div class="column">
+          <details class="box surface-card disclosure-card">
+            <summary class="disclosure-summary">
+              <div>
                 <p class="section-kicker">Resume</p>
                 <h2 class="title is-3 section-title">Experience Snapshot</h2>
-                <p class="content lead-copy">
-                  Accessibility-minded design reviews, WCAG 2.1-informed content
-                  decisions, accessible document practices, and cross-functional
-                  collaboration with educators, stakeholders, and digital teams.
-                </p>
-                <p class="content project-meta mb-0">
-                  <strong>Skills:</strong> WCAG 2.1 AA, Section 508, ADA
-                  Awareness, Universal Design, Accessibility Review, VPAT
-                  Familiarity, Figma, Adobe CC, HTML5, CSS, JavaScript, React,
-                  CSS Frameworks, UX/UI Design Systems
+                <p class="disclosure-preview">
+                  A quick view of accessibility, design systems, and front-end
+                  experience across education-focused work.
                 </p>
               </div>
+              <span class="disclosure-chip" aria-hidden="true">
+                <span class="disclosure-chip__closed">Show</span>
+                <span class="disclosure-chip__open">Hide</span>
+              </span>
+            </summary>
+
+            <div class="disclosure-content">
+              <div class="columns is-variable is-5 is-vcentered">
+                <div class="column is-narrow">
+                  <a
+                    href="https://docs.google.com/document/d/1EXa5iFyinKh5faImrttYxJuqe4G8j8VMO66CiqANvVM/edit?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open Jocelyn Remington's resume in Google Docs. Opens in a new tab."
+                  >
+                    <figure class="image portrait-frame resume-frame">
+                      <img
+                        src="./assets/resume.png"
+                        alt="Preview of Jocelyn Remington's resume. Opens the full resume in Google Docs."
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </figure>
+                  </a>
+                </div>
+                <div class="column">
+                  <p class="section-kicker">Resume</p>
+                  <h3 class="title is-3 section-title">Experience Snapshot</h3>
+                  <p class="content lead-copy">
+                    Accessibility-minded design reviews, WCAG 2.1-informed
+                    content decisions, accessible document practices, and
+                    cross-functional collaboration with educators, stakeholders,
+                    and digital teams.
+                  </p>
+                  <p class="content project-meta mb-0">
+                    <strong>Skills:</strong> WCAG 2.1 AA, Section 508, ADA
+                    Awareness, Universal Design, Accessibility Review, VPAT
+                    Familiarity, Figma, Adobe CC, HTML5, CSS, JavaScript, React,
+                    CSS Frameworks, UX/UI Design Systems
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </details>
         </div>
       </section>
     </main>
@@ -1137,8 +1030,8 @@
       <div class="container">
         <div class="site-footer__inner">
           <p class="site-footer__copy">
-            Let&apos;s connect about accessibility, thoughtful design, and
-            digital learning.
+            Jocelyn Remington builds accessible digital learning experiences,
+            thoughtful interfaces, and practical tools for schools and families.
           </p>
           <div class="contact-links">
             <a
