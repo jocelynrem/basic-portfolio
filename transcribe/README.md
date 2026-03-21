@@ -191,3 +191,4 @@ Check:
 - This app now uses Cloudflare Pages Functions for `/api/config` and `/api/transcribe`.
 - If you deploy it publicly, add request limits and abuse protection around `/api/transcribe`.
 - Store secrets only in Cloudflare environment variables, not in committed files.
+- Small documentation-only commits can be used to trigger a fresh deployment when needed.
