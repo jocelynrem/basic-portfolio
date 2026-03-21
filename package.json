@@ -2,6 +2,7 @@
   "name": "basic-portfolio",
   "private": true,
   "scripts": {
+    "setup:transcribe-dev": "cp -n transcribe/.dev.vars.example .dev.vars && echo 'Created .dev.vars at the repo root. Fill in your real keys before running dev:pages.'",
     "dev:pages": "wrangler pages dev . --port 3000"
   },
   "devDependencies": {

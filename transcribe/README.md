@@ -64,11 +64,24 @@ Use these public URLs for verification:
 
 ## Local testing
 
+Wrangler reads `.dev.vars` from the repo root when you run the dev server from the repo root.
+
+Create the local env file once:
+
+```bash
+npm run setup:transcribe-dev
+```
+
+Then edit `/Users/jremington/Desktop/Coding/basic-portfolio/.dev.vars` and add your real values for:
+
+- `GEMINI_API_KEY`
+- `GOOGLE_CLIENT_ID`
+- `GEMINI_MODEL=gemini-flash-latest`
+
 Run the Cloudflare dev server from the repo root:
 
 ```bash
-cd /Users/jremington/Desktop/Coding/basic-portfolio
-PATH="/usr/local/opt/node@20/bin:$PATH" npm_config_cache=/tmp/wrangler-cache npx wrangler pages dev . --port 3000
+npm run dev:pages
 ```
 
 Then open:
@@ -78,6 +91,7 @@ Then open:
 ## Troubleshooting
 
 - If `/transcribe/api/config` returns 404, the site is not being served by Cloudflare Pages correctly.
+- If Google sign-in says it is unavailable locally, make sure `.dev.vars` is in the repo root, not only in `transcribe/.dev.vars`.
 - If transcription fails, check `GEMINI_API_KEY` and `GEMINI_MODEL`.
 - If Google sign-in fails, check the OAuth client origins and test-user settings.
 - If Docs saving fails, make sure the Docs and Drive APIs are enabled.
