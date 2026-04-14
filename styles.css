@@ -737,6 +737,10 @@ img {
   .project-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .widget-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .button.is-link {

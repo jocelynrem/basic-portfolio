@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bee-Bot Alphabet Mat | Jocelyn Remington</title>
+    <link rel="stylesheet" href="styles.css?v=20260414-1036" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="board-card">
+        <div class="card-heading">
+          <div>
+            <p class="eyebrow">Classroom Widget</p>
+            <h1>Bee-Bot Alphabet Mat</h1>
+          </div>
+          <p class="lead">
+            Build a program by tapping Bee-Bot on the mat. Press GO to run it,
+            drag Bee-Bot back to START to run again, and press X to clear the
+            program.
+          </p>
+        </div>
+
+        <section class="program-panel">
+          <section class="sequence-card" aria-label="Program sequence">
+            <div class="sequence-header">
+              <span class="program-pill">Program</span>
+              <span class="sequence-count" id="sequence-count">0 steps</span>
+            </div>
+
+            <div class="sequence-list empty" id="sequence-list">
+              <p class="sequence-placeholder">
+                Tap Bee-Bot's arrow buttons to build a path.
+              </p>
+            </div>
+          </section>
+
+          <p id="status-message" class="sr-only" aria-live="polite">
+            Bee-Bot is ready on the START square.
+          </p>
+        </section>
+
+        <div class="mat-stage" id="mat-stage" aria-label="Bee-Bot alphabet mat">
+          <img
+            class="mat-image"
+            src="assets/mat.png"
+            alt="Alphabet mat with Bee-Bot start square"
+            draggable="false"
+          />
+          <div class="drag-highlight" id="drag-highlight" aria-hidden="true"></div>
+          <div class="beebot-token" id="beebot-token" role="group" aria-label="Bee-Bot on the mat">
+            <div class="beebot-shell" aria-label="Tap Bee-Bot's buttons on the mat">
+              <img
+                class="beebot-photo"
+                src="assets/beebot-clean.png"
+                alt=""
+                draggable="false"
+              />
+              <button class="hotspot forward mat-hotspot" data-command="forward" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-forward.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Add forward</span>
+              </button>
+              <button class="hotspot left mat-hotspot" data-command="left" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-left.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Turn left</span>
+              </button>
+              <button class="hotspot go mat-hotspot" data-command="go" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-go.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Run program</span>
+              </button>
+              <button class="hotspot right mat-hotspot" data-command="right" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-right.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Turn right</span>
+              </button>
+              <button class="hotspot clear mat-hotspot" data-command="clear" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-clear.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Clear program and return to start</span>
+              </button>
+              <button class="hotspot pause mat-hotspot" data-command="pause" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-pause.svg"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Add pause</span>
+              </button>
+              <button class="hotspot backward mat-hotspot" data-command="backward" type="button">
+                <img
+                  class="button-overlay-icon"
+                  src="assets/button-backward.png"
+                  alt=""
+                  draggable="false"
+                />
+                <span class="sr-only">Add backward</span>
+              </button>
+            </div>
+            <button
+              class="drag-handle"
+              id="drag-handle"
+              type="button"
+              aria-label="Drag Bee-Bot back to the START square"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 2.5v19M2.5 12h19M6.5 6.5l2-2m7 0 2 2m0 11-2 2m-7 0-2-2"
+                />
+              </svg>
+              <span class="sr-only">Drag Bee-Bot back to the START square</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js?v=20260414-1036" defer></script>
+  </body>
+</html>
