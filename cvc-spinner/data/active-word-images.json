@@ -1,0 +1,122 @@
+[
+  {
+    "word": "bag",
+    "vowel": "a",
+    "imageLabel": "bag",
+    "imagePath": "assets/words/bag.svg"
+  },
+  {
+    "word": "bat",
+    "vowel": "a",
+    "imageLabel": "bat",
+    "imagePath": "assets/words/bat.svg"
+  },
+  {
+    "word": "cat",
+    "vowel": "a",
+    "imageLabel": "cat",
+    "imagePath": "assets/words/cat.svg"
+  },
+  {
+    "word": "hat",
+    "vowel": "a",
+    "imageLabel": "hat",
+    "imagePath": "assets/words/hat.svg"
+  },
+  {
+    "word": "bed",
+    "vowel": "e",
+    "imageLabel": "bed",
+    "imagePath": "assets/words/bed.svg"
+  },
+  {
+    "word": "hen",
+    "vowel": "e",
+    "imageLabel": "hen",
+    "imagePath": "assets/words/hen.svg"
+  },
+  {
+    "word": "jet",
+    "vowel": "e",
+    "imageLabel": "jet",
+    "imagePath": "assets/words/jet.svg"
+  },
+  {
+    "word": "web",
+    "vowel": "e",
+    "imageLabel": "web",
+    "imagePath": "assets/words/web.svg"
+  },
+  {
+    "word": "bib",
+    "vowel": "i",
+    "imageLabel": "bib",
+    "imagePath": "assets/words/bib.svg"
+  },
+  {
+    "word": "fin",
+    "vowel": "i",
+    "imageLabel": "fin",
+    "imagePath": "assets/words/fin.svg"
+  },
+  {
+    "word": "pig",
+    "vowel": "i",
+    "imageLabel": "pig",
+    "imagePath": "assets/words/pig.svg"
+  },
+  {
+    "word": "pin",
+    "vowel": "i",
+    "imageLabel": "pin",
+    "imagePath": "assets/words/pin.svg"
+  },
+  {
+    "word": "dog",
+    "vowel": "o",
+    "imageLabel": "dog",
+    "imagePath": "assets/words/dog.svg"
+  },
+  {
+    "word": "log",
+    "vowel": "o",
+    "imageLabel": "log",
+    "imagePath": "assets/words/log.svg"
+  },
+  {
+    "word": "mop",
+    "vowel": "o",
+    "imageLabel": "mop",
+    "imagePath": "assets/words/mop.svg"
+  },
+  {
+    "word": "pot",
+    "vowel": "o",
+    "imageLabel": "pot",
+    "imagePath": "assets/words/pot.svg"
+  },
+  {
+    "word": "bus",
+    "vowel": "u",
+    "imageLabel": "bus",
+    "imagePath": "assets/words/bus.svg"
+  },
+  {
+    "word": "bug",
+    "vowel": "u",
+    "imageLabel": "bug",
+    "imagePath": "assets/words/bug.svg"
+  },
+  {
+    "word": "mug",
+    "vowel": "u",
+    "imageLabel": "mug",
+    "imagePath": "assets/words/mug.svg"
+  },
+  {
+    "word": "sun",
+    "vowel": "u",
+    "imageLabel": "sun",
+    "imagePath": "assets/words/sun.svg"
+  }
+]

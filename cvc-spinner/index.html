@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CVC Spinner | Jocelyn Remington</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="widget-layout">
+        <section class="viewer-panel" aria-live="polite">
+          <article class="slide-card" id="slide-card">
+            <div
+              class="image-frame"
+              id="scan-surface"
+              tabindex="0"
+              role="button"
+              aria-label="Scan to a new image"
+            >
+              <img id="word-image" alt="" />
+              <div class="image-fallback" id="image-fallback" hidden></div>
+            </div>
+
+            <div class="slide-copy">
+              <div class="answer-toolbar">
+                <button class="reveal-button" id="reveal-button" type="button">
+                  Show
+                </button>
+              </div>
+              <div class="answer-details is-hidden" id="answer-details">
+                <p class="phonics-pill" id="phonics-pill">Short a</p>
+                <h2 class="word-title" id="word-title">bag</h2>
+                <div class="letter-row" id="letter-row" aria-label="Word letters"></div>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
