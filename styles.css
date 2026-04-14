@@ -625,8 +625,110 @@ img {
     0 0 0 6px rgba(201, 133, 53, 0.24);
 }
 
+
+.widget-shelf {
+  margin-top: 1.65rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid rgba(48, 41, 35, 0.12);
+}
+
+.widget-shelf__intro {
+  margin-bottom: 0.95rem;
+}
+
+.widget-shelf__copy {
+  margin: 0;
+  max-width: 42rem;
+  color: var(--copy);
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.widget-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+.widget-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 100%;
+  padding: 1rem 1.1rem 1.05rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.92), rgba(247, 238, 226, 0.92));
+  border: 1px solid rgba(48, 41, 35, 0.12);
+  box-shadow:
+    0 10px 20px rgba(48, 41, 35, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.widget-card:hover,
+.widget-card:focus-within {
+  transform: translateY(-0.12rem);
+  border-color: rgba(201, 133, 53, 0.32);
+  box-shadow:
+    0 14px 24px rgba(48, 41, 35, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.widget-card__badge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.28rem 0.62rem;
+  border-radius: 999px;
+  background: rgba(35, 58, 57, 0.08);
+  color: var(--deep-moss);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.widget-card__title {
+  margin: 0;
+  color: var(--deep-moss);
+  font-size: 1.03rem;
+  line-height: 1.15;
+}
+
+.widget-card__copy {
+  margin: 0;
+  color: var(--copy);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.widget-card__link {
+  align-self: flex-start;
+  margin-top: auto;
+  color: var(--deep-moss);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.widget-card__link:hover,
+.widget-card__link:focus-visible {
+  color: var(--dusty-rose);
+}
+
+.widget-card__link:focus-visible {
+  outline: none;
+  box-shadow: 0 2px 0 rgba(191, 111, 96, 0.3);
+}
+
 @media screen and (min-width: 769px) {
   .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .widget-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
