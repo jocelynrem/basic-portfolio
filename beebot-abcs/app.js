@@ -23,6 +23,9 @@ const COMMANDS = {
   pause: { label: "Pause", icon: "assets/button-pause.svg" },
 };
 
+const MAT_ASPECT_RATIO = 4 / 5;
+const MIN_STAGE_HEIGHT = 220;
+
 const state = {
   row: START.row,
   col: START.col,
@@ -48,6 +51,10 @@ const statusMessage = document.getElementById("status-message");
 const sequenceCount = document.getElementById("sequence-count");
 const sequenceList = document.getElementById("sequence-list");
 const hotspotButtons = Array.from(document.querySelectorAll(".hotspot"));
+const cardHeading = document.querySelector(".card-heading");
+const boardLayout = document.querySelector(".board-layout");
+const programPanel = document.querySelector(".program-panel");
+const sequenceCard = document.querySelector(".sequence-card");
 
 function getAudioContext() {
   if (!AudioContextClass) {
@@ -211,6 +218,54 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function getPaddingSize(element, startSide, endSide) {
+  const styles = window.getComputedStyle(element);
+  return (
+    Number.parseFloat(styles[startSide] || "0") +
+    Number.parseFloat(styles[endSide] || "0")
+  );
+}
+
+function syncViewportLayout() {
+  if (!stage || !cardHeading || !boardLayout || !programPanel || !sequenceCard) {
+    return;
+  }
+
+  const layoutVerticalPadding = getPaddingSize(boardLayout, "paddingTop", "paddingBottom");
+  const layoutHorizontalPadding = getPaddingSize(boardLayout, "paddingLeft", "paddingRight");
+  const boardGap = Number.parseFloat(window.getComputedStyle(boardLayout).gap || "0");
+  const isStacked = window.getComputedStyle(boardLayout).flexDirection === "column";
+  const contentWidth = Math.max(boardLayout.clientWidth - layoutHorizontalPadding, 0);
+  const contentHeight = Math.max(boardLayout.clientHeight - layoutVerticalPadding, 0);
+  const availableWidth = isStacked
+    ? contentWidth
+    : Math.max(
+        contentWidth - cardHeading.offsetWidth - programPanel.offsetWidth - boardGap * 2,
+        0
+      );
+  const availableHeight = Math.max(
+    contentHeight - (isStacked ? cardHeading.offsetHeight + programPanel.offsetHeight + boardGap * 2 : 0),
+    MIN_STAGE_HEIGHT
+  );
+  const nextHeight = Math.max(
+    MIN_STAGE_HEIGHT,
+    Math.min(availableHeight, availableWidth / MAT_ASPECT_RATIO)
+  );
+  const nextWidth = nextHeight * MAT_ASPECT_RATIO;
+
+  stage.style.width = `${Math.max(nextWidth, 0)}px`;
+  stage.style.height = `${Math.max(nextHeight, 0)}px`;
+
+  if (isStacked) {
+    programPanel.style.height = "";
+    sequenceCard.style.height = "";
+    return;
+  }
+
+  programPanel.style.height = `${Math.max(nextHeight, 0)}px`;
+  sequenceCard.style.height = `${Math.max(nextHeight, 0)}px`;
+}
+
 function setStatus(message) {
   statusMessage.textContent = message;
 }
@@ -242,8 +297,9 @@ function renderSequence(activeIndex = -1) {
   if (!state.sequence.length) {
     sequenceList.className = "sequence-list empty";
     sequenceList.innerHTML =
-      '<p class="sequence-placeholder">Tap Bee-Bot\'s arrow buttons to build a path.</p>';
+      '<p class="sequence-placeholder">Tap Bee-Bot\'s arrows to stack a path.</p>';
     updateInfo();
+    syncViewportLayout();
     return;
   }
 
@@ -263,6 +319,7 @@ function renderSequence(activeIndex = -1) {
     .join("");
 
   updateInfo();
+  syncViewportLayout();
 }
 
 function updateHighlight(visible, ready = false) {
@@ -536,9 +593,11 @@ window.addEventListener(
 );
 
 window.addEventListener("resize", () => {
+  syncViewportLayout();
   updateBeeBotPosition();
 });
 
+syncViewportLayout();
 updateBeeBotPosition();
 renderSequence();
 updateInfo();

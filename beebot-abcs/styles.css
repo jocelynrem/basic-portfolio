@@ -19,10 +19,13 @@
 html,
 body {
   margin: 0;
+  height: 100%;
   min-height: 100%;
 }
 
 body {
+  min-height: 100dvh;
+  overflow: hidden;
   font-family: "Avenir Next", "Trebuchet MS", sans-serif;
   color: var(--ink);
   background:
@@ -40,9 +43,11 @@ select {
 
 .app-shell {
   width: min(1180px, calc(100vw - 2rem));
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   margin: 0 auto;
-  padding: 1.5rem 0 2rem;
+  padding: clamp(0.55rem, 1.6vh, 1.5rem) 0 clamp(0.7rem, 2vh, 2rem);
+  display: flex;
 }
 
 .board-card {
@@ -52,26 +57,31 @@ select {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
   padding: 1.4rem;
-}
-
-.card-heading,
-.sequence-header {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: start;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .card-heading {
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+  display: flex;
+  width: clamp(172px, 20vw, 238px);
+  flex: 0 0 clamp(172px, 20vw, 238px);
+  min-height: 0;
+}
+
+.heading-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
 }
 
 .eyebrow {
-  margin: 0 0 0.3rem;
-  font-size: 0.78rem;
+  margin: 0;
+  font-size: 0.6rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #905e00;
 }
@@ -85,7 +95,7 @@ p {
 
 h1,
 h2 {
-  font-size: clamp(1.8rem, 2.6vw, 2.7rem);
+  font-size: clamp(1.16rem, 1.85vw, 1.5rem);
   line-height: 1.02;
 }
 
@@ -94,31 +104,47 @@ h3 {
 }
 
 .lead {
-  max-width: 30rem;
-  font-size: 1rem;
-  line-height: 1.45;
+  max-width: none;
+  font-size: 0.81rem;
+  line-height: 1.28;
   color: rgba(31, 27, 22, 0.8);
 }
 
+.board-layout {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+  min-height: 0;
+  width: 100%;
+  align-items: stretch;
+  padding: 0.35rem 0;
+}
+
 .program-panel {
-  margin-bottom: 1.2rem;
+  width: clamp(88px, 9vw, 102px);
+  flex: 0 0 clamp(88px, 9vw, 102px);
+  min-height: 0;
+  align-self: stretch;
 }
 
 .mat-stage {
   position: relative;
   width: min(100%, 860px);
-  margin: 0 auto;
-  border-radius: 28px;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  border-radius: 0;
   overflow: visible;
   background: var(--chalk);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  flex: 0 1 auto;
 }
 
 .mat-image {
   display: block;
   width: 100%;
-  height: auto;
-  border-radius: 28px;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
   user-select: none;
 }
 
@@ -218,7 +244,7 @@ h3 {
 .drag-handle {
   position: absolute;
   left: 50%;
-  top: calc(100% + 0.35rem);
+  top: calc(100% - 0.42rem);
   transform: translateX(-50%);
   width: 42px;
   height: 42px;
@@ -342,62 +368,69 @@ h3 {
 
 .sequence-card {
   width: 100%;
-  padding: 0.8rem 0.9rem 0.9rem;
+  height: 100%;
+  padding: 0.38rem 0.34rem;
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid rgba(33, 47, 77, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .sequence-header {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.program-pill {
-  padding: 0.34rem 0.62rem;
-  border-radius: 999px;
-  background: rgba(31, 27, 22, 0.08);
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
 }
 
 .sequence-count {
-  align-self: center;
-  padding: 0.34rem 0.62rem;
-  border-radius: 999px;
+  padding: 0.22rem 0.3rem;
+  border-radius: 10px;
   background: rgba(255, 217, 92, 0.36);
-  font-size: 0.8rem;
+  font-size: 0.58rem;
   font-weight: 800;
+  text-align: center;
+  flex-shrink: 0;
+  margin-bottom: 0.3rem;
 }
 
 .sequence-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.65rem;
-  min-height: 70px;
+  flex: 1;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0.22rem;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.08rem;
 }
 
 .sequence-list.empty {
-  display: block;
+  display: flex;
 }
 
 .sequence-placeholder {
-  padding: 1rem;
-  border-radius: 18px;
+  min-height: 100%;
+  padding: 0.55rem 0.35rem;
+  border-radius: 12px;
   color: rgba(31, 27, 22, 0.72);
   background: rgba(223, 244, 255, 0.65);
+  font-size: 0.63rem;
+  line-height: 1.16;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sequence-item {
-  width: 72px;
-  min-width: 72px;
-  padding: 0.48rem 0.12rem 0.42rem;
-  border-radius: 16px;
+  width: 100%;
+  min-width: 0;
+  padding: 0.22rem 0.12rem 0.2rem;
+  border-radius: 10px;
   background: #fff9e1;
   border: 1px solid rgba(144, 94, 0, 0.12);
   text-align: center;
@@ -408,22 +441,22 @@ h3 {
 }
 
 .sequence-item.active {
-  transform: translateY(-4px);
+  transform: translateX(-3px);
   background: #dff4ff;
   box-shadow: 0 14px 18px rgba(11, 86, 151, 0.14);
 }
 
 .sequence-item img {
-  width: 42px;
-  height: 42px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
 .step-label {
   display: block;
-  margin-top: 0.28rem;
-  font-size: 0.72rem;
-  line-height: 1.08;
+  margin-top: 0.14rem;
+  font-size: 0.5rem;
+  line-height: 1.04;
   font-weight: 700;
 }
 
@@ -450,8 +483,18 @@ h3 {
     border-radius: 24px;
   }
 
+  .card-heading {
+    width: 150px;
+    flex-basis: 150px;
+  }
+
+  .board-layout {
+    gap: 0.2rem;
+  }
+
   .program-panel {
-    margin-bottom: 1rem;
+    width: 82px;
+    flex-basis: 82px;
   }
 
   .drag-handle {
@@ -460,15 +503,66 @@ h3 {
   }
 }
 
-@media (max-width: 520px) {
+@media (max-height: 860px) {
+  .lead {
+    font-size: 0.74rem;
+    line-height: 1.16;
+  }
+
+  .sequence-card {
+    padding: 0.32rem 0.28rem;
+  }
+
   .sequence-item {
-    width: 68px;
-    min-width: 68px;
+    padding: 0.18rem 0.1rem 0.16rem;
+  }
+
+  .sequence-item img {
+    width: 22px;
+    height: 22px;
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 560px) {
+  .board-layout {
+    flex-direction: column;
+  }
+
+  .program-panel {
+    width: 100%;
+    flex: 0 0 auto;
+    align-self: auto;
+  }
+
+  .card-heading {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .sequence-card {
+    height: auto;
+  }
+
+  .sequence-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-height: 70px;
+    max-height: min(17dvh, 126px);
+  }
+
+  .sequence-list.empty {
+    display: block;
+  }
+
+  .sequence-placeholder {
+    min-height: auto;
+  }
+
   .sequence-item {
-    width: calc(20% - 0.45rem);
+    width: calc(33.333% - 0.3rem);
+  }
+
+  .sequence-count {
+    margin-bottom: 0.45rem;
   }
 }
