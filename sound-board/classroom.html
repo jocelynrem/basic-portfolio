@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf9f6">
+  <title>Sound Machine · Classroom</title>
+  <link rel="stylesheet" href="classroom.css">
+  <script src="classroom-sounds.js" defer></script>
+  <script src="soundboard.js" defer></script>
+</head>
+<body class="classroom-page">
+  <a class="skip-link" href="#sound-board">Skip to sounds</a>
+  <header class="site-header">
+    <a class="brand" href="classroom.html" aria-label="Sound Machine classroom home"><span class="brand-icon" aria-hidden="true">♫</span><span>sound machine<span class="brand-subtitle">Fun feedback for your class</span></span></a>
+    <nav aria-label="Choose your experience"><a href="index.html">Classic widget <span aria-hidden="true">↗</span></a><span class="current-view">Classroom edition</span></nav>
+  </header>
+  <main>
+    <div class="board-toolbar" id="sound-board">
+      <div><h1>Classroom sounds</h1><p>Click a sound. Have some fun.</p></div>
+      <label class="names-toggle"><input type="checkbox" id="show-names"> Show sound names</label>
+    </div>
+    <section class="sound-section celebration-section" aria-labelledby="celebration-heading">
+      <div class="section-title"><div class="section-heading"><span class="section-symbol" aria-hidden="true">✦</span><h2 id="celebration-heading">You did it!</h2></div><span class="section-note">6 sounds <span aria-hidden="true">↗</span></span></div>
+      <div class="sound-grid" id="celebration-sounds"></div>
+    </section>
+    <section class="sound-section reset-section" aria-labelledby="reset-heading">
+      <div class="section-title"><div class="section-heading"><span class="section-symbol" aria-hidden="true">↺</span><h2 id="reset-heading">Oops, not quite</h2></div><span class="section-note">6 sounds <span aria-hidden="true">♡</span></span></div>
+      <div class="sound-grid" id="reset-sounds"></div>
+    </section>
+    <section class="playback-bar" aria-label="Playback controls">
+      <div class="playback-state"><span class="status-dot" aria-hidden="true"></span><p id="playback-status" role="status" aria-live="polite">Ready when you are.</p></div>
+      <div class="playback-controls"><div class="volume"><label for="volume"><span>Volume</span><output id="volume-value" for="volume">40%</output></label><input id="volume" type="range" min="0" max="100" step="5" value="40"></div><button id="stop-sound-btn" class="stop" type="button" title="Stop sound (Escape)"><span aria-hidden="true">■</span> Stop sound <kbd>esc</kbd></button></div>
+    </section>
+    <footer><span>Teacher controls · Esc to stop</span><span>12 sounds <span aria-hidden="true">·</span> 4 seconds or less <span aria-hidden="true">·</span> One at a time</span></footer>
+  </main>
+</body>
+</html>
