@@ -1,5 +1,6 @@
 :root { font-family: 'Avenir Next', 'Segoe UI', sans-serif; color: #302e43; background: #faf9f6; font-synthesis: none; --purple: #6951a2; --muted: #757181; }
 * { box-sizing: border-box; }
+.sound-name.always-visible { display: block; }
 body { margin: 0; }
 a { color: inherit; }
 button, input { font: inherit; }

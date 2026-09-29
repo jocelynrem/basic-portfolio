@@ -49,11 +49,14 @@ const soundLibrary = [
   },
   {
     "id": "game-show-suspense",
-    "label": "Game Show Suspense",
+    "label": "Quick Task",
+    "description": "10 seconds of game-show suspense for a quick transition or task.",
+    "alwaysShowLabel": true,
+    "displayLabel": "Quick Task · 10s",
     "icon": "⏳",
     "category": "reset",
     "cssClass": "attention",
-    "src": "sounds/optimized/game-show-suspense.wav"
+    "src": "sounds/optimized/game-show-suspense.wav?v=2"
   },
   {
     "id": "arcade-game-over",

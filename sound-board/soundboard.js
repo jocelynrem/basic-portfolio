@@ -43,13 +43,13 @@ const volumeInput = document.getElementById('volume');
       button.type = 'button';
       button.className = 'sound-btn ' + sound.cssClass;
       button.dataset.sound = sound.id;
-      button.setAttribute('aria-label', 'Play ' + sound.label);
-      button.title = sound.label;
+      button.setAttribute('aria-label', 'Play ' + sound.label + (sound.description ? '. ' + sound.description : ''));
+      button.title = sound.description || sound.label;
       button.innerHTML = '<span class="icon" aria-hidden="true">' + sound.icon + '</span>';
       if (document.body.classList.contains('classroom-page')) {
         const label = document.createElement('span');
-        label.className = 'sound-name';
-        label.textContent = sound.label;
+        label.className = 'sound-name' + (sound.alwaysShowLabel ? ' always-visible' : '');
+        label.textContent = sound.displayLabel || sound.label;
         button.appendChild(label);
       }
       button.addEventListener('click', () => playLibrarySound(sound, button));
