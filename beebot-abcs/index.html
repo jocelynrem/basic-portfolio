@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bee-Bot Alphabet Mat | Jocelyn Remington</title>
-    <link rel="stylesheet" href="styles.css?v=20260421-1458" />
+    <title>Bee-Bot Learning Mats | Jocelyn Remington</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css?v=20261009" />
   </head>
   <body>
     <main class="app-shell">
@@ -13,12 +14,11 @@
           <section class="card-heading info-panel">
             <div class="heading-title">
               <p class="eyebrow">Classroom Widget</p>
-              <h1>Bee-Bot Alphabet Mat</h1>
-              <p class="lead">
-                Build a program by tapping Bee-Bot on the mat. Press GO to run it,
-                drag Bee-Bot back to START to run again, and press X to clear the
-                program.
-              </p>
+              <h1>Bee-Bot Learning Mats</h1>
+              <label class="mat-label" for="mat-select">Choose a mat</label>
+              <select id="mat-select" aria-describedby="mat-instructions"></select>
+              <p class="lead" id="mat-instructions"></p>
+              <button class="reset-position" id="reset-position" type="button">Return to start</button>
             </div>
           </section>
 
@@ -41,6 +41,7 @@
           <div class="mat-stage" id="mat-stage" aria-label="Bee-Bot alphabet mat">
             <img
               class="mat-image"
+              id="mat-image"
               src="assets/mat.png"
               alt="Alphabet mat with Bee-Bot start square"
               draggable="false"
@@ -137,6 +138,7 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260421-1458" defer></script>
+    <script src="mats.js?v=20261009" defer></script>
+    <script src="app.js?v=20261009" defer></script>
   </body>
 </html>

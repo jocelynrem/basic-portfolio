@@ -1,18 +1,11 @@
-const GRID = { rows: 5, cols: 4 };
-const START = { row: 1, col: 1, direction: 0 };
+let activeMat = MATS[0];
+let GRID = activeMat.grid;
+let START = activeMat.start;
 const DIRECTIONS = [
   { label: "Up", deltaRow: -1, deltaCol: 0 },
   { label: "Right", deltaRow: 0, deltaCol: 1 },
   { label: "Down", deltaRow: 1, deltaCol: 0 },
   { label: "Left", deltaRow: 0, deltaCol: -1 },
-];
-
-const CELL_LABELS = [
-  ["Turn", "A", "B / C", "D / F"],
-  ["E", "START", "G / H", "I"],
-  ["J / K", "L / M", "O", "N / P"],
-  ["Turn", "Q / R", "S / T", "U"],
-  ["V / W", "Y", "X / Z", "Turn"],
 ];
 
 const COMMANDS = {
@@ -23,8 +16,8 @@ const COMMANDS = {
   pause: { label: "Pause", icon: "assets/button-pause.svg" },
 };
 
-const MAT_ASPECT_RATIO = 4 / 5;
-const MIN_STAGE_HEIGHT = 220;
+
+const MIN_STAGE_HEIGHT = 0;
 
 const state = {
   row: START.row,
@@ -43,6 +36,10 @@ const audioState = {
   unlocked: false,
 };
 
+const matSelect = document.getElementById("mat-select");
+const resetButton = document.getElementById("reset-position");
+const matImage = document.getElementById("mat-image");
+const matInstructions = document.getElementById("mat-instructions");
 const stage = document.getElementById("mat-stage");
 const token = document.getElementById("beebot-token");
 const dragHandle = document.getElementById("drag-handle");
@@ -249,9 +246,9 @@ function syncViewportLayout() {
   );
   const nextHeight = Math.max(
     MIN_STAGE_HEIGHT,
-    Math.min(availableHeight, availableWidth / MAT_ASPECT_RATIO)
+    Math.min(availableHeight, availableWidth / activeMat.aspectRatio)
   );
-  const nextWidth = nextHeight * MAT_ASPECT_RATIO;
+  const nextWidth = nextHeight * activeMat.aspectRatio;
 
   stage.style.width = `${Math.max(nextWidth, 0)}px`;
   stage.style.height = `${Math.max(nextHeight, 0)}px`;
@@ -271,7 +268,7 @@ function setStatus(message) {
 }
 
 function getCellLabel(row, col) {
-  return CELL_LABELS[row]?.[col] ?? "Unknown";
+  return activeMat.cellLabels?.[row]?.[col] ?? `row ${row + 1}, column ${col + 1}`;
 }
 
 function isStartCell(row, col) {
@@ -325,6 +322,8 @@ function renderSequence(activeIndex = -1) {
 function updateHighlight(visible, ready = false) {
   const left = (START.col / GRID.cols) * 100;
   const top = (START.row / GRID.rows) * 100;
+  dragHighlight.style.width = `${100 / GRID.cols}%`;
+  dragHighlight.style.height = `${100 / GRID.rows}%`;
   dragHighlight.style.left = `${left}%`;
   dragHighlight.style.top = `${top}%`;
   dragHighlight.classList.toggle("visible", visible);
@@ -357,6 +356,8 @@ function beginDrag(event) {
   state.drag = {
     pointerId: event.pointerId,
     overStart: isStartCell(pointer.row, pointer.col),
+    row: pointer.row,
+    col: pointer.col,
     leftPercent: pointer.leftPercent,
     topPercent: pointer.topPercent,
   };
@@ -365,7 +366,8 @@ function beginDrag(event) {
   dragHandle.setPointerCapture(event.pointerId);
   updateHighlight(true, state.drag.overStart);
   updateBeeBotPosition();
-  setStatus("Drag Bee-Bot back to the START square to run the saved program again.");
+  setControlAvailability();
+  setStatus(activeMat.freePlacement ? "Drag Bee-Bot to any square on the mat." : "Drag Bee-Bot back to the START square to run the saved program again.");
 }
 
 function moveDrag(event) {
@@ -374,6 +376,8 @@ function moveDrag(event) {
   }
 
   const pointer = pointToCell(event.clientX, event.clientY);
+  state.drag.row = pointer.row;
+  state.drag.col = pointer.col;
   state.drag.overStart = isStartCell(pointer.row, pointer.col);
   state.drag.leftPercent = pointer.leftPercent;
   state.drag.topPercent = pointer.topPercent;
@@ -388,11 +392,21 @@ function endDrag(event) {
   }
 
   const droppedOnStart = state.drag.overStart;
+  const droppedCell = { row: state.drag.row, col: state.drag.col };
   state.drag = null;
   token.classList.remove("dragging");
   updateHighlight(false);
+  setControlAvailability();
 
-  if (droppedOnStart) {
+  if (activeMat.freePlacement && event.type !== "pointercancel") {
+    state.row = droppedCell.row;
+    state.col = droppedCell.col;
+    updateBeeBotPosition();
+    setStatus(`Bee-Bot placed on ${getCellLabel(state.row, state.col)}.`);
+    return;
+  }
+
+  if (droppedOnStart && event.type !== "pointercancel") {
     returnToStart();
     return;
   }
@@ -476,6 +490,8 @@ function sleep(ms) {
 function setControlAvailability() {
   const disabled = state.isRunning;
   dragHandle.disabled = disabled;
+  matSelect.disabled = disabled || Boolean(state.drag);
+  resetButton.disabled = disabled;
   hotspotButtons.forEach((button) => {
     const command = button.dataset.command;
     button.disabled = disabled && command !== "clear";
@@ -575,7 +591,35 @@ function handleCommand(command) {
   queueCommand(command);
 }
 
-dragHandle.addEventListener("pointerdown", beginDrag);
+function selectMat(id) {
+  if (state.isRunning || state.drag) return;
+  activeMat = MATS.find((mat) => mat.id === id) || MATS[0];
+  GRID = activeMat.grid;
+  START = activeMat.start;
+  matSelect.value = activeMat.id;
+  matImage.src = activeMat.image;
+  matImage.alt = activeMat.alt;
+  stage.setAttribute("aria-label", activeMat.name + " mat");
+  stage.style.aspectRatio = String(activeMat.aspectRatio);
+  token.style.width = `clamp(80px, ${76.8 / GRID.cols}%, 170px)`;
+  matInstructions.textContent = activeMat.instructions;
+  const dragLabel = activeMat.freePlacement ? "Drag Bee-Bot to any square" : "Drag Bee-Bot back to the START square";
+  dragHandle.setAttribute("aria-label", dragLabel);
+  dragHandle.querySelector(".sr-only").textContent = dragLabel;
+  state.sequence = [];
+  state.cancelRequested = false;
+  placeAtStart();
+  updateHighlight(false);
+  renderSequence();
+  setControlAvailability();
+  setStatus(`${activeMat.name} mat selected. Program cleared. Bee-Bot is ready.`);
+}
+
+MATS.forEach((mat) => matSelect.add(new Option(mat.name, mat.id)));
+matSelect.addEventListener("change", () => selectMat(matSelect.value));
+resetButton.addEventListener("click", returnToStart);
+
+ dragHandle.addEventListener("pointerdown", beginDrag);
 dragHandle.addEventListener("pointermove", moveDrag);
 dragHandle.addEventListener("pointerup", endDrag);
 dragHandle.addEventListener("pointercancel", endDrag);
@@ -602,3 +646,5 @@ updateBeeBotPosition();
 renderSequence();
 updateInfo();
 setControlAvailability();
+
+selectMat(MATS[0].id);
