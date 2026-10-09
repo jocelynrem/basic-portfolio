@@ -979,3 +979,8 @@ img {
     line-height: 1.68;
   }
 }
+
+/* Keep temporarily hidden portfolio sections out of the layout. */
+[hidden] {
+  display: none !important;
+}
