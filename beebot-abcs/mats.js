@@ -31,4 +31,22 @@ const MATS = [
     freePlacement: true,
     instructions: "Practice positional words: beside, between, above, and below. Drag Bee-Bot to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the bottom-left square. Switching mats clears the program.",
   },
+  {
+    id: "playground",
+    name: "Playground",
+    image: "assets/playground.jpg",
+    alt: "Four-column, five-row playground mat with a soccer goal, swings, pond, heart, tree, slide, stars, and a Bee-Bot starting square at bottom left",
+    grid: { rows: 5, cols: 4 },
+    aspectRatio: 4 / 5,
+    start: { row: 4, col: 0, direction: 0 },
+    freePlacement: true,
+    instructions: "Explore the playground using positional words. Bee-Bot starts at the bottom-left bee, facing up. Drag Bee-Bot to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the bee. Switching mats clears the program.",
+    cellLabels: [
+      ["Soccer goal", "Row 1, column 2", "Row 1, column 3", "Swings"],
+      ["Row 2, column 1", "Row 2, column 2", "Pond", "Heart"],
+      ["Row 3, column 1", "Tree", "Row 3, column 3", "Row 3, column 4"],
+      ["Row 4, column 1", "Row 4, column 2", "Row 4, column 3", "Slide"],
+      ["Bee start", "Row 5, column 2", "Stars", "Row 5, column 4"],
+    ],
+  },
 ];
