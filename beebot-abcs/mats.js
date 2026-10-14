@@ -22,7 +22,7 @@ const MATS = [
   },
   {
     id: "positional-words",
-    name: "Positional Words",
+    name: "Rainbow River",
     image: "assets/positional-words.jpg",
     alt: "Six-column, four-row landscape mat with a rainbow, trees, river, bridge, animals, flowers, and a fire hydrant",
     grid: { rows: 4, cols: 6 },
