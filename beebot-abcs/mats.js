@@ -49,4 +49,21 @@ const MATS = [
       ["Bee start", "Row 5, column 2", "Stars", "Row 5, column 4"],
     ],
   },
+  {
+    id: "pumpkin-patch",
+    name: "Pumpkin Patch",
+    image: "assets/pumpkin-patch.jpg",
+    alt: "Five-column, four-row pumpkin patch mat with pumpkins, hay bales, a scarecrow, sunflowers, wheelbarrows, a watering can, a squirrel, a barn, and a fence",
+    grid: { rows: 4, cols: 5 },
+    aspectRatio: 5 / 4,
+    start: { row: 3, col: 0, direction: 0 },
+    freePlacement: true,
+    instructions: "Explore the pumpkin patch! Drag Bee-Bot to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the bottom-left square. Switching mats clears the program.",
+    cellLabels: [
+      ["Pumpkin patch sign", "Pumpkin", "Hay bale", "Scarecrow", "Sunflowers"],
+      ["Pumpkin pile", "Red wheelbarrow", "Pumpkin", "Pumpkin crate", "Watering can"],
+      ["Squirrel", "Sunflower", "Barn", "Pumpkin vine", "Pumpkin"],
+      ["Hay bale", "Pumpkin", "Fence", "Pumpkin", "Yellow wheelbarrow"],
+    ],
+  },
 ];
