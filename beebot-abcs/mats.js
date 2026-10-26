@@ -56,7 +56,7 @@ const MATS = [
     alt: "Five-column, four-row pumpkin patch mat with pumpkins, hay bales, a scarecrow, sunflowers, wheelbarrows, a watering can, a squirrel, a barn, and a fence",
     grid: { rows: 4, cols: 5 },
     aspectRatio: 5 / 4,
-    start: { row: 0, col: 0, direction: 0 },
+    start: { row: 0, col: 0, direction: 1 },
     freePlacement: true,
     instructions: "Explore the pumpkin patch! Drag Bee-Bot to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the pumpkin patch sign in the top-left square. Switching mats clears the program.",
     cellLabels: [
