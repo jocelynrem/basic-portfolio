@@ -165,12 +165,35 @@ test('scroll target is pictured twice and advances only for the exact numbered c
   assert.equal(t.get('#reference-card').innerHTML, cards[1].innerHTML);
   cards[1].onclick(); assert.equal(t.run('roundDone'), true);
 });
-test('zoom checks picture size rather than accepting an early confirmation', () => {
+test('zoom unlocks Next only while matched and advances with one click', () => {
   const t = setup(); t.run('render(4, false, 0);');
-  t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), false);
+  t.get('#next').onclick(); assert.equal(t.run('activeRound'), 0);
   for (let i = 0; i < 10; i++) t.get('#zoom-in').onclick();
-  t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), true);
-  assert.equal(t.get('#task').textContent, 'Perfect fit! ✓');
+  assert.equal(t.get('#next').disabled, false);
+  for (let i = 0; i < 4; i++) t.get('#zoom-in').onclick();
+  assert.equal(t.get('#next').disabled, true);
+  for (let i = 0; i < 4; i++) t.get('#zoom-out').onclick();
+  t.get('#next').onclick();
+  assert.equal(t.run('progress[4]'), 1);
+  assert.equal(t.run('activeRound'), 1);
+  assert.equal(t.get('#next').disabled, true);
+  for (let i = 0; i < 15; i++) t.get('#zoom-out').onclick();
+  t.get('#check-view').onclick();
+  assert.equal(t.run('progress[4]'), 2);
+  assert.equal(t.run('activeRound'), 2);
+});
+test('orbit enables one-click continuation after releasing an aligned cube', () => {
+  const t = setup(); t.run('render(5, false, 0);');
+  const view = t.get('.view-scene');
+  view.onpointerdown(t.event());
+  view.onpointermove(t.event({clientX: 365}));
+  assert.equal(t.get('#next').disabled, true);
+  view.onpointerup(t.event());
+  assert.equal(t.get('#next').disabled, false);
+  t.get('#check-view').onclick();
+  assert.equal(t.run('progress[5]'), 1);
+  assert.equal(t.run('activeRound'), 1);
+  assert.equal(t.get('#next').disabled, true);
 });
 test('flat-shape activities use 2D geometry names', () => {
   const t = setup();

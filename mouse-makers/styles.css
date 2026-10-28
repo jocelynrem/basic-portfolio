@@ -273,3 +273,9 @@ body > footer a { text-decoration: none; }
 .word-round-2 .practice-word { font-size: 24px; }
 @media (max-width: 900px) and (min-width: 621px) { #steps { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 620px) { .practice-word { font-size: 24px; } .word-board { gap: 12px; } .word-round-2 { inset: 65px 5% 45px; padding: 12px; gap: 8px; } }
+
+.scroll-mouse-picture { width: 116px; height: 82px; flex-shrink: 0; }
+.find-reference { top: 14%; gap: 8px; }
+.zoom-scroll-cue { position: absolute; left: 12px; top: 48px; display: flex; flex-direction: column; align-items: center; pointer-events: none; font-size: 12px; }
+.check-view:disabled { background: #f1f5f7; border-color: #a6b8c1; color: #526a76; cursor: default; }
+@media (max-width: 620px) { .scroll-mouse-picture { width: 90px; height: 64px; } .zoom-scroll-cue { left: 3px; top: 36px; font-size: 10px; } .zoom-scroll-cue .scroll-mouse-picture { width: 66px; height: 48px; } }

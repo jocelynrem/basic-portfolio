@@ -31,7 +31,7 @@ Seven skills contain 22 rounds:
 - Drag flat squares, circles, triangles, and rectangles into three picture puzzles:
   a house, robot, and rocket (11 pieces total).
 - Double-click to highlight 12 matching words, progressing from large cards to closely spaced words.
-- Scroll to find six exact picture-and-number cards. The target stays visible.
+- Scroll to find six exact picture-and-number cards. The target stays visible, with a mouse-wheel picture showing the scrolling gesture.
 - Zoom a rocket picture to fit four visible frames; no percentage reading required.
 - Turn a genuine 3D cube to match three large pictured symbols.
 - Hold Shift and right-drag the workplane to park a rover three times.

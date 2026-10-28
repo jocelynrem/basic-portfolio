@@ -6,8 +6,8 @@ const activities = [
   { name: 'Double-click', title: 'Highlight the word', rounds: 3, guide: 'left', caption: 'Click-click → highlight', instruction: 'Double-click the matching word.', tip: 'Two quick clicks. Keep the mouse still.', keyboard: 'Tab to a word and press Enter to highlight it.' },
   { name: 'Drag', title: 'Build a picture', rounds: 3, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
   { name: 'Scroll', title: 'Find the match', rounds: 3, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape AND the number.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
-  { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → click ✓', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. Then click Check.' },
-  { name: 'Orbit', title: 'Find the symbol', rounds: 3, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Turn the cube to match.', tip: 'Then left click Check.', keyboard: 'Focus the cube and use left and right arrows. Then click Check.' },
+  { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → Next', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. When green, click Next.' },
+  { name: 'Orbit', title: 'Find the symbol', rounds: 3, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Turn the cube to match.', tip: 'When green, click Next.', keyboard: 'Focus the cube and use left and right arrows. When green, click Next.' },
   { name: 'Pan', title: 'Park the rover', rounds: 3, guide: 'right', caption: 'Shift + hold right → move', instruction: 'Move the rover into the parking space.', tip: 'Keep Shift held. Let go of the mouse first.', keyboard: 'Focus the workplane. Hold Shift and use arrow keys to move the view. Release Shift to check.' }
 ];
 const symbols = { square: '■', circle: '●', triangle: '▲', rectangle: '▯', hexagon: '⬡' };
@@ -36,6 +36,7 @@ function goal(markup, label) {
 const progress = activities.map(() => 0);
 let current = 0;
 let roundDone = false;
+let pendingCompletion = null;
 let dispose = () => {};
 let modelScale = 1;
 let modelAngle = -32;
@@ -70,6 +71,7 @@ function renderSteps() {
 }
 function render(index, focus = false, requestedRound = null) {
   dispose(); dispose = () => {};
+  pendingCompletion = null;
   current = index;
   activeRound = requestedRound ?? (progress[index] === activities[index].rounds ? 0 : progress[index]);
   // A completed skill is available to replay; its completion still unlocks the next skill.
@@ -327,9 +329,20 @@ function dragActivity() {
   window.addEventListener('blur', cancel); window.addEventListener('resize', resize);
   dispose = () => { window.removeEventListener('blur', cancel); window.removeEventListener('resize', resize); };
 }
+function scrollMouseArt() {
+  return '<svg class="scroll-mouse-picture" viewBox="0 0 150 105" role="img" aria-label="Roll the mouse wheel up or down"><rect x="35" y="6" width="62" height="91" rx="30" fill="white" stroke="#345b72" stroke-width="3"/><path d="M35 44H97M66 7V44" stroke="#345b72" stroke-width="2"/><rect x="59" y="17" width="14" height="29" rx="7" fill="#ecaa26" stroke="#85540d" stroke-width="2"/><path d="M61 25H71M61 31H71M61 37H71" stroke="#85540d" stroke-width="2"/><path d="M118 17V78M108 28L118 17 128 28M108 67L118 78 128 67" fill="none" stroke="#176b91" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function readyToContinue(ready, finish) {
+  pendingCompletion = ready ? finish : null;
+  $('#next').disabled = !ready;
+  $('#next').textContent = ready ? (activeRound + 1 < activities[current].rounds ? 'Next round →' : 'Next skill →') : 'Finish the task first';
+  $('#check-view').disabled = !ready;
+  $('#check-view').classList.toggle('ready', ready);
+  $('#check-view').textContent = ready ? '✓ Next →' : 'Match the target';
+}
 function scrollActivity() {
   workplane('SCROLL SEARCH');
-  stage.insertAdjacentHTML('beforeend', '<div class="find-reference"><strong>FIND THIS</strong><div id="reference-card"></div><span class="search-arrow" aria-hidden="true">→</span><span class="scroll-cue" aria-hidden="true">↕</span><small>Scroll ↕ · Click</small></div><div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
+  stage.insertAdjacentHTML('beforeend', '<div class="find-reference"><strong>FIND THIS</strong><div id="reference-card"></div><span class="search-arrow" aria-hidden="true">→</span>' + scrollMouseArt() + '<small>Roll the wheel ↕ · Click</small></div><div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
   const shapes = ['square', 'circle', 'triangle', 'rectangle', 'hexagon'];
   const orders = [[7, 1], [9, 2], [11, 0]];
   const order = orders[activeRound]; let found = 0;
@@ -367,29 +380,26 @@ function zoomActivity() {
   const sizes = [1.5, .75, 1.8, 1];
   const target = sizes[activeRound], tolerance = activeRound < 2 ? .1 : .075;
   if (activeRound === 0) modelScale = 1;
-  stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view">✓ Check</button>`;
+  stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view" disabled>Match the target</button>`;
   const view = $('.zoom-game');
   $('.zoom-frame').style.width = 100 * target + 'px'; $('.zoom-frame').style.height = 140 * target + 'px';
-  goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Fit the frame. Click ✓.');
+  goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Fit the frame. Green → Next.');
+  stage.insertAdjacentHTML('beforeend', '<div class="zoom-scroll-cue">' + scrollMouseArt() + '<strong>Roll the wheel</strong></div>');
   const aligned = () => Math.abs(modelScale - target) <= tolerance + .001;
   function update(delta = 0) {
     if (roundDone) return;
     modelScale = Math.max(.5, Math.min(2.1, Math.round((modelScale + delta) * 100) / 100));
     $('.zoom-picture').style.transform = `translate(-50%, -50%) scale(${modelScale})`;
     $('.zoom-frame').classList.toggle('ready', aligned());
-    $('#check-view').classList.toggle('ready', aligned());
+    readyToContinue(aligned(), () => { count(activeRound + 1, 4, 'frames'); completeRound('Perfect fit! ✓'); });
     $('#view-label').textContent = aligned() ? '✓ FITS!' : modelScale < target ? '↑ BIGGER' : '↓ SMALLER';
-    feedback(aligned() ? '✓ Fits! Click Check.' : modelScale < target ? 'Roll up ↑' : 'Roll down ↓');
+    feedback(aligned() ? '✓ Fits! Click Next.' : modelScale < target ? 'Roll up ↑' : 'Roll down ↓');
     count(activeRound, sizes.length, 'frames');
   }
   view.addEventListener('wheel', e => { if (e.ctrlKey || e.metaKey) return; e.preventDefault(); if (e.deltaY) update(-Math.sign(e.deltaY) * .05); }, { passive: false });
   view.onkeydown = e => { if (['+', '=', '-', '_'].includes(e.key)) { e.preventDefault(); update(['-', '_'].includes(e.key) ? -.05 : .05); } };
   $('#zoom-in').onclick = () => update(.05); $('#zoom-out').onclick = () => update(-.05);
-  $('#check-view').onclick = () => {
-    if (roundDone) return;
-    if (aligned()) { count(activeRound + 1, 4, 'frames'); goal('<strong class="goal-number">✓</strong>', 'Frame matched'); completeRound('Perfect fit! ✓'); }
-    else feedback(modelScale < target ? 'A little bigger ↑' : 'A little smaller ↓', 'retry');
-  };
+  $('#check-view').onclick = () => $('#next').onclick();
   update();
 }
 function orbitActivity() {
@@ -397,31 +407,27 @@ function orbitActivity() {
   const target = targets[activeRound];
   if (activeRound === 0) modelAngle = -32;
   const view = scene(); let drag = null;
-  stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view">✓ Check</button>');
+  stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view" disabled>Match the target</button>');
   goal(`<span class="goal-symbol">${target.symbol}</span>`, `Find the ${target.name} on the cube`);
-  task('Turn to match. Click ✓.');
+  task('Turn to match. Green → Next.');
   const aligned = () => Math.abs(((modelAngle - target.angle + 540) % 360 + 360) % 360 - 180) <= 20;
   function update() {
     $('.cube').style.transform = `rotateX(-22deg) rotateY(${modelAngle}deg)`;
     $('.model-grid').style.transform = `rotateX(65deg) rotateZ(${-modelAngle}deg)`;
-    $('#check-view').classList.toggle('ready', aligned());
-    feedback(aligned() ? '✓ Match! Let go, then click Check.' : 'Hold right + turn ↔');
+    readyToContinue(aligned() && !drag, () => { count(activeRound + 1, 3, 'faces'); completeRound('Symbol found! ✓'); });
+    feedback(aligned() ? '✓ Match! Let go, then click Next.' : 'Hold right + turn ↔');
   }
   view.oncontextmenu = e => e.preventDefault();
   view.onpointerdown = e => {
     if (roundDone) return;
     if (e.button !== 2) { feedback('Use the RIGHT button ↔', 'retry'); return; }
-    e.preventDefault(); drag = { x: e.clientX, angle: modelAngle }; view.setPointerCapture(e.pointerId);
+    e.preventDefault(); drag = { x: e.clientX, angle: modelAngle }; view.setPointerCapture(e.pointerId); update();
   };
   view.onpointermove = e => { if (drag) { modelAngle = drag.angle + (e.clientX - drag.x) * .8; update(); } };
-  view.onpointerup = view.onpointercancel = e => { drag = null; if (view.hasPointerCapture(e.pointerId)) view.releasePointerCapture(e.pointerId); };
+  view.onpointerup = view.onpointercancel = e => { drag = null; if (view.hasPointerCapture(e.pointerId)) view.releasePointerCapture(e.pointerId); update(); };
   view.onkeydown = e => { if (!roundDone && ['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); modelAngle += e.key === 'ArrowRight' ? 10 : -10; update(); } };
   const cancel = () => { drag = null; }; window.addEventListener('blur', cancel); dispose = () => window.removeEventListener('blur', cancel);
-  $('#check-view').onclick = () => {
-    if (roundDone) return;
-    if (aligned()) { count(activeRound + 1, 3, 'faces'); goal('<strong class="goal-number">✓</strong>', 'Symbol found'); completeRound('Symbol found! ✓'); }
-    else feedback('Turn to match the symbol ↔', 'retry');
-  };
+  $('#check-view').onclick = () => $('#next').onclick();
   count(activeRound, 3, 'faces'); update();
 }
 function panActivity() {
@@ -485,6 +491,7 @@ function panActivity() {
 }
 $('#steps').onclick = e => { const b = e.target.closest('[data-step]'); if (b && !b.disabled) render(Number(b.dataset.step), true); };
 $('#next').onclick = () => {
+  if (!roundDone && pendingCompletion) { const finish = pendingCompletion; pendingCompletion = null; finish(); }
   if (!roundDone) return;
   if (activeRound + 1 < activities[current].rounds) { render(current, true, activeRound + 1); return; }
   if (current < activities.length - 1) { render(current + 1, true); return; }
