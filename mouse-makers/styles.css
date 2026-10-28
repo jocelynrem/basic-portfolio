@@ -175,3 +175,86 @@ body > footer a { text-decoration: none; }
   .numbered-target { width: 58px; height: 62px; }
   .motion-toggle { font-size: 10px; padding: 7px; }
 }
+/* Visual task cards: the picture carries the goal; text is a short action cue. */
+.task-banner { display: flex; align-items: center; gap: 16px; min-height: 94px; }
+#task-visual { flex: 0 0 auto; min-width: 58px; min-height: 58px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--blue); position: relative; }
+#task-visual .shape-art { width: 54px; height: 54px; }
+.goal-number, .goal-symbol { font-size: 43px; line-height: 1; }
+.goal-number { display: grid; place-items: center; width: 58px; height: 58px; border: 2px solid #a5c8dc; border-radius: 8px; background: white; }
+#task { font-size: 19px; margin-top: 3px; }
+#instruction { font-size: 17px; font-weight: 650; }
+.mouse-guide { padding: 14px 6px; background: #f1f7fb; border-radius: 10px; }
+#gesture-key { background: white; border: 2px solid #90b2c4; border-bottom-width: 5px; border-radius: 7px; padding: 7px 15px; font: 750 16px inherit; }
+.gesture-pair { font-size: 28px; letter-spacing: -2px; }
+.shape-art { width: 100%; height: 100%; display: block; fill: currentColor; }
+.art-square { color: #d66a39; }
+.art-circle { color: #20839d; }
+.art-triangle { color: #8a50a3; }
+.art-rectangle { color: #cc8a18; }
+.art-hexagon { color: #287957; }
+.outline-art { fill: #ffffffa6; stroke: #345b72; stroke-width: 2.5; stroke-dasharray: 6 4; }
+.object-square .target-symbol { color: #d66a39; }
+.object-circle .target-symbol { color: #20839d; }
+.object-triangle .target-symbol { color: #8a50a3; }
+.click-controls { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 7px; z-index: 5; font-size: 12px; font-weight: 700; }
+.click-controls label { display: flex; gap: 6px; align-items: center; background: white; padding: 5px 7px; border: 1px solid #9bb8c8; border-radius: 5px; }
+.click-controls select { font: inherit; color: var(--ink); background: #eef6fa; border: 1px solid #aec9d8; border-radius: 4px; padding: 5px; }
+.click-controls .motion-toggle { position: static; }
+.picture-piece { width: 66px; height: 72px; box-shadow: none; }
+.picture-piece .shape-art { width: 44px; height: 44px; }
+.picture-piece small { font-size: 10px; }
+.picture-target { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+.picture-target.placed { filter: drop-shadow(0 2px 1px #243d4b25); }
+.picture-target.placed .shape-art { stroke: #24465b; stroke-width: 1.5; }
+.find-reference { position: absolute; left: 4%; top: 22%; width: 38%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.find-reference > strong { font-size: 13px; letter-spacing: 1px; }
+#reference-card { position: relative; width: 125px; height: 135px; background: white; border: 3px solid var(--blue); border-radius: 9px; padding: 13px 26px 36px; }
+.card-number { font-size: 23px; line-height: 1; }
+#reference-card .card-number { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; }
+#task-visual .card-number { background: white; border-radius: 6px; padding: 8px; border: 1px solid #a5c8dc; }
+.search-arrow { font-size: 30px; position: absolute; right: -14%; top: 50%; color: var(--blue); }
+.scroll-cue { font-size: 28px; line-height: 1; color: var(--blue); }
+.find-reference small { font-size: 12px; font-weight: 650; }
+.search-cards { top: 12px; bottom: 12px; right: 12px; width: 49%; }
+.search-cards .library-list { gap: 16px; padding: 16px; }
+.search-card { height: 114px; gap: 3px; }
+.search-card .shape-art { width: 66px; height: 66px; }
+.search-card .card-number { font-size: 22px; }
+.zoom-game { position: absolute; inset: 0; outline-offset: -4px !important; touch-action: none; }
+.zoom-frame, .zoom-picture { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+.zoom-frame { border: 3px dashed #385e74; background: #ffffff55; outline: 5px solid #ffffff60; }
+.zoom-frame.ready { border: 4px solid #267d4b; background: #65c67e25; }
+.zoom-picture { width: 100px; height: 140px; }
+.rocket-art { width: 100%; height: 100%; }
+.frame-icon { display: grid; place-items: center; width: 58px; height: 58px; border: 3px dashed #385e74; font-size: 35px; }
+.pan-marker { width: 64px; height: 48px; background: none; border: 0; box-shadow: none; }
+.pan-marker .rover-art { width: 100%; height: 100%; }
+.pan-goal { border-radius: 8px; font-size: 30px; background: #ffffff50; }
+#task-visual .rover-art { width: 62px; height: 48px; }
+.parking-icon { border: 2px dashed var(--blue); border-radius: 5px; width: 48px; height: 48px; display: grid; place-items: center; font-size: 28px; }
+@media (max-width: 900px) { #task { font-size: 17px; } }
+@media (max-width: 620px) {
+  .mouse-guide { display: flex; flex-wrap: wrap; padding: 10px; gap: 10px; }
+  .mouse-guide > span { flex: 1; text-align: left; }
+  .tip { font-size: 12px; }
+  .task-banner { gap: 10px; padding: 10px; }
+  #task-visual { min-width: 46px; min-height: 46px; }
+  .goal-number { width: 46px; height: 46px; font-size: 34px; }
+  .click-controls { top: 28px; right: 5px; gap: 4px; font-size: 10px; }
+  .click-controls select { padding: 3px; }
+  .click-controls label { padding: 3px; gap: 3px; }
+  .click-controls .motion-toggle { padding: 8px 5px; }
+  .picture-piece { width: 54px; height: 64px; }
+  .picture-piece .shape-art { width: 38px; height: 38px; }
+  #reference-card { width: 88px; height: 110px; padding: 12px 12px 32px; }
+  .find-reference { left: 2%; width: 40%; }
+  .search-arrow { display: none; }
+  .search-cards { width: 50%; right: 6px; }
+  .search-cards .library-list { padding: 10px; }
+  #task-visual .shape-art { width: 40px; height: 40px; }
+  #task-visual .card-number { font-size: 20px; padding: 5px; }
+}
+#reference-card .shape-art { width: 66px; height: 66px; margin: auto; }
+.zoom-picture { background: #fffdf5; border: 2px solid #cc7841; border-radius: 4px; }
+.flame-piece .shape-art { transform: rotate(180deg); }
+@media (max-width: 620px) { #reference-card .shape-art { width: 52px; height: 52px; } }

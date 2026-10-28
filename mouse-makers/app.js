@@ -2,14 +2,36 @@
 const $ = selector => document.querySelector(selector);
 const stage = $('#stage');
 const activities = [
-  { name: 'Click', title: 'Select shapes', rounds: 3, guide: 'left', caption: 'Left click', instruction: 'Read the task above the workplane. Point at the requested shape, then click the left button once.', tip: 'An orange outline shows the shape you selected.', keyboard: 'Tab to a shape and press Enter.' },
-  { name: 'Drag', title: 'Place shapes', rounds: 3, guide: 'left', caption: 'Hold left → move → release', instruction: 'Hold the left button on a shape. Move its center into the matching outline, then release the button.', tip: 'Keep holding the button until you reach the outline. Later rounds use smaller targets.', keyboard: 'Tab to a shape. Press Enter to pick it up, use arrow keys to move it, then Enter to drop it. Escape cancels.' },
-  { name: 'Scroll', title: 'Find shapes in a list', rounds: 3, guide: 'wheel', caption: 'Scroll, then left click', instruction: 'Put your pointer over the shapes panel. Roll the wheel to find the requested shape, then click it.', tip: 'In a shapes panel, the wheel scrolls the list. Over a 3D workplane, it zooms the view.', keyboard: 'Focus the shapes panel and use arrow keys to scroll, or Tab between its shape buttons and press Enter.' },
-  { name: 'Zoom', title: 'Control the view size', rounds: 4, guide: 'wheel', caption: 'Roll wheel → click Check view', instruction: 'Point at the workplane. Roll up to zoom in or down to zoom out. Stop in the requested range, then click Check view.', tip: 'Zoom changes your view. It does not resize the model.', keyboard: 'Focus the workplane and press + or −, or use the zoom buttons. Click Check view when ready.' },
-  { name: 'Orbit', title: 'View different sides', rounds: 3, guide: 'right', caption: 'Hold right → move → release', instruction: 'Hold the right mouse button over the workplane and move sideways. Release when the requested face points toward you. Click Check view.', tip: 'Orbit changes your viewing angle around a model.', keyboard: 'Focus the workplane and use left and right arrows. Click Check view when ready.' },
-  { name: 'Pan', title: 'Use a key and the mouse', rounds: 3, guide: 'right', caption: 'Shift + hold right → drag', instruction: 'Hold Shift on the keyboard. While holding it, hold the right mouse button and drag the workplane. Move the orange marker into the center target, then release the mouse button.', tip: 'Keep Shift held until you release the mouse. Panning moves the whole view, not just one shape.', keyboard: 'Focus the workplane, hold Shift and use arrow keys to move the view. Release Shift to check your position.' }
+  { name: 'Click', title: 'Number chase', rounds: 3, guide: 'left', caption: 'Left click', instruction: 'Click in order.', tip: 'Correct clicks stop the number.', keyboard: 'Tab to a number and press Enter.' },
+  { name: 'Drag', title: 'Build a picture', rounds: 3, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
+  { name: 'Scroll', title: 'Find the match', rounds: 3, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape AND the number.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
+  { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → click ✓', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. Then click Check.' },
+  { name: 'Orbit', title: 'Find the symbol', rounds: 3, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Turn the cube to match.', tip: 'Then left click Check.', keyboard: 'Focus the cube and use left and right arrows. Then click Check.' },
+  { name: 'Pan', title: 'Park the rover', rounds: 3, guide: 'right', caption: 'Shift + hold right → move', instruction: 'Move the rover into the parking space.', tip: 'Keep Shift held. Let go of the mouse first.', keyboard: 'Focus the workplane. Hold Shift and use arrow keys to move the view. Release Shift to check.' }
 ];
-const symbols = { box: '■', cylinder: '●', roof: '▲', star: '★', diamond: '◆', ring: '◎' };
+const symbols = { square: '■', circle: '●', triangle: '▲', rectangle: '▯', hexagon: '⬡' };
+const clickSpeeds = [0, .45, 2];
+function shapeArt(type, outline = false) {
+  const shapes = {
+    square: '<rect x="10" y="10" width="80" height="80"/>',
+    circle: '<circle cx="50" cy="50" r="40"/>',
+    triangle: '<polygon points="50,8 94,92 6,92"/>',
+    rectangle: '<rect x="25" y="5" width="50" height="90"/>',
+    hexagon: '<polygon points="28,10 72,10 94,50 72,90 28,90 6,50"/>'
+  };
+  return `<svg class="shape-art art-${type} ${outline ? 'outline-art' : ''}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${shapes[type]}</svg>`;
+}
+function rocketArt() {
+  return '<svg class="rocket-art" viewBox="0 0 100 140" aria-hidden="true"><path d="M28 96 15 125 34 115M72 96 85 125 66 115" fill="#e4783f" stroke="#763e24" stroke-width="2"/><path d="M34 112 50 136 66 112" fill="#f3bc40"/><rect x="30" y="43" width="40" height="72" rx="6" fill="#d6ecf7" stroke="#34657e" stroke-width="3"/><path d="M30 43 50 7 70 43Z" fill="#e4783f" stroke="#763e24" stroke-width="2"/><circle cx="50" cy="65" r="12" fill="#2787a5" stroke="white" stroke-width="4"/></svg>';
+}
+function roverArt() {
+  return '<svg class="rover-art" viewBox="0 0 100 75" aria-hidden="true"><circle cx="25" cy="61" r="12" fill="#294656"/><circle cx="75" cy="61" r="12" fill="#294656"/><rect x="12" y="26" width="76" height="31" rx="7" fill="#e5793d" stroke="#85431f" stroke-width="3"/><path d="M30 26 37 10H66L75 26Z" fill="#8dd4eb" stroke="#34657e" stroke-width="3"/><path d="M52 9V2" stroke="#34657e" stroke-width="3"/></svg>';
+}
+function goal(markup, label) {
+  $('#task-visual').innerHTML = markup;
+  $('#task-visual').setAttribute('aria-label', label);
+  $('#task-visual').hidden = !markup;
+}
 const progress = activities.map(() => 0);
 let current = 0;
 let roundDone = false;
@@ -30,7 +52,7 @@ function completeRound(message) {
   stage.classList.add('round-complete');
   $('#task-label').textContent = '✓ ROUND COMPLETE';
   task(message);
-  feedback('Success — click the green button to continue.', 'success');
+  feedback('✓ Done! Next →', 'success');
   const finished = activeRound + 1 === activities[current].rounds;
   $('#next').disabled = false;
   $('#next').textContent = finished ? (current === activities.length - 1 ? 'Finish practice →' : 'Next skill →') : 'Next round →';
@@ -47,7 +69,6 @@ function renderSteps() {
 }
 function render(index, focus = false, requestedRound = null) {
   dispose(); dispose = () => {};
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
   current = index;
   activeRound = requestedRound ?? (progress[index] === activities[index].rounds ? 0 : progress[index]);
   // A completed skill is available to replay; its completion still unlocks the next skill.
@@ -63,14 +84,16 @@ function render(index, focus = false, requestedRound = null) {
   $('.mouse-guide').hidden = false;
   $('.keyboard-help').hidden = false;
   $('#mouse-caption').textContent = a.caption;
-  $('#task-label').textContent = 'DO THIS NEXT';
-  $('#next').textContent = 'Complete this round';
+  $('#gesture-key').hidden = index !== 5;
+  $('#task-label').textContent = 'YOUR TASK';
+  $('#next').textContent = 'Finish the task first';
   $('#next').disabled = true;
   $('#counter').textContent = '';
   stage.className = 'stage';
   stage.innerHTML = '';
   stage.onpointerdown = stage.onpointermove = stage.onpointerup = stage.onpointercancel = stage.onkeydown = stage.oncontextmenu = null;
-  feedback('Follow the task above the workplane.');
+  goal('', '');
+  feedback('Your turn.');
   [clickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
   if (focus) $('#activity-title').focus();
 }
@@ -85,22 +108,21 @@ function objectButton(type, label, className = 'model-object') {
   return button;
 }
 function clickActivity() {
-  const speed = [0, .45, 1.05][activeRound];
+  let speed = clickSpeeds[activeRound];
   const roundNames = ['STATIONARY', 'SLOW MOVEMENT', 'FASTER MOVEMENT'];
   workplane(roundNames[activeRound]);
-  const items = [['box', '1'], ['cylinder', '2'], ['roof', '3'], ['box', '4']];
-  const centers = [[.25, .3], [.73, .3], [.25, .72], [.73, .72]];
+  const items = [['square', '1'], ['circle', '2'], ['triangle', '3'], ['square', '4']];
+  const centers = [[.25, .4], [.73, .4], [.25, .72], [.73, .72]];
   const targets = [];
   let selected = 0, elapsed = 0, previousTime = null, frame = null, held = null;
   let paused = speed > 0 && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  $('#activity-title').textContent = 'Click in number order';
-  $('#instruction').textContent = speed === 0
-    ? 'Click 1, then 2, then 3, then 4. These items stay still.'
-    : `Click the same items in order: 1, 2, 3, 4. They move ${activeRound === 1 ? 'slowly' : 'faster'} in this round.`;
-  $('#tip').textContent = 'A correct click stops that item and adds a checkmark. Clicking a different number does not move you forward.';
+  $('#activity-title').textContent = 'Number chase';
+  $('#instruction').textContent = 'Click 1 → 2 → 3 → 4.';
+  $('#tip').textContent = speed ? 'Choose your speed above the numbers.' : 'These numbers stay still.';
   function prompt() {
-    task(`LEFT CLICK: Select ${selected + 1}. Follow the order 1 → 2 → 3 → 4.`);
-    count(selected, items.length, 'selections');
+    goal(`<strong class="goal-number">${selected + 1}</strong>`, `Click number ${selected + 1}`);
+    task('Click this number.');
+    count(selected, items.length, 'clicks');
   }
   items.forEach(([type, label], i) => {
     const b = objectButton(type, label, 'model-object numbered-target');
@@ -112,12 +134,14 @@ function clickActivity() {
       if (i !== selected) { feedback(`That is ${label}. Click ${selected + 1} next.`, 'retry'); return; }
       b.classList.add('placed'); b.disabled = true;
       b.innerHTML += '<b class="object-check" aria-hidden="true">✓</b>';
-      selected++; count(selected, items.length, 'selections');
+      selected++; count(selected, items.length, 'clicks');
       if (selected === items.length) {
         if (frame !== null) cancelAnimationFrame(frame);
         if ($('#motion-toggle')) $('#motion-toggle').disabled = true;
-        completeRound('Clicked 1, 2, 3, and 4 in order.');
-      } else { prompt(); feedback(`✓ ${label} clicked. Now click ${selected + 1}.`, 'success'); }
+        if ($('#click-speed')) $('#click-speed').disabled = true;
+        goal('<strong class="goal-number">✓</strong>', 'Complete');
+        completeRound('1 → 2 → 3 → 4 ✓');
+      } else { prompt(); feedback(`✓ ${label}! Next: ${selected + 1}`, 'success'); }
     };
     stage.append(b); targets.push(b);
   });
@@ -129,8 +153,14 @@ function clickActivity() {
       toggle.setAttribute('aria-pressed', String(paused));
     }
     toggle.onclick = () => { paused = !paused; updateToggle(); };
-    updateToggle(); stage.append(toggle);
-    if (paused) feedback('Movement is paused for your reduced-motion setting. Click Resume movement to practice moving targets.');
+    const controls = document.createElement('div'); controls.className = 'click-controls';
+    const label = document.createElement('label'); label.textContent = 'Speed ';
+    const select = document.createElement('select'); select.id = 'click-speed'; select.setAttribute('aria-label', 'Number speed');
+    select.innerHTML = '<option value="0.45">Slow</option><option value="1">Medium</option><option value="2">Fast</option><option value="3">Extra fast</option>';
+    select.value = String(speed);
+    select.onchange = () => { speed = Number(select.value); clickSpeeds[activeRound] = speed; };
+    label.append(select); controls.append(label, toggle); updateToggle(); stage.append(controls);
+    if (paused) feedback('Movement paused. Use Resume when ready.');
     function animate(time) {
       if (roundDone) return;
       const delta = previousTime === null ? 0 : Math.min((time - previousTime) / 1000, .05);
@@ -165,40 +195,57 @@ function clickActivity() {
 }
 
 function dragActivity() {
-  workplane();
-  const types = activeRound === 0 ? ['box', 'cylinder'] : ['box', 'cylinder', 'roof'];
-  let matched = 0;
+  const puzzles = [
+    { name: 'House', parts: [{type:'square',x:70,y:60,w:112,h:112}, {type:'triangle',x:70,y:38,w:124,h:95}, {type:'rectangle',x:70,y:64,w:48,h:70}] },
+    { name: 'Robot', parts: [{type:'rectangle',x:70,y:55,w:110,h:125}, {type:'square',x:70,y:31,w:85,h:85}, {type:'circle',x:62,y:78,w:56,h:56}, {type:'circle',x:78,y:78,w:56,h:56}] },
+    { name: 'Rocket', parts: [{type:'rectangle',x:70,y:53,w:110,h:145}, {type:'triangle',x:70,y:28,w:68,h:68}, {type:'circle',x:70,y:44,w:40,h:40}, {type:'triangle',x:70,y:78,w:56,h:56,flame:true}] }
+  ];
+  const puzzle = puzzles[activeRound];
+  workplane(puzzle.name.toUpperCase());
+  $('#activity-title').textContent = `Build a ${puzzle.name.toLowerCase()}`;
+  goal('<span class="gesture-pair">◇ → ◇</span>', 'Drag each shape onto its outline');
+  task('Drag → match → let go.');
+  const targets = []; let matched = 0;
   const cancellations = [];
-  task('DRAG: Hold the left button on a shape. Release it in the matching outline.');
-  count(0, types.length, 'placements');
-  types.forEach((type, i) => {
-    const row = types.length === 2 ? 25 + i * 43 : 15 + i * 30;
-    const goalRow = activeRound === 2 ? 15 + (2 - i) * 30 : row;
-    const home = document.createElement('div');
-    home.className = 'drop-target'; home.dataset.shape = type;
-    home.style.left = (activeRound === 2 ? 64 : 73) + '%'; home.style.top = goalRow + '%';
-    home.style.width = home.style.height = (activeRound === 0 ? 94 : activeRound === 1 ? 80 : 68) + 'px';
-    home.innerHTML = `<span aria-hidden="true">${symbols[type]}</span><small>${type}</small>`;
-    const b = objectButton(type, type, 'drag-object');
-    b.style.left = '17%'; b.style.top = row + '%';
-    b.setAttribute('aria-label', `Drag ${type}`);
-    let drag = null, keyboard = false, placed = false;
-    let origin = null;
+  count(0, puzzle.parts.length, 'pieces');
+  const size = Math.min(1, stage.clientWidth * .45 / 180);
+  for (const part of puzzle.parts) {
+    const home = document.createElement('div'); home.className = 'picture-target'; home.dataset.shape = part.type;
+    home.style.left = (stage.clientWidth * .7 + (part.x - 70) * 4 * size) + 'px';
+    home.style.top = (stage.clientHeight * .5 + (part.y - 50) * 3.65 * size) + 'px';
+    home.style.width = part.w * size + 'px'; home.style.height = part.h * size + 'px';
+    home.innerHTML = shapeArt(part.type, true);
+    if (part.flame) home.classList.add('flame-piece');
+    stage.append(home);
+    targets.push({ home, type: part.type, part, filled: false });
+  }
+  puzzle.parts.forEach((part, i) => {
+    const type = part.type;
+    const b = objectButton(type, type, 'drag-object picture-piece');
+    b.innerHTML = shapeArt(type) + `<small>${type}</small>`;
+    b.style.left = (i % 2 === 0 ? 13 : 34) + '%'; b.style.top = (i < 2 ? 30 : 71) + '%';
+    b.setAttribute('aria-label', `Drag ${type} ${i + 1}`);
+    let drag = null, keyboard = false, placed = false, origin = null;
     function reset() {
       if (placed) return;
       if (origin) { b.style.left = origin.left; b.style.top = origin.top; }
       drag = null; keyboard = false; b.classList.remove('dragging'); b.setAttribute('aria-pressed', 'false');
     }
     function drop(cancel = false) {
-      const r = home.getBoundingClientRect(), s = b.getBoundingClientRect();
-      const near = Math.abs(s.x + s.width / 2 - r.x - r.width / 2) < r.width * .42 && Math.abs(s.y + s.height / 2 - r.y - r.height / 2) < r.height * .42;
-      if (!cancel && near) {
-        placed = true; drag = null; keyboard = false; b.hidden = true; home.classList.add('placed');
-        home.innerHTML = `<b>✓</b><small>${type} placed</small>`;
-        count(++matched, types.length, 'placements');
-        if (matched === types.length) completeRound(`Placed all ${types.length} shapes on the workplane.`);
-        else feedback(`✓ ${type} placed. Drag the next shape.`, 'success');
-      } else { reset(); feedback(cancel ? 'Drag canceled. Try again.' : 'Release closer to the center of the matching outline.', 'retry'); }
+      const s = b.getBoundingClientRect();
+      const destination = targets.find(t => {
+        if (t.filled || t.type !== type) return false;
+        const r = t.home.getBoundingClientRect();
+        return Math.abs(s.x + s.width / 2 - r.x - r.width / 2) < Math.max(18, r.width * .48) && Math.abs(s.y + s.height / 2 - r.y - r.height / 2) < Math.max(18, r.height * .48);
+      });
+      if (!cancel && destination) {
+        placed = true; drag = null; keyboard = false; b.hidden = true;
+        destination.filled = true; destination.home.classList.add('placed');
+        destination.home.innerHTML = shapeArt(type);
+        count(++matched, puzzle.parts.length, 'pieces');
+        if (matched === puzzle.parts.length) { goal('<strong class="goal-number">✓</strong>', 'Picture complete'); completeRound(`${puzzle.name} built! ✓`); }
+        else feedback('✓ Fits! Next piece.', 'success');
+      } else { reset(); feedback(cancel ? 'Try again.' : 'Match the outline. Try again.', 'retry'); }
     }
     function move(x, y) {
       b.style.left = Math.max(32, Math.min(stage.clientWidth - 32, x)) + 'px';
@@ -206,110 +253,125 @@ function dragActivity() {
     }
     b.onpointerdown = e => {
       if (e.button !== 0 || placed || roundDone) return;
-      e.preventDefault(); b.focus();
-      origin = { left: b.style.left, top: b.style.top };
+      e.preventDefault(); b.focus(); origin = { left: b.style.left, top: b.style.top };
       const r = b.getBoundingClientRect();
       drag = { id: e.pointerId, dx: e.clientX - (r.x + r.width / 2), dy: e.clientY - (r.y + r.height / 2) };
-      b.setPointerCapture(e.pointerId); b.classList.add('dragging');
-      feedback(`Holding ${type}. Keep the left button down and move to its outline.`);
+      b.setPointerCapture(e.pointerId); b.classList.add('dragging'); feedback('Hold → move → let go.');
     };
-    b.onpointermove = e => {
-      if (!drag) return;
-      const r = stage.getBoundingClientRect(); move(e.clientX - r.x - drag.dx, e.clientY - r.y - drag.dy);
-    };
-    b.onpointerup = e => { if (!drag) return; b.releasePointerCapture(e.pointerId); drop(); };
+    b.onpointermove = e => { if (drag) { const r = stage.getBoundingClientRect(); move(e.clientX - r.x - drag.dx, e.clientY - r.y - drag.dy); } };
+    b.onpointerup = e => { if (drag) { b.releasePointerCapture(e.pointerId); drop(); } };
     b.onpointercancel = () => drop(true);
     b.onkeydown = e => {
       if (roundDone || placed) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         if (keyboard) drop();
-        else { origin = { left: b.style.left, top: b.style.top }; keyboard = true; b.classList.add('dragging'); b.setAttribute('aria-pressed', 'true'); feedback(`Picked up ${type}. Use arrow keys, then Enter to drop.`); }
+        else { origin = { left: b.style.left, top: b.style.top }; keyboard = true; b.classList.add('dragging'); b.setAttribute('aria-pressed', 'true'); feedback('Arrow keys → Enter to drop.'); }
       } else if (e.key === 'Escape') { e.preventDefault(); reset(); }
       else if (keyboard && e.key.startsWith('Arrow')) {
         e.preventDefault(); const r = b.getBoundingClientRect(), s = stage.getBoundingClientRect();
         move(r.x + r.width / 2 - s.x + (e.key === 'ArrowRight' ? 10 : e.key === 'ArrowLeft' ? -10 : 0), r.y + r.height / 2 - s.y + (e.key === 'ArrowDown' ? 10 : e.key === 'ArrowUp' ? -10 : 0));
       }
     };
-    cancellations.push(reset);
-    stage.append(home, b);
+    cancellations.push(reset); stage.append(b);
   });
   const cancel = () => cancellations.forEach(fn => fn());
-  window.addEventListener('blur', cancel);
-  dispose = () => window.removeEventListener('blur', cancel);
+  const resize = () => {
+    cancel();
+    const scale = Math.min(1, stage.clientWidth * .45 / 180);
+    targets.forEach(({home, part}) => {
+      home.style.left = (stage.clientWidth * .7 + (part.x - 70) * 4 * scale) + 'px';
+      home.style.top = (stage.clientHeight * .5 + (part.y - 50) * 3.65 * scale) + 'px';
+      home.style.width = part.w * scale + 'px'; home.style.height = part.h * scale + 'px';
+    });
+  };
+  window.addEventListener('blur', cancel); window.addEventListener('resize', resize);
+  dispose = () => { window.removeEventListener('blur', cancel); window.removeEventListener('resize', resize); };
 }
 function scrollActivity() {
-  workplane();
-  stage.insertAdjacentHTML('beforeend', '<div class="panel-context">Find shapes in the list →<br><small>Scroll inside the shapes panel.</small></div><div class="shape-library" tabindex="0" role="region" aria-label="Shapes panel"><div class="library-heading">Basic shapes</div><div class="library-list"></div></div>');
-  const names = ['box', 'cylinder', 'roof', 'star', 'diamond', 'ring'];
-  const orders = [[5, 0], [4, 1], [5, 2]];
+  workplane('SCROLL SEARCH');
+  stage.insertAdjacentHTML('beforeend', '<div class="find-reference"><strong>FIND THIS</strong><div id="reference-card"></div><span class="search-arrow" aria-hidden="true">→</span><span class="scroll-cue" aria-hidden="true">↕</span><small>Scroll ↕ · Click</small></div><div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
+  const shapes = ['square', 'circle', 'triangle', 'rectangle', 'hexagon'];
+  const orders = [[7, 1], [9, 2], [11, 0]];
   const order = orders[activeRound]; let found = 0;
-  function prompt() { task(`SCROLL, THEN LEFT CLICK: Find the ${names[order[found]]} in the shapes panel.`); count(found, 2, 'shapes'); }
-  names.forEach((name, i) => {
-    const b = objectButton(name, name, 'library-shape');
+  function card(i) { return shapeArt(shapes[i % shapes.length]) + `<strong class="card-number">${i + 1}</strong>`; }
+  function prompt() {
+    const i = order[found];
+    $('#reference-card').innerHTML = card(i);
+    $('#reference-card').setAttribute('role', 'img');
+    $('#reference-card').setAttribute('aria-label', `Find ${shapes[i % shapes.length]} card ${i + 1}`);
+    goal(card(i), `Find ${shapes[i % shapes.length]} card ${i + 1}`);
+    task('Find this card. Click it.'); count(found, 2, 'matches');
+  }
+  for (let i = 0; i < 12; i++) {
+    const b = document.createElement('button'); b.className = 'library-shape search-card'; b.innerHTML = card(i);
+    b.setAttribute('aria-label', `${shapes[i % shapes.length]} card ${i + 1}`);
     b.onclick = () => {
       if (roundDone) return;
-      if (i !== order[found]) { feedback(`That is the ${name}. Scroll to find the ${names[order[found]]}.`, 'retry'); return; }
-      b.classList.add('placed'); found++; count(found, 2, 'shapes');
-      if (found === 2) completeRound('Found both shapes by scrolling down and back up.');
-      else { prompt(); feedback(`✓ ${name} selected. Scroll up to find the next shape.`, 'success'); }
+      if (i !== order[found]) { feedback('Match the picture AND number.', 'retry'); return; }
+      b.classList.add('placed'); b.disabled = true; found++; count(found, 2, 'matches');
+      if (found === 2) { goal('<strong class="goal-number">✓</strong>', 'Both cards found'); completeRound('Both matches found! ✓'); }
+      else { prompt(); feedback('✓ Match! Find the new card.', 'success'); }
     };
     $('.library-list').append(b);
-  });
+  }
   prompt();
 }
 function cubeMarkup() {
-  return '<div class="cube"><div class="face front">●</div><div class="face back">★</div><div class="face right">＋</div><div class="face left">◆</div><div class="face top">■</div><div class="face bottom"></div></div>';
+  return '<div class="cube"><div class="face front">●</div><div class="face back">★</div><div class="face right">＋</div><div class="face left">▲</div><div class="face top">■</div><div class="face bottom"></div></div>';
 }
 function scene() {
   stage.innerHTML = `<div class="view-scene" tabindex="0" role="region" aria-label="3D workplane"><div class="scene-model"><div class="model-grid"></div>${cubeMarkup()}</div></div><span class="view-tag" id="view-label">3D VIEW</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>`;
   return $('.view-scene');
 }
 function zoomActivity() {
-  const ranges = [[140, 160], [70, 90], [170, 190], [95, 110]];
-  const [low, high] = ranges[activeRound];
+  const sizes = [1.5, .75, 1.8, 1];
+  const target = sizes[activeRound], tolerance = activeRound < 2 ? .1 : .075;
   if (activeRound === 0) modelScale = 1;
-  const view = scene();
-  stage.insertAdjacentHTML('beforeend', '<div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><button class="check-view" id="check-view">Check view</button>');
-  task(`ZOOM: Reach ${low}–${high}%, then LEFT CLICK “Check view”.`);
+  stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view">✓ Check</button>`;
+  const view = $('.zoom-game');
+  $('.zoom-frame').style.width = 100 * target + 'px'; $('.zoom-frame').style.height = 140 * target + 'px';
+  goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Fit the frame. Click ✓.');
+  const aligned = () => Math.abs(modelScale - target) <= tolerance + .001;
   function update(delta = 0) {
     if (roundDone) return;
     modelScale = Math.max(.5, Math.min(2.1, Math.round((modelScale + delta) * 100) / 100));
-    $('.scene-model').style.transform = `scale(${modelScale})`;
-    $('#view-label').textContent = `ZOOM ${Math.round(modelScale * 100)}%`;
-    const ready = modelScale * 100 >= low && modelScale * 100 <= high;
-    $('#check-view').classList.toggle('ready', ready);
-    feedback(ready ? 'In range. Left click Check view to confirm.' : `Use the wheel to reach ${low}–${high}%.`);
-    count(activeRound, ranges.length, 'views');
+    $('.zoom-picture').style.transform = `translate(-50%, -50%) scale(${modelScale})`;
+    $('.zoom-frame').classList.toggle('ready', aligned());
+    $('#check-view').classList.toggle('ready', aligned());
+    $('#view-label').textContent = aligned() ? '✓ FITS!' : modelScale < target ? '↑ BIGGER' : '↓ SMALLER';
+    feedback(aligned() ? '✓ Fits! Click Check.' : modelScale < target ? 'Roll up ↑' : 'Roll down ↓');
+    count(activeRound, sizes.length, 'frames');
   }
   view.addEventListener('wheel', e => { if (e.ctrlKey || e.metaKey) return; e.preventDefault(); if (e.deltaY) update(-Math.sign(e.deltaY) * .05); }, { passive: false });
   view.onkeydown = e => { if (['+', '=', '-', '_'].includes(e.key)) { e.preventDefault(); update(['-', '_'].includes(e.key) ? -.05 : .05); } };
   $('#zoom-in').onclick = () => update(.05); $('#zoom-out').onclick = () => update(-.05);
   $('#check-view').onclick = () => {
     if (roundDone) return;
-    if (modelScale * 100 >= low && modelScale * 100 <= high) { count(activeRound + 1, 4, 'views'); completeRound(`View checked at ${Math.round(modelScale * 100)}%.`); }
-    else feedback(`Not in range yet. Aim for ${low}–${high}%, then click Check view.`, 'retry');
+    if (aligned()) { count(activeRound + 1, 4, 'frames'); goal('<strong class="goal-number">✓</strong>', 'Frame matched'); completeRound('Perfect fit! ✓'); }
+    else feedback(modelScale < target ? 'A little bigger ↑' : 'A little smaller ↓', 'retry');
   };
   update();
 }
 function orbitActivity() {
-  const targets = [{ angle: 180, name: 'star ★ on the back' }, { angle: 90, name: 'diamond ◆ on the left' }, { angle: 0, name: 'circle ● on the front' }];
+  const targets = [{ angle: 180, symbol: '★', name: 'star' }, { angle: 90, symbol: '▲', name: 'triangle' }, { angle: 0, symbol: '●', name: 'circle' }];
   const target = targets[activeRound];
   if (activeRound === 0) modelAngle = -32;
   const view = scene(); let drag = null;
-  stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view">Check view</button>');
-  task(`ORBIT: Face the ${target.name} toward you. Then LEFT CLICK “Check view”.`);
+  stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view">✓ Check</button>');
+  goal(`<span class="goal-symbol">${target.symbol}</span>`, `Find the ${target.name} on the cube`);
+  task('Turn to match. Click ✓.');
   const aligned = () => Math.abs(((modelAngle - target.angle + 540) % 360 + 360) % 360 - 180) <= 20;
   function update() {
     $('.cube').style.transform = `rotateX(-22deg) rotateY(${modelAngle}deg)`;
     $('.model-grid').style.transform = `rotateX(65deg) rotateZ(${-modelAngle}deg)`;
     $('#check-view').classList.toggle('ready', aligned());
-    if (aligned()) feedback('Face in position. Release the right button, then left click Check view.');
+    feedback(aligned() ? '✓ Match! Let go, then click Check.' : 'Hold right + turn ↔');
   }
   view.oncontextmenu = e => e.preventDefault();
   view.onpointerdown = e => {
     if (roundDone) return;
-    if (e.button !== 2) { feedback('Use the RIGHT mouse button to look around.', 'retry'); return; }
+    if (e.button !== 2) { feedback('Use the RIGHT button ↔', 'retry'); return; }
     e.preventDefault(); drag = { x: e.clientX, angle: modelAngle }; view.setPointerCapture(e.pointerId);
   };
   view.onpointermove = e => { if (drag) { modelAngle = drag.angle + (e.clientX - drag.x) * .8; update(); } };
@@ -318,41 +380,43 @@ function orbitActivity() {
   const cancel = () => { drag = null; }; window.addEventListener('blur', cancel); dispose = () => window.removeEventListener('blur', cancel);
   $('#check-view').onclick = () => {
     if (roundDone) return;
-    if (aligned()) { count(activeRound + 1, 3, 'faces'); completeRound(`View checked: ${target.name}.`); }
-    else feedback(`Keep orbiting until the ${target.name} faces you.`, 'retry');
+    if (aligned()) { count(activeRound + 1, 3, 'faces'); goal('<strong class="goal-number">✓</strong>', 'Symbol found'); completeRound('Symbol found! ✓'); }
+    else feedback('Turn to match the symbol ↔', 'retry');
   };
   count(activeRound, 3, 'faces'); update();
 }
 function panActivity() {
-  stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">＋<small>MOVE TO CENTER</small></div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">＋</div></div><span class="view-tag">TOP VIEW</span><span class="key-state" id="key-state">Shift: not held</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>';
+  stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">' + roverArt() + '</div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">P</div></div><span class="view-tag">TOP VIEW</span><span class="key-state" id="key-state">Shift: not held</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>';
   const view = $('.pan-view'), world = $('.pan-world');
   const offsets = [[-.26, -.2], [.26, -.2], [-.23, .22]];
   let x = stage.clientWidth * offsets[activeRound][0], y = stage.clientHeight * offsets[activeRound][1];
   let drag = null, keyboardMoved = false;
   const tolerance = activeRound === 0 ? 32 : activeRound === 1 ? 25 : 19;
-  $('.pan-goal').style.width = $('.pan-goal').style.height = (tolerance * 2 + 24) + 'px';
-  task('HOLD SHIFT + RIGHT DRAG: Move the orange marker into the center target. Release the mouse first.');
+  $('.pan-goal').style.width = (tolerance * 2 + 64) + 'px';
+  $('.pan-goal').style.height = (tolerance * 2 + 48) + 'px';
+  goal(roverArt() + '<span class="parking-icon">P</span>', 'Move the rover into the parking space');
+  task('Shift + right drag → park.');
   const aligned = () => Math.hypot(x, y) <= tolerance;
   function update() {
     world.style.transform = `translate(${x}px, ${y}px)`;
     $('.pan-goal').classList.toggle('ready', aligned());
-    if (aligned()) feedback('Marker centered. Keep Shift held and release the mouse button.');
+    if (aligned()) feedback('✓ Parked! Keep Shift held. Let go of the mouse.');
   }
   function keyState(held) { $('#key-state').textContent = held ? '✓ Shift held' : 'Shift: not held'; $('#key-state').classList.toggle('held', held); }
   function check() {
-    if (aligned()) { count(activeRound + 1, 3, 'positions'); completeRound('Panned the workplane using Shift and a drag.'); }
-    else feedback('Keep panning until the orange marker is inside the center target.', 'retry');
+    if (aligned()) { count(activeRound + 1, 3, 'positions'); goal('<strong class="goal-number">✓</strong>', 'Rover parked'); completeRound('Rover parked! ✓'); }
+    else feedback('Move the rover into P.', 'retry');
   }
   view.oncontextmenu = e => e.preventDefault();
   view.onpointerdown = e => {
     if (roundDone) return;
-    if (e.button !== 2 || !e.shiftKey) { feedback('Hold SHIFT, then hold the RIGHT mouse button and drag.', 'retry'); return; }
+    if (e.button !== 2 || !e.shiftKey) { feedback('Hold Shift + RIGHT button.', 'retry'); return; }
     e.preventDefault(); view.focus(); keyState(true);
     drag = { px: e.clientX, py: e.clientY, x, y }; view.setPointerCapture(e.pointerId);
   };
   view.onpointermove = e => {
     if (!drag) return;
-    if (!e.shiftKey) { drag = null; keyState(false); feedback('Shift was released. Hold Shift and start the drag again.', 'retry'); return; }
+    if (!e.shiftKey) { drag = null; keyState(false); feedback('Keep Shift held. Try again.', 'retry'); return; }
     x = Math.max(-stage.clientWidth * .6, Math.min(stage.clientWidth * .6, drag.x + e.clientX - drag.px));
     y = Math.max(-stage.clientHeight * .6, Math.min(stage.clientHeight * .6, drag.y + e.clientY - drag.py)); update();
   };
@@ -360,10 +424,10 @@ function panActivity() {
     if (view.hasPointerCapture(e.pointerId)) view.releasePointerCapture(e.pointerId);
     if (!drag) return;
     drag = null;
-    if (!e.shiftKey) { keyState(false); feedback('Keep Shift held until after you release the mouse button.', 'retry'); return; }
+    if (!e.shiftKey) { keyState(false); feedback('Keep Shift held. Let go of the mouse first.', 'retry'); return; }
     check();
   };
-  view.onpointercancel = () => { drag = null; feedback('Drag canceled. Hold Shift and try again.', 'retry'); };
+  view.onpointercancel = () => { drag = null; feedback('Hold Shift and try again.', 'retry'); };
   view.onkeydown = e => {
     if (roundDone || !e.shiftKey || !e.key.startsWith('Arrow')) return;
     e.preventDefault(); keyboardMoved = true; x += e.key === 'ArrowRight' ? 10 : e.key === 'ArrowLeft' ? -10 : 0; y += e.key === 'ArrowDown' ? 10 : e.key === 'ArrowUp' ? -10 : 0; update();
@@ -372,7 +436,7 @@ function panActivity() {
   const up = e => {
     if (e.key !== 'Shift') return;
     keyState(false);
-    if (drag) { drag = null; feedback('Keep Shift held through the whole drag. Try again.', 'retry'); }
+    if (drag) { drag = null; feedback('Keep Shift held. Try again.', 'retry'); }
     if (keyboardMoved && !roundDone) { keyboardMoved = false; check(); }
   };
   const blur = () => { drag = null; keyboardMoved = false; keyState(false); };
@@ -388,25 +452,17 @@ $('#next').onclick = () => {
   dispose(); dispose = () => {};
   stage.className = 'stage';
   stage.innerHTML = '<div class="finish"><div class="finish-mark">✓</div><h3>Practice complete</h3><p>You practiced selecting, placing, scrolling, zooming, orbiting, and panning.</p><button class="primary" id="play-again">Start again</button></div>';
-  task('All 19 rounds complete. You can revisit a skill above.');
+  goal('<strong class="goal-number">✓</strong>', 'All rounds complete'); task('19 rounds complete!');
   $('#task-label').textContent = '✓ ALL SKILLS COMPLETE';
   $('#activity-title').textContent = 'All skills complete';
-  $('#instruction').textContent = 'You completed 19 rounds of mouse and keyboard practice for working with 3D shapes.';
-  $('#tip').textContent = 'Choose a skill above to replay its rounds, or start again.';
+  $('#instruction').textContent = 'All six skills practiced.';
+  $('#tip').textContent = 'Play again or choose a skill.';
   $('.mouse-guide').hidden = true;
   $('.keyboard-help').hidden = true;
   $('#counter').textContent = '19 / 19 rounds';
-  feedback('All skills complete. Choose a skill to repeat or click Start again.', 'success');
+  feedback('✓ All done!', 'success');
   $('#next').disabled = true; $('#next').textContent = 'Practice complete';
   $('#play-again').onclick = () => { progress.fill(0); modelAngle = -32; modelScale = 1; render(0, true); };
 };
 $('#retry').onclick = () => render(current, true, activeRound);
-$('#listen').onclick = () => {
-  if (!('speechSynthesis' in window)) { feedback('Read-aloud is unavailable in this browser.'); return; }
-  speechSynthesis.cancel();
-  const message = new SpeechSynthesisUtterance(`${$('#task').textContent} ${$('#instruction').textContent}`);
-  message.rate = .9; message.lang = 'en-US';
-  message.onerror = e => { if (!['interrupted', 'canceled'].includes(e.error)) feedback('The voice could not play.'); };
-  speechSynthesis.speak(message);
-};
 render(0);

@@ -24,18 +24,27 @@ Then open:
 Open `http://localhost:8000/mouse-makers/` for student mouse practice before
 Tinkercad. The portfolio includes a project card.
 
-Six skills contain 19 rounds: number-order clicking (12 clicks: stationary, slow-moving, then faster-moving targets), shape placement
-(8 drops), scrolling through a shapes panel (6 selections), zooming to four ranges,
-orbiting to three faces, and three Shift + right-button drag panning challenges.
-Each round has an explicit task and persistent success feedback. Students click
-Next round or Next skill to continue; the next skill unlocks after all rounds.
-Completed skills can be replayed, and Restart round repeats the current round.
+Six skills contain 19 rounds:
 
-The blue grid and basic shapes approximate a modeling workplane. This is an
-independent practice activity, not a full Tinkercad editor. Use a two-button mouse
-and a keyboard for the intended gestures. Expand Keyboard controls in each skill
-for alternatives. Read-aloud uses browser speech synthesis. Progress is kept only
-until refresh; there are no accounts or saved student data.
+- Click 1–4 in order: still, slow, then fast. Moving rounds offer Slow, Medium,
+  Fast, and Extra fast speeds, plus pause and reduced-motion support.
+- Drag flat squares, circles, triangles, and rectangles into three picture puzzles:
+  a house, robot, and rocket (11 pieces total).
+- Scroll to find six exact picture-and-number cards. The target stays visible.
+- Zoom a rocket picture to fit four visible frames; no percentage reading required.
+- Turn a genuine 3D cube to match three large pictured symbols.
+- Hold Shift and right-drag the workplane to park a rover three times.
+
+Visual targets, mouse-button diagrams, brief action cues, and persistent checkmarks
+provide instructions and feedback without sound. Flat shapes use familiar 2D
+names (square, circle, triangle, rectangle, hexagon). Students click Next round
+or Next skill to continue; the next skill unlocks after all rounds. Completed
+skills can be replayed. Restart round repeats the current round.
+
+The blue workplane is a setting for mouse practice, not a full Tinkercad editor.
+Use a two-button mouse and keyboard for the intended gestures. Keyboard alternatives
+are available in each skill. Progress and speed choices last until refresh; there
+are no accounts, saved student data, or audio requirements.
 
 Tinkercad control reference: https://assets.ctfassets.net/jl5ii4oqrdmc/6TNFVIF89KMN9CPLLH97U0/cc996201b4d443c63c84b54a26c1891b/Tinkercad_keyboard_shortcuts_1_up.pdf
 

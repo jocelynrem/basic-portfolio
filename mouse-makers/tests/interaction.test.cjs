@@ -11,11 +11,11 @@ function setup() {
       this.children = []; this.style = {}; this.dataset = {}; this.clientWidth = 800; this.clientHeight = 365;
       this.classList = { add() {}, remove() {}, toggle() {} }; this.captures = new Set();
     }
-    setAttribute() {}
+    setAttribute(name, value) { this[name] = value; }
     set innerHTML(value) { this.html = value; this.children = []; }
     get innerHTML() { return this.html || ''; }
-    append(...children) { this.children.push(...children); children.forEach(el => { if (el.id) nodes.set('#' + el.id, el); }); }
-    insertAdjacentHTML() {} focus() {}
+    append(...children) { this.children.push(...children); const register = el => { if (el.id) nodes.set('#' + el.id, el); el.children.forEach(register); }; children.forEach(register); }
+    insertAdjacentHTML() {} focus() {} addEventListener() {}
     setPointerCapture(id) { this.captures.add(id); }
     releasePointerCapture(id) { this.captures.delete(id); }
     hasPointerCapture(id) { return this.captures.has(id); }
@@ -104,10 +104,10 @@ test('each click round uses the same four numbered items and enforces number ord
     assert.equal(buttons.length, 4);
     buttons.forEach((b, i) => assert.match(b.innerHTML, new RegExp(`target-number">${i + 1}<`)));
     buttons[2].onclick();
-    assert.equal(t.get('#counter').textContent, '0 / 4 selections');
+    assert.equal(t.get('#counter').textContent, '0 / 4 clicks');
     assert.equal(t.get('#next').disabled, true);
     buttons.forEach(b => b.onclick());
-    assert.equal(t.get('#counter').textContent, '4 / 4 selections');
+    assert.equal(t.get('#counter').textContent, '4 / 4 clicks');
     assert.equal(t.run('progress[0]'), round + 1);
     assert.equal(t.frames.size, 0);
   }
@@ -141,4 +141,38 @@ test('a selected moving target stops while remaining items keep moving', () => {
   t.tick(40); t.tick(60);
   assert.equal(first.style.left, stopped);
   assert.notEqual(second.style.left, moving);
+});
+test('speed selector updates motion and remembers the chosen speed for that round', () => {
+  const t = setup(); t.run('render(0, false, 2);');
+  const select = t.get('#click-speed');
+  assert.equal(select.value, '2');
+  select.value = '0.45'; select.onchange();
+  assert.equal(t.run('clickSpeeds[2]'), .45);
+  t.run('render(0, false, 2);');
+  assert.equal(t.get('#click-speed').value, '0.45');
+});
+test('scroll target is pictured twice and advances only for the exact numbered card', () => {
+  const t = setup(); t.run('render(2, false, 0);');
+  const cards = t.get('.library-list').children;
+  assert.equal(cards.length, 12);
+  assert.equal(t.get('#task-visual').innerHTML, cards[7].innerHTML);
+  assert.equal(t.get('#reference-card').innerHTML, cards[7].innerHTML);
+  cards[2].onclick(); // Same triangle, wrong number.
+  assert.equal(t.get('#counter').textContent, '0 / 2 matches');
+  cards[7].onclick();
+  assert.equal(t.get('#reference-card').innerHTML, cards[1].innerHTML);
+  cards[1].onclick(); assert.equal(t.run('roundDone'), true);
+});
+test('zoom checks picture size rather than accepting an early confirmation', () => {
+  const t = setup(); t.run('render(3, false, 0);');
+  t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), false);
+  for (let i = 0; i < 10; i++) t.get('#zoom-in').onclick();
+  t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), true);
+  assert.equal(t.get('#task').textContent, 'Perfect fit! ✓');
+});
+test('flat-shape activities use 2D geometry names', () => {
+  const t = setup();
+  assert.equal(t.run("Object.keys(symbols).join(',')"), 'square,circle,triangle,rectangle,hexagon');
+  assert.match(t.run("shapeArt('circle')"), /<circle/);
+  assert.match(t.run("shapeArt('square')"), /width="80" height="80"/);
 });
