@@ -380,3 +380,22 @@ body > footer { padding: 4px 16px; }
 
 #task-visual .rover-art { width: 44px; height: 34px; }
 #task-visual .parking-icon { width: 32px; height: 32px; font-size: 22px; }
+
+/* The task card lives on the same grid as the activity, above its interaction area. */
+.workplane-surface {
+  border: 1px solid #aecada; border-radius: 8px; overflow: hidden;
+  background-color: #edf7fc;
+  background-image: linear-gradient(#75b4d23b 1px, transparent 1px), linear-gradient(90deg, #75b4d23b 1px, transparent 1px), linear-gradient(#91c1d925 1px, transparent 1px), linear-gradient(90deg, #91c1d925 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+}
+.workplane-surface > .task-banner {
+  width: fit-content; max-width: calc(100% - 20px); margin: 8px 10px 2px;
+  background: #fffef7; border: 2px solid #dcaa39; border-radius: 8px;
+  box-shadow: 0 2px 5px #36566b18; padding: 6px 12px;
+}
+.workplane-surface #task { font-size: 17px; color: #243d4b; }
+.workplane-surface #task-label { color: #785412; }
+.workplane-surface > .stage { background: transparent; border: 0; border-radius: 0; }
+.workplane-surface > .stage.round-complete { box-shadow: inset 0 0 0 3px #2d8156; }
+@media (max-width: 759px) { .workplane-surface #task { font-size: 15px; } }
+@media (min-width: 760px) { .workplane-surface > .stage { height: clamp(270px, calc(100dvh - 325px), 420px); } }
