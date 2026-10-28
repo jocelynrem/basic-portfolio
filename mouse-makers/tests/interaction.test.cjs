@@ -153,16 +153,15 @@ test('speed selector updates motion and remembers the chosen speed for that roun
   t.run('render(0, false, 2);');
   assert.equal(t.get('#click-speed').value, '0.45');
 });
-test('scroll target is pictured twice and advances only for the exact numbered card', () => {
+test('scroll target stays in the instruction card and advances only for the exact numbered card', () => {
   const t = setup(); t.run('render(3, false, 0);');
   const cards = t.get('.library-list').children;
   assert.equal(cards.length, 12);
   assert.equal(t.get('#task-visual').innerHTML, cards[7].innerHTML);
-  assert.equal(t.get('#reference-card').innerHTML, cards[7].innerHTML);
   cards[2].onclick(); // Same triangle, wrong number.
   assert.equal(t.get('#counter').textContent, '0 / 2 matches');
   cards[7].onclick();
-  assert.equal(t.get('#reference-card').innerHTML, cards[1].innerHTML);
+  assert.equal(t.get('#task-visual').innerHTML, cards[1].innerHTML);
   cards[1].onclick(); assert.equal(t.run('roundDone'), true);
 });
 test('zoom unlocks Next only while matched and advances with one click', () => {

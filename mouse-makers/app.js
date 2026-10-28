@@ -99,7 +99,9 @@ function render(index, focus = false, requestedRound = null) {
   goal('', '');
   feedback('Your turn.');
   [clickActivity, doubleClickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
-  if (index < 3) stage.insertAdjacentHTML('beforeend', leftMouseCue(index));
+  $('#task-mouse').hidden = false;
+  $('#task-mouse').innerHTML = index < 3 ? leftMouseCue(index) : index < 5 ? scrollMouseArt() : rightMouseCue(index === 6);
+  $('.workplane-surface').dataset.skill = a.name;
   if (focus) $('#activity-title').focus();
 }
 function workplane(label = 'TOP VIEW') {
@@ -120,8 +122,7 @@ function doubleClickActivity() {
   const board = document.createElement('div');
   board.className = 'word-board word-round-2';
   function prompt() {
-    goal('', '');
-    $('#word-goal').innerHTML = `<small>DOUBLE-CLICK THIS WORD</small><strong class="goal-word">${words[order[matched]]}</strong>`;
+    goal(`<strong class="goal-word">${words[order[matched]]}</strong>`, `Highlight ${words[order[matched]]}`);
     task('Double-click this word.');
     count(matched, order.length, 'words');
   }
@@ -148,7 +149,6 @@ function doubleClickActivity() {
     label.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); highlight(); } };
     card.append(label, check); board.append(card);
   });
-  stage.insertAdjacentHTML('beforeend', '<div id="word-goal" aria-live="polite"></div>');
   stage.append(board); prompt();
   dispose = () => window.getSelection()?.removeAllRanges();
 }
@@ -362,18 +362,15 @@ function readyToContinue(ready, finish) {
 }
 function scrollActivity() {
   workplane('SCROLL SEARCH');
-  stage.insertAdjacentHTML('beforeend', '<div class="find-reference"><strong>FIND THIS</strong><div id="reference-card"></div><span class="search-arrow" aria-hidden="true">→</span>' + scrollMouseArt() + '<small>Roll the wheel ↕ · Click</small></div><div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
+  stage.insertAdjacentHTML('beforeend', '<div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
   const shapes = ['square', 'circle', 'triangle', 'rectangle', 'hexagon'];
   const orders = [[7, 1]];
   const order = orders[activeRound]; let found = 0;
   function card(i) { return shapeArt(shapes[i % shapes.length]) + `<strong class="card-number">${i + 1}</strong>`; }
   function prompt() {
     const i = order[found];
-    $('#reference-card').innerHTML = card(i);
-    $('#reference-card').setAttribute('role', 'img');
-    $('#reference-card').setAttribute('aria-label', `Find ${shapes[i % shapes.length]} card ${i + 1}`);
     goal(card(i), `Find ${shapes[i % shapes.length]} card ${i + 1}`);
-    task('Find this card. Click it.'); count(found, 2, 'matches');
+    task('Roll the wheel. Find this card. Click it.'); count(found, 2, 'matches');
   }
   for (let i = 0; i < 12; i++) {
     const b = document.createElement('button'); b.className = 'library-shape search-card'; b.innerHTML = card(i);
@@ -403,8 +400,7 @@ function zoomActivity() {
   stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view" disabled>Match the target</button>`;
   const view = $('.zoom-game');
   $('.zoom-frame').style.width = 100 * target + 'px'; $('.zoom-frame').style.height = 140 * target + 'px';
-  goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Fit the frame. Green → Next.');
-  stage.insertAdjacentHTML('beforeend', '<div class="zoom-scroll-cue">' + scrollMouseArt() + '<strong>Roll the wheel</strong></div>');
+  goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Roll the wheel to fit the frame.');
   const aligned = () => Math.abs(modelScale - target) <= tolerance + .001;
   function update(delta = 0) {
     if (roundDone) return;
@@ -427,7 +423,6 @@ function orbitActivity() {
   const target = targets[activeRound];
   if (activeRound === 0) modelAngle = -32;
   const view = scene(); let drag = null;
-  stage.insertAdjacentHTML('beforeend', rightMouseCue().replace('</div>', `<div class="orbit-goal"><small>FIND THIS</small><strong>${target.symbol}</strong></div></div>`));
   stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view" disabled>Match the target</button>');
   goal(`<span class="goal-symbol">${target.symbol}</span>`, `Find the ${target.name} on the cube`);
   task('Hold right + move. Match the symbol.');
@@ -453,7 +448,6 @@ function orbitActivity() {
 }
 function panActivity() {
   stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">' + roverArt() + '</div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">P</div></div><span class="view-tag">TOP VIEW</span><span class="key-state" id="key-state">Shift: not held</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>';
-  stage.insertAdjacentHTML('beforeend', rightMouseCue(true));
   const view = $('.pan-view'), world = $('.pan-world');
   const offsets = [[-.26, -.2], [.26, -.2]];
   let x = stage.clientWidth * offsets[activeRound][0], y = stage.clientHeight * offsets[activeRound][1];
@@ -522,6 +516,7 @@ $('#next').onclick = () => {
   stage.innerHTML = '<div class="finish"><div class="finish-mark">★</div><h3>All 7 skills complete!</h3><p>✓ Click · ✓ Double-click · ✓ Drag<br>✓ Scroll · ✓ Zoom · ✓ Orbit · ✓ Pan</p><button class="primary" id="play-again">Start again</button></div>';
   goal('<strong class="goal-number">✓</strong>', 'All rounds complete'); task(`${activities.reduce((total, a) => total + a.rounds, 0)} rounds complete!`);
   $('#task-label').textContent = '✓ ALL SKILLS COMPLETE';
+  $('#task-mouse').hidden = true;
   $('#activity-title').textContent = 'All skills complete';
   $('#step-label').textContent = 'PRACTICE COMPLETE';
   $('#instruction').textContent = 'All seven skills practiced.';
