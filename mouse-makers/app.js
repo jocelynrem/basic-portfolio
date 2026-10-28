@@ -3,6 +3,7 @@ const $ = selector => document.querySelector(selector);
 const stage = $('#stage');
 const activities = [
   { name: 'Click', title: 'Number chase', rounds: 3, guide: 'left', caption: 'Left click', instruction: 'Click in order.', tip: 'Correct clicks stop the number.', keyboard: 'Tab to a number and press Enter.' },
+  { name: 'Double-click', title: 'Highlight the word', rounds: 3, guide: 'left', caption: 'Click-click → highlight', instruction: 'Double-click the matching word.', tip: 'Two quick clicks. Keep the mouse still.', keyboard: 'Tab to a word and press Enter to highlight it.' },
   { name: 'Drag', title: 'Build a picture', rounds: 3, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
   { name: 'Scroll', title: 'Find the match', rounds: 3, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape AND the number.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
   { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → click ✓', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. Then click Check.' },
@@ -84,7 +85,7 @@ function render(index, focus = false, requestedRound = null) {
   $('.mouse-guide').hidden = false;
   $('.keyboard-help').hidden = false;
   $('#mouse-caption').textContent = a.caption;
-  $('#gesture-key').hidden = index !== 5;
+  $('#gesture-key').hidden = a.name !== 'Pan';
   $('#task-label').textContent = 'YOUR TASK';
   $('#next').textContent = 'Finish the task first';
   $('#next').disabled = true;
@@ -94,7 +95,7 @@ function render(index, focus = false, requestedRound = null) {
   stage.onpointerdown = stage.onpointermove = stage.onpointerup = stage.onpointercancel = stage.onkeydown = stage.oncontextmenu = null;
   goal('', '');
   feedback('Your turn.');
-  [clickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
+  [clickActivity, doubleClickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
   if (focus) $('#activity-title').focus();
 }
 function workplane(label = 'TOP VIEW') {
@@ -106,6 +107,44 @@ function objectButton(type, label, className = 'model-object') {
   button.innerHTML = `<span aria-hidden="true">${symbols[type]}</span><small>${label}</small>`;
   button.setAttribute('aria-label', label);
   return button;
+}
+function doubleClickActivity() {
+  workplane('DOUBLE-CLICK');
+  const words = activeRound === 0 ? ['SUN', 'CAT', 'DOG', 'HAT'] : ['SUN', 'CAT', 'DOG', 'HAT', 'BUG', 'CUP'];
+  const order = activeRound === 0 ? [0, 2, 1, 3] : activeRound === 1 ? [4, 1, 5, 2] : [5, 3, 0, 4];
+  let matched = 0;
+  const board = document.createElement('div');
+  board.className = `word-board word-round-${activeRound}`;
+  function prompt() {
+    goal(`<strong class="goal-word">${words[order[matched]]}</strong>`, `Highlight ${words[order[matched]]}`);
+    task('Double-click this word.');
+    count(matched, order.length, 'words');
+  }
+  words.forEach((word, index) => {
+    const card = document.createElement('div'); card.className = 'word-card';
+    const label = document.createElement('span');
+    label.className = 'practice-word'; label.textContent = word; label.tabIndex = 0;
+    label.setAttribute('aria-label', `Highlight ${word}`);
+    const check = document.createElement('span'); check.className = 'word-check'; check.setAttribute('aria-hidden', 'true');
+    let done = false;
+    function highlight() {
+      if (roundDone || done) return;
+      // Use real text selection, so the result matches highlighting a word elsewhere.
+      const range = document.createRange(); range.selectNodeContents(label);
+      const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      if (index !== order[matched]) { feedback('Match the word above. Try again.', 'retry'); return; }
+      done = true; card.classList.add('matched'); check.textContent = '✓';
+      matched++; count(matched, order.length, 'words');
+      if (matched === order.length) completeRound('Words highlighted! ✓');
+      else { prompt(); feedback('✓ Highlighted! Find the next word.', 'success'); }
+    }
+    label.onclick = e => { if (!roundDone && !done && e.detail === 1) feedback('Click-click quickly on the same word.'); };
+    label.ondblclick = e => { if (e.button === 0) highlight(); };
+    label.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); highlight(); } };
+    card.append(label, check); board.append(card);
+  });
+  stage.append(board); prompt();
+  dispose = () => window.getSelection()?.removeAllRanges();
 }
 function clickActivity() {
   let speed = clickSpeeds[activeRound];
@@ -451,15 +490,16 @@ $('#next').onclick = () => {
   if (current < activities.length - 1) { render(current + 1, true); return; }
   dispose(); dispose = () => {};
   stage.className = 'stage';
-  stage.innerHTML = '<div class="finish"><div class="finish-mark">✓</div><h3>Practice complete</h3><p>You practiced selecting, placing, scrolling, zooming, orbiting, and panning.</p><button class="primary" id="play-again">Start again</button></div>';
-  goal('<strong class="goal-number">✓</strong>', 'All rounds complete'); task('19 rounds complete!');
+  stage.innerHTML = '<div class="finish"><div class="finish-mark">✓</div><h3>Practice complete</h3><p>You practiced selecting, highlighting words, placing, scrolling, zooming, orbiting, and panning.</p><button class="primary" id="play-again">Start again</button></div>';
+  goal('<strong class="goal-number">✓</strong>', 'All rounds complete'); task(`${activities.reduce((total, a) => total + a.rounds, 0)} rounds complete!`);
   $('#task-label').textContent = '✓ ALL SKILLS COMPLETE';
   $('#activity-title').textContent = 'All skills complete';
-  $('#instruction').textContent = 'All six skills practiced.';
+  $('#instruction').textContent = 'All seven skills practiced.';
   $('#tip').textContent = 'Play again or choose a skill.';
   $('.mouse-guide').hidden = true;
   $('.keyboard-help').hidden = true;
-  $('#counter').textContent = '19 / 19 rounds';
+  const totalRounds = activities.reduce((total, a) => total + a.rounds, 0);
+  $('#counter').textContent = `${totalRounds} / ${totalRounds} rounds`;
   feedback('✓ All done!', 'success');
   $('#next').disabled = true; $('#next').textContent = 'Practice complete';
   $('#play-again').onclick = () => { progress.fill(0); modelAngle = -32; modelScale = 1; render(0, true); };

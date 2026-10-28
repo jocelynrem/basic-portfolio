@@ -31,28 +31,30 @@ function setup() {
   const requestAnimationFrame = fn => { frames.set(++frameId, fn); return frameId; };
   const cancelAnimationFrame = id => frames.delete(id);
   const tick = time => { const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); };
-  const context = vm.createContext({ requestAnimationFrame, cancelAnimationFrame, document: { querySelector: get, createElement: () => new Element() }, window });
+  const selection = { removeAllRanges() { this.word = ''; }, addRange(range) { this.word = range.word; } };
+  window.getSelection = () => selection;
+  const context = vm.createContext({ requestAnimationFrame, cancelAnimationFrame, document: { createRange: () => ({ selectNodeContents(label) { this.word = label.textContent; } }), querySelector: get, createElement: () => new Element() }, window });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8'), context);
   const run = code => vm.runInContext(code, context);
   const emit = (type, event) => { for (const fn of listeners.get(type) || []) fn(event); };
   const event = (extra = {}) => ({ button: 2, shiftKey: true, pointerId: 1, clientX: 100, clientY: 100, preventDefault() {}, ...extra });
-  const pan = round => { run(`dispose(); current = 5; activeRound = ${round}; roundDone = false; panActivity();`); return get('.pan-view'); };
+  const pan = round => { run(`dispose(); current = 6; activeRound = ${round}; roundDone = false; panActivity();`); return get('.pan-view'); };
   return { get, run, emit, event, pan, listeners, tick, frames };
 }
 test('pan requires Shift and the right button, and rejects an incomplete drag', () => {
   const t = setup(), view = t.pan(0);
   for (const bad of [{ shiftKey: false }, { button: 0 }]) {
     view.onpointerdown(t.event(bad)); view.onpointermove(t.event({ clientX: 308, clientY: 173 })); view.onpointerup(t.event());
-    assert.equal(t.run('progress[5]'), 0);
+    assert.equal(t.run('progress[6]'), 0);
   }
   view.onpointerdown(t.event()); view.onpointerup(t.event());
-  assert.equal(t.run('progress[5]'), 0);
+  assert.equal(t.run('progress[6]'), 0);
 });
 test('releasing Shift before the mouse prevents completion even at the target', () => {
   const t = setup(), view = t.pan(0);
   view.onpointerdown(t.event()); view.onpointermove(t.event({ clientX: 308, clientY: 173 }));
   t.emit('keyup', { key: 'Shift' }); view.onpointerup(t.event({ shiftKey: false }));
-  assert.equal(t.run('progress[5]'), 0);
+  assert.equal(t.run('progress[6]'), 0);
   assert.match(t.get('#feedback').textContent, /Keep Shift/);
 });
 test('all three Shift/right-drag targets complete once, only on release', () => {
@@ -61,12 +63,12 @@ test('all three Shift/right-drag targets complete once, only on release', () => 
   movement.forEach(([dx, dy], round) => {
     const view = t.pan(round);
     view.onpointerdown(t.event()); view.onpointermove(t.event({ clientX: 100 + dx, clientY: 100 + dy }));
-    assert.equal(t.run('progress[5]'), round);
+    assert.equal(t.run('progress[6]'), round);
     view.onpointerup(t.event());
-    assert.equal(t.run('progress[5]'), round + 1);
+    assert.equal(t.run('progress[6]'), round + 1);
     assert.equal(t.get('#next').disabled, false);
     view.onpointerup(t.event());
-    assert.equal(t.run('progress[5]'), round + 1);
+    assert.equal(t.run('progress[6]'), round + 1);
   });
 });
 test('pointer cancellation and window blur do not complete a pan', () => {
@@ -74,7 +76,7 @@ test('pointer cancellation and window blur do not complete a pan', () => {
     const t = setup(), view = t.pan(0);
     view.onpointerdown(t.event()); view.onpointermove(t.event({ clientX: 308, clientY: 173 }));
     if (cancel === 'pointer') view.onpointercancel(t.event()); else t.emit('blur', {});
-    view.onpointerup(t.event()); assert.equal(t.run('progress[5]'), 0);
+    view.onpointerup(t.event()); assert.equal(t.run('progress[6]'), 0);
     t.run('dispose()');
     for (const set of t.listeners.values()) assert.equal(set.size, 0);
   }
@@ -89,10 +91,10 @@ test('restarting a completed round repeats that round without advancing progress
 });
 test('completion screen removes stale pan instructions and continue prompt', () => {
   const t = setup();
-  t.run('current = 5; activeRound = 2; roundDone = true; activities.forEach((a, i) => progress[i] = a.rounds);');
+  t.run('current = 6; activeRound = 2; roundDone = true; activities.forEach((a, i) => progress[i] = a.rounds);');
   t.get('#next').onclick();
   assert.equal(t.get('#activity-title').textContent, 'All skills complete');
-  assert.equal(t.get('#counter').textContent, '19 / 19 rounds');
+  assert.equal(t.get('#counter').textContent, '22 / 22 rounds');
   assert.equal(t.get('.mouse-guide').hidden, true);
   assert.doesNotMatch(t.get('#feedback').textContent, /green button/);
 });
@@ -152,7 +154,7 @@ test('speed selector updates motion and remembers the chosen speed for that roun
   assert.equal(t.get('#click-speed').value, '0.45');
 });
 test('scroll target is pictured twice and advances only for the exact numbered card', () => {
-  const t = setup(); t.run('render(2, false, 0);');
+  const t = setup(); t.run('render(3, false, 0);');
   const cards = t.get('.library-list').children;
   assert.equal(cards.length, 12);
   assert.equal(t.get('#task-visual').innerHTML, cards[7].innerHTML);
@@ -164,7 +166,7 @@ test('scroll target is pictured twice and advances only for the exact numbered c
   cards[1].onclick(); assert.equal(t.run('roundDone'), true);
 });
 test('zoom checks picture size rather than accepting an early confirmation', () => {
-  const t = setup(); t.run('render(3, false, 0);');
+  const t = setup(); t.run('render(4, false, 0);');
   t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), false);
   for (let i = 0; i < 10; i++) t.get('#zoom-in').onclick();
   t.get('#check-view').onclick(); assert.equal(t.run('roundDone'), true);
@@ -175,4 +177,31 @@ test('flat-shape activities use 2D geometry names', () => {
   assert.equal(t.run("Object.keys(symbols).join(',')"), 'square,circle,triangle,rectangle,hexagon');
   assert.match(t.run("shapeArt('circle')"), /<circle/);
   assert.match(t.run("shapeArt('square')"), /width="80" height="80"/);
+});
+
+test('double-click requires the matching word, selects text, and completes all three rounds', () => {
+  const t = setup();
+  const orders = [[0, 2, 1, 3], [4, 1, 5, 2], [5, 3, 0, 4]];
+  orders.forEach((order, round) => {
+    t.run(`render(1, false, ${round});`);
+    const cards = t.get('#stage').children[0].children;
+    const first = cards[order[0]].children[0];
+    first.onclick({ detail: 1 });
+    assert.equal(t.get('#counter').textContent, '0 / 4 words');
+    first.ondblclick({ button: 2 });
+    assert.equal(t.get('#counter').textContent, '0 / 4 words');
+    cards[order[1]].children[0].ondblclick({ button: 0 });
+    assert.equal(t.get('#counter').textContent, '0 / 4 words');
+    order.forEach((index, i) => {
+      const label = cards[index].children[0];
+      label.ondblclick({ button: 0 });
+      assert.equal(t.run('window.getSelection().word'), label.textContent);
+      assert.equal(t.get('#counter').textContent, `${i + 1} / 4 words`);
+      label.ondblclick({ button: 0 });
+      assert.equal(t.get('#counter').textContent, `${i + 1} / 4 words`);
+    });
+    assert.equal(t.run('progress[1]'), round + 1);
+    assert.equal(t.get('#next').disabled, false);
+    t.run('dispose()'); assert.equal(t.run('window.getSelection().word'), '');
+  });
 });

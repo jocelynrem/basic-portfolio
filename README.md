@@ -24,12 +24,13 @@ Then open:
 Open `http://localhost:8000/mouse-makers/` for student mouse practice before
 Tinkercad. The portfolio includes a project card.
 
-Six skills contain 19 rounds:
+Seven skills contain 22 rounds:
 
 - Click 1–4 in order: still, slow, then fast. Moving rounds offer Slow, Medium,
   Fast, and Extra fast speeds, plus pause and reduced-motion support.
 - Drag flat squares, circles, triangles, and rectangles into three picture puzzles:
   a house, robot, and rocket (11 pieces total).
+- Double-click to highlight 12 matching words, progressing from large cards to closely spaced words.
 - Scroll to find six exact picture-and-number cards. The target stays visible.
 - Zoom a rocket picture to fit four visible frames; no percentage reading required.
 - Turn a genuine 3D cube to match three large pictured symbols.

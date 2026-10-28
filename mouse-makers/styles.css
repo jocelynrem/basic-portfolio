@@ -24,7 +24,7 @@ main { padding-top: 18px; }
 .intro { display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: baseline; margin-bottom: 16px; }
 h1 { margin: 0; font-size: 23px; letter-spacing: -.5px; }
 .intro p { margin: 0; font-size: 14px; color: var(--muted); }
-#steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 16px; }
+#steps { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
 .step { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: white; font-size: 14px; font-weight: 750; }
 .step small { display: block; font-size: 10px; font-weight: 500; margin-top: 3px; }
 .step-number { display: grid; place-items: center; width: 27px; height: 27px; flex-shrink: 0; border-radius: 50%; background: #edf1f4; font-size: 12px; }
@@ -258,3 +258,18 @@ body > footer a { text-decoration: none; }
 .zoom-picture { background: #fffdf5; border: 2px solid #cc7841; border-radius: 4px; }
 .flame-piece .shape-art { transform: rotate(180deg); }
 @media (max-width: 620px) { #reference-card .shape-art { width: 52px; height: 52px; } }
+
+/* Selectable text stays still while students practice the double-click gesture. */
+.word-board { position: absolute; inset: 52px 6% 38px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-content: center; }
+.word-card { position: relative; text-align: center; background: white; border: 2px solid #9dbdcc; border-radius: 8px; padding: 16px 8px; }
+.practice-word { font-size: 30px; font-weight: 750; cursor: text; user-select: text; -webkit-user-select: text; }
+.practice-word::selection { background: #1766bc; color: white; }
+.word-card.matched { border-color: #27804c; background: #eef9f0; }
+.word-check { position: absolute; right: 5px; top: 3px; color: #257a45; font-weight: 800; font-size: 18px; }
+.goal-word { background: #1766bc; color: white; padding: 8px 12px; border-radius: 4px; font-size: 28px; }
+.word-round-1 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.word-round-2 { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 10px 16px; background: #ffffffed; border: 2px solid #9dbdcc; border-radius: 8px; inset: 100px 7% 80px; padding: 18px; }
+.word-round-2 .word-card { border-color: transparent; background: transparent; padding: 8px 12px; }
+.word-round-2 .practice-word { font-size: 24px; }
+@media (max-width: 900px) and (min-width: 621px) { #steps { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 620px) { .practice-word { font-size: 24px; } .word-board { gap: 12px; } .word-round-2 { inset: 65px 5% 45px; padding: 12px; gap: 8px; } }
