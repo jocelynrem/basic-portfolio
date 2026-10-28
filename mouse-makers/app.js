@@ -85,33 +85,85 @@ function objectButton(type, label, className = 'model-object') {
   return button;
 }
 function clickActivity() {
-  workplane();
-  const plans = [
-    [['box', '1'], ['cylinder', '2'], ['roof', '3'], ['box', '4']],
-    [['box', 'Box A'], ['cylinder', 'Cylinder A'], ['roof', 'Roof A'], ['box', 'Box B'], ['cylinder', 'Cylinder B']],
-    [['box', 'Box A'], ['cylinder', 'Cylinder A'], ['roof', 'Roof A'], ['box', 'Box B'], ['cylinder', 'Cylinder B'], ['roof', 'Roof B']]
-  ];
-  const items = plans[activeRound];
-  const order = activeRound === 0 ? [0, 1, 2, 3] : activeRound === 1 ? [3, 1, 2, 4, 0] : [4, 0, 5, 1, 3, 2];
-  let selected = 0;
-  const positions = [[15, 18], [45, 16], [73, 20], [19, 60], [48, 58], [76, 62]];
-  function prompt() { task(`LEFT CLICK: Select ${items[order[selected]][1]}.`); count(selected, items.length, 'selections'); }
+  const speed = [0, .45, 1.05][activeRound];
+  const roundNames = ['STATIONARY', 'SLOW MOVEMENT', 'FASTER MOVEMENT'];
+  workplane(roundNames[activeRound]);
+  const items = [['box', '1'], ['cylinder', '2'], ['roof', '3'], ['box', '4']];
+  const centers = [[.25, .3], [.73, .3], [.25, .72], [.73, .72]];
+  const targets = [];
+  let selected = 0, elapsed = 0, previousTime = null, frame = null, held = null;
+  let paused = speed > 0 && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  $('#activity-title').textContent = 'Click in number order';
+  $('#instruction').textContent = speed === 0
+    ? 'Click 1, then 2, then 3, then 4. These items stay still.'
+    : `Click the same items in order: 1, 2, 3, 4. They move ${activeRound === 1 ? 'slowly' : 'faster'} in this round.`;
+  $('#tip').textContent = 'A correct click stops that item and adds a checkmark. Clicking a different number does not move you forward.';
+  function prompt() {
+    task(`LEFT CLICK: Select ${selected + 1}. Follow the order 1 → 2 → 3 → 4.`);
+    count(selected, items.length, 'selections');
+  }
   items.forEach(([type, label], i) => {
-    const b = objectButton(type, label);
-    b.style.left = positions[i][0] + '%'; b.style.top = positions[i][1] + '%';
-    b.classList.toggle('smaller', activeRound === 2);
+    const b = objectButton(type, label, 'model-object numbered-target');
+    b.innerHTML = `<strong class="target-number">${label}</strong><span class="target-symbol" aria-hidden="true">${symbols[type]}</span>`;
+    b.style.left = centers[i][0] * 100 + '%'; b.style.top = centers[i][1] * 100 + '%';
+    b.onpointerdown = e => { if (e.button === 0 && !b.disabled) held = { button: b, id: e.pointerId }; };
     b.onclick = () => {
       if (roundDone || b.disabled) return;
-      if (i !== order[selected]) { feedback(`That is ${label}. Find ${items[order[selected]][1]}.`, 'retry'); return; }
-      b.classList.add('placed'); b.disabled = true; b.innerHTML += '<b class="object-check" aria-hidden="true">✓</b>';
+      if (i !== selected) { feedback(`That is ${label}. Click ${selected + 1} next.`, 'retry'); return; }
+      b.classList.add('placed'); b.disabled = true;
+      b.innerHTML += '<b class="object-check" aria-hidden="true">✓</b>';
       selected++; count(selected, items.length, 'selections');
-      if (selected === items.length) completeRound(`Selected all ${items.length} shapes correctly.`);
-      else { prompt(); feedback(`✓ ${label} selected. Now find ${items[order[selected]][1]}.`, 'success'); }
+      if (selected === items.length) {
+        if (frame !== null) cancelAnimationFrame(frame);
+        if ($('#motion-toggle')) $('#motion-toggle').disabled = true;
+        completeRound('Clicked 1, 2, 3, and 4 in order.');
+      } else { prompt(); feedback(`✓ ${label} clicked. Now click ${selected + 1}.`, 'success'); }
     };
-    stage.append(b);
+    stage.append(b); targets.push(b);
   });
+  if (speed > 0) {
+    const toggle = document.createElement('button');
+    toggle.id = 'motion-toggle'; toggle.className = 'motion-toggle';
+    function updateToggle() {
+      toggle.textContent = paused ? 'Resume movement' : 'Pause movement';
+      toggle.setAttribute('aria-pressed', String(paused));
+    }
+    toggle.onclick = () => { paused = !paused; updateToggle(); };
+    updateToggle(); stage.append(toggle);
+    if (paused) feedback('Movement is paused for your reduced-motion setting. Click Resume movement to practice moving targets.');
+    function animate(time) {
+      if (roundDone) return;
+      const delta = previousTime === null ? 0 : Math.min((time - previousTime) / 1000, .05);
+      previousTime = time;
+      if (!paused) {
+        elapsed += delta * speed;
+        targets.forEach((b, i) => {
+          if (b.disabled || held?.button === b) return;
+          // Each target has its own lane, so labels never cross or overlap.
+          const phase = i * Math.PI / 2;
+          const x = centers[i][0] + .075 * (Math.sin(elapsed + phase) - Math.sin(phase));
+          const y = centers[i][1] + .065 * (Math.cos(elapsed + phase) - Math.cos(phase));
+          b.style.left = x * 100 + '%'; b.style.top = y * 100 + '%';
+        });
+      }
+      frame = requestAnimationFrame(animate);
+    }
+    frame = requestAnimationFrame(animate);
+  }
+  const release = e => { if (held?.id === e.pointerId) held = null; };
+  const blur = () => { held = null; previousTime = null; };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
+  window.addEventListener('blur', blur);
+  dispose = () => {
+    if (frame !== null) cancelAnimationFrame(frame);
+    window.removeEventListener('pointerup', release);
+    window.removeEventListener('pointercancel', release);
+    window.removeEventListener('blur', blur);
+  };
   prompt();
 }
+
 function dragActivity() {
   workplane();
   const types = activeRound === 0 ? ['box', 'cylinder'] : ['box', 'cylinder', 'roof'];

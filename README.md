@@ -24,7 +24,7 @@ Then open:
 Open `http://localhost:8000/mouse-makers/` for student mouse practice before
 Tinkercad. The portfolio includes a project card.
 
-Six skills contain 19 rounds: ordered shape selection (15 clicks), shape placement
+Six skills contain 19 rounds: number-order clicking (12 clicks: stationary, slow-moving, then faster-moving targets), shape placement
 (8 drops), scrolling through a shapes panel (6 selections), zooming to four ranges,
 orbiting to three faces, and three Shift + right-button drag panning challenges.
 Each round has an explicit task and persistent success feedback. Students click

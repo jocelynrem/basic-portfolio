@@ -8,10 +8,14 @@ function setup() {
   const nodes = new Map();
   class Element {
     constructor() {
-      this.style = {}; this.dataset = {}; this.clientWidth = 800; this.clientHeight = 365;
+      this.children = []; this.style = {}; this.dataset = {}; this.clientWidth = 800; this.clientHeight = 365;
       this.classList = { add() {}, remove() {}, toggle() {} }; this.captures = new Set();
     }
-    setAttribute() {} append() {} insertAdjacentHTML() {} focus() {}
+    setAttribute() {}
+    set innerHTML(value) { this.html = value; this.children = []; }
+    get innerHTML() { return this.html || ''; }
+    append(...children) { this.children.push(...children); children.forEach(el => { if (el.id) nodes.set('#' + el.id, el); }); }
+    insertAdjacentHTML() {} focus() {}
     setPointerCapture(id) { this.captures.add(id); }
     releasePointerCapture(id) { this.captures.delete(id); }
     hasPointerCapture(id) { return this.captures.has(id); }
@@ -22,13 +26,18 @@ function setup() {
     addEventListener(type, fn) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); },
     removeEventListener(type, fn) { listeners.get(type)?.delete(fn); }
   };
-  const context = vm.createContext({ document: { querySelector: get, createElement: () => new Element() }, window });
+  let frameId = 0;
+  const frames = new Map();
+  const requestAnimationFrame = fn => { frames.set(++frameId, fn); return frameId; };
+  const cancelAnimationFrame = id => frames.delete(id);
+  const tick = time => { const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); };
+  const context = vm.createContext({ requestAnimationFrame, cancelAnimationFrame, document: { querySelector: get, createElement: () => new Element() }, window });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8'), context);
   const run = code => vm.runInContext(code, context);
   const emit = (type, event) => { for (const fn of listeners.get(type) || []) fn(event); };
   const event = (extra = {}) => ({ button: 2, shiftKey: true, pointerId: 1, clientX: 100, clientY: 100, preventDefault() {}, ...extra });
   const pan = round => { run(`dispose(); current = 5; activeRound = ${round}; roundDone = false; panActivity();`); return get('.pan-view'); };
-  return { get, run, emit, event, pan, listeners };
+  return { get, run, emit, event, pan, listeners, tick, frames };
 }
 test('pan requires Shift and the right button, and rejects an incomplete drag', () => {
   const t = setup(), view = t.pan(0);
@@ -86,4 +95,50 @@ test('completion screen removes stale pan instructions and continue prompt', () 
   assert.equal(t.get('#counter').textContent, '19 / 19 rounds');
   assert.equal(t.get('.mouse-guide').hidden, true);
   assert.doesNotMatch(t.get('#feedback').textContent, /green button/);
+});
+test('each click round uses the same four numbered items and enforces number order', () => {
+  const t = setup();
+  for (let round = 0; round < 3; round++) {
+    t.run(`render(0, false, ${round});`);
+    const buttons = t.get('#stage').children.filter(b => b.className.includes('numbered-target'));
+    assert.equal(buttons.length, 4);
+    buttons.forEach((b, i) => assert.match(b.innerHTML, new RegExp(`target-number">${i + 1}<`)));
+    buttons[2].onclick();
+    assert.equal(t.get('#counter').textContent, '0 / 4 selections');
+    assert.equal(t.get('#next').disabled, true);
+    buttons.forEach(b => b.onclick());
+    assert.equal(t.get('#counter').textContent, '4 / 4 selections');
+    assert.equal(t.run('progress[0]'), round + 1);
+    assert.equal(t.frames.size, 0);
+  }
+});
+test('round one stays still, round three moves faster, pause and cleanup stop animation', () => {
+  const t = setup();
+  assert.equal(t.frames.size, 0);
+  const distances = [];
+  for (const round of [1, 2]) {
+    t.run(`render(0, false, ${round});`);
+    const first = t.get('#stage').children[0];
+    const start = parseFloat(first.style.left);
+    for (let time = 0; time <= 1000; time += 20) t.tick(time);
+    distances.push(Math.abs(parseFloat(first.style.left) - start));
+    t.get('#motion-toggle').onclick();
+    const paused = first.style.left;
+    t.tick(1020); t.tick(1040);
+    assert.equal(first.style.left, paused);
+    t.get('#motion-toggle').onclick(); t.tick(1060);
+    assert.notEqual(first.style.left, paused);
+  }
+  assert.ok(distances[1] > distances[0] * 1.5);
+  t.run('dispose()'); assert.equal(t.frames.size, 0);
+  for (const set of t.listeners.values()) assert.equal(set.size, 0);
+});
+test('a selected moving target stops while remaining items keep moving', () => {
+  const t = setup(); t.run('render(0, false, 1);');
+  const [first, second] = t.get('#stage').children;
+  t.tick(0); t.tick(20); first.onclick();
+  const stopped = first.style.left, moving = second.style.left;
+  t.tick(40); t.tick(60);
+  assert.equal(first.style.left, stopped);
+  assert.notEqual(second.style.left, moving);
 });
