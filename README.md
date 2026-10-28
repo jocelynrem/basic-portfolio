@@ -24,17 +24,17 @@ Then open:
 Open `http://localhost:8000/mouse-makers/` for student mouse practice before
 Tinkercad. The portfolio includes a project card.
 
-Seven skills contain 22 rounds:
+Seven skills contain 14 rounds:
 
 - Click 1–4 in order: still, slow, then fast. Moving rounds offer Slow, Medium,
   Fast, and Extra fast speeds, plus pause and reduced-motion support.
 - Drag flat squares, circles, triangles, and rectangles into three picture puzzles:
   a house, robot, and rocket (11 pieces total).
-- Double-click to highlight 12 matching words, progressing from large cards to closely spaced words.
-- Scroll to find six exact picture-and-number cards. The target stays visible, with a mouse-wheel picture showing the scrolling gesture.
-- Zoom a rocket picture to fit four visible frames; no percentage reading required.
-- Turn a genuine 3D cube to match three large pictured symbols.
-- Hold Shift and right-drag the workplane to park a rover three times.
+- Double-click to highlight eight matching words, progressing from large cards to closely spaced words.
+- Scroll to find two exact picture-and-number cards. The target stays visible, with a mouse-wheel picture showing the scrolling gesture.
+- Zoom a rocket picture to fit two visible frames (zoom in, then out with a tighter fit); no percentage reading required.
+- Turn a genuine 3D cube to match one large pictured symbol.
+- Hold Shift and right-drag the workplane to park a rover twice, with a smaller parking space in round two.
 
 Visual targets, mouse-button diagrams, brief action cues, and persistent checkmarks
 provide instructions and feedback without sound. Flat shapes use familiar 2D
@@ -54,3 +54,5 @@ Run interaction regression checks with:
 ```bash
 node --test mouse-makers/tests/interaction.test.cjs
 ```
+
+Skill completions have silent confetti celebrations, with a larger finale. Reduced-motion preferences use a static badge instead.

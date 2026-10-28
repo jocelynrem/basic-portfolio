@@ -57,9 +57,9 @@ test('releasing Shift before the mouse prevents completion even at the target', 
   assert.equal(t.run('progress[6]'), 0);
   assert.match(t.get('#feedback').textContent, /Keep Shift/);
 });
-test('all three Shift/right-drag targets complete once, only on release', () => {
+test('both Shift/right-drag targets complete once, only on release', () => {
   const t = setup();
-  const movement = [[208, 73], [-208, 73], [184, -80.3]];
+  const movement = [[208, 73], [-208, 73]];
   movement.forEach(([dx, dy], round) => {
     const view = t.pan(round);
     view.onpointerdown(t.event()); view.onpointermove(t.event({ clientX: 100 + dx, clientY: 100 + dy }));
@@ -91,10 +91,10 @@ test('restarting a completed round repeats that round without advancing progress
 });
 test('completion screen removes stale pan instructions and continue prompt', () => {
   const t = setup();
-  t.run('current = 6; activeRound = 2; roundDone = true; activities.forEach((a, i) => progress[i] = a.rounds);');
+  t.run('current = 6; activeRound = 1; roundDone = true; activities.forEach((a, i) => progress[i] = a.rounds);');
   t.get('#next').onclick();
   assert.equal(t.get('#activity-title').textContent, 'All skills complete');
-  assert.equal(t.get('#counter').textContent, '22 / 22 rounds');
+  assert.equal(t.get('#counter').textContent, '14 / 14 rounds');
   assert.equal(t.get('.mouse-guide').hidden, true);
   assert.doesNotMatch(t.get('#feedback').textContent, /green button/);
 });
@@ -180,7 +180,8 @@ test('zoom unlocks Next only while matched and advances with one click', () => {
   for (let i = 0; i < 15; i++) t.get('#zoom-out').onclick();
   t.get('#check-view').onclick();
   assert.equal(t.run('progress[4]'), 2);
-  assert.equal(t.run('activeRound'), 2);
+  assert.equal(t.run('current'), 5);
+  assert.equal(t.run('activeRound'), 0);
 });
 test('orbit enables one-click continuation after releasing an aligned cube', () => {
   const t = setup(); t.run('render(5, false, 0);');
@@ -192,7 +193,8 @@ test('orbit enables one-click continuation after releasing an aligned cube', () 
   assert.equal(t.get('#next').disabled, false);
   t.get('#check-view').onclick();
   assert.equal(t.run('progress[5]'), 1);
-  assert.equal(t.run('activeRound'), 1);
+  assert.equal(t.run('current'), 6);
+  assert.equal(t.run('activeRound'), 0);
   assert.equal(t.get('#next').disabled, true);
 });
 test('flat-shape activities use 2D geometry names', () => {
@@ -202,9 +204,9 @@ test('flat-shape activities use 2D geometry names', () => {
   assert.match(t.run("shapeArt('square')"), /width="80" height="80"/);
 });
 
-test('double-click requires the matching word, selects text, and completes all three rounds', () => {
+test('double-click requires the matching word, selects text, and completes both rounds', () => {
   const t = setup();
-  const orders = [[0, 2, 1, 3], [4, 1, 5, 2], [5, 3, 0, 4]];
+  const orders = [[0, 2, 1, 3], [5, 3, 0, 4]];
   orders.forEach((order, round) => {
     t.run(`render(1, false, ${round});`);
     const cards = t.get('#stage').children[0].children;
@@ -227,4 +229,21 @@ test('double-click requires the matching word, selects text, and completes all t
     assert.equal(t.get('#next').disabled, false);
     t.run('dispose()'); assert.equal(t.run('window.getSelection().word'), '');
   });
+});
+
+test('celebrations happen at skill completion and the finale is larger', () => {
+  const t = setup();
+  t.run('completeRound("Done");');
+  assert.equal(t.get('#celebration').innerHTML, '');
+  t.run('render(0, false, 2); completeRound("Done");');
+  assert.equal(t.get('#celebration').className, 'celebration skill-celebration');
+  assert.match(t.get('#celebration').innerHTML, /Click complete!/);
+  const skillPieces = (t.get('#celebration').innerHTML.match(/<i /g) || []).length;
+  t.run('current = 6; activeRound = 1; roundDone = true; activities.forEach((a, i) => progress[i] = a.rounds);');
+  t.get('#next').onclick();
+  assert.equal(t.get('#celebration').className, 'celebration finale');
+  assert.ok((t.get('#celebration').innerHTML.match(/<i /g) || []).length > skillPieces);
+  t.get('#play-again').onclick();
+  assert.equal(t.get('#celebration').innerHTML, '');
+  assert.equal(t.run('progress.every(n => n === 0)'), true);
 });

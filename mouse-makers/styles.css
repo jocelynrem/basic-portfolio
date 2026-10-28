@@ -279,3 +279,34 @@ body > footer a { text-decoration: none; }
 .zoom-scroll-cue { position: absolute; left: 12px; top: 48px; display: flex; flex-direction: column; align-items: center; pointer-events: none; font-size: 12px; }
 .check-view:disabled { background: #f1f5f7; border-color: #a6b8c1; color: #526a76; cursor: default; }
 @media (max-width: 620px) { .scroll-mouse-picture { width: 90px; height: 64px; } .zoom-scroll-cue { left: 3px; top: 36px; font-size: 10px; } .zoom-scroll-cue .scroll-mouse-picture { width: 66px; height: 48px; } }
+
+.right-mouse-cue { position: absolute; left: 12px; top: 48px; width: 150px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; pointer-events: none; z-index: 3; background: #fffffff0; border: 2px solid #aac6d4; border-radius: 10px; padding: 10px 6px; text-align: center; }
+.right-mouse-cue svg { width: 86px; height: 90px; }
+.right-mouse-cue strong, .right-mouse-cue small { width: 100%; }
+.right-mouse-cue strong { font-size: 14px; }
+.right-mouse-cue small { font-size: 11px; }
+.right-mouse-cue kbd { padding: 5px; background: #e8eef3; border: 2px solid #698a9e; border-bottom-width: 4px; border-radius: 5px; font-weight: 700; }
+.guide-right .mouse-right { background: #ecaa26; }
+.celebration { position: fixed; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; animation: celebration-exit 3s forwards; }
+.celebration-badge { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 32px; border: 3px solid #247855; border-radius: 18px; background: #fffef4; box-shadow: 0 12px 45px #14374840; color: #195c43; text-align: center; animation: badge-pop .55s cubic-bezier(.2,1.5,.5,1); }
+.celebration-badge span { font-size: 48px; line-height: 1; }
+.celebration-badge strong { font-size: 24px; white-space: nowrap; }
+.celebration i { position: absolute; top: -25px; left: var(--x); width: 11px; height: 19px; border-radius: 2px; background: var(--color); animation: confetti-fall 2.5s var(--delay) ease-in forwards; }
+.celebration i:nth-child(3n) { border-radius: 50%; width: 14px; height: 14px; }
+.finale { animation-duration: 5s; background: radial-gradient(ellipse at center, #f6cf3a22, transparent 70%); }
+.finale .celebration-badge { border-color: #cd921d; padding: 30px 44px; }
+.finale .celebration-badge span { font-size: 76px; color: #d49a19; }
+.finale i { animation-duration: 4.3s; }
+@keyframes badge-pop { from { transform: translateX(-50%) scale(.3) rotate(-10deg); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+@keyframes confetti-fall { to { transform: translate(var(--drift), 110vh) rotate(var(--spin)); } }
+@keyframes celebration-exit { 0%, 78% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@media (max-width: 620px) {
+  .right-mouse-cue { left: 5px; top: 35px; width: 105px; padding: 5px 3px; gap: 2px; }
+  .right-mouse-cue svg { width: 57px; height: 60px; }
+  .right-mouse-cue strong { font-size: 11px; }
+  .right-mouse-cue small { font-size: 9px; }
+  .right-mouse-cue kbd { padding: 3px; font-size: 11px; }
+  .celebration-badge, .finale .celebration-badge { padding: 20px; max-width: 90vw; }
+  .celebration-badge strong { font-size: 20px; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) { .celebration i { display: none; } .celebration-badge { animation: none; } .celebration { animation: celebration-exit 3s steps(1, end) forwards; } }
