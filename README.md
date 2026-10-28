@@ -28,13 +28,12 @@ Seven skills contain 14 rounds:
 
 - Click 1–4 in order: still, slow, then fast. Moving rounds offer Slow, Medium,
   Fast, and Extra fast speeds, plus pause and reduced-motion support.
-- Drag flat squares, circles, triangles, and rectangles into three picture puzzles:
-  a house, robot, and rocket (11 pieces total).
-- Double-click to highlight eight matching words, progressing from large cards to closely spaced words.
-- Scroll to find two exact picture-and-number cards. The target stays visible, with a mouse-wheel picture showing the scrolling gesture.
-- Zoom a rocket picture to fit two visible frames (zoom in, then out with a tighter fit); no percentage reading required.
-- Turn a genuine 3D cube to match one large pictured symbol.
-- Hold Shift and right-drag the workplane to park a rover twice, with a smaller parking space in round two.
+- Drag nine flat shapes into one house-and-garden picture with a tree and two flowers.
+- Double-click four target words in a line of six words, with the target directly above.
+- Scroll to find two picture-and-number cards with a mouse-wheel diagram.
+- Zoom a rocket to fit four frames, alternating bigger and smaller with tighter fits.
+- Turn a 3D cube to find two symbols, shown beneath the right-button diagram.
+- Hold Shift and right-drag to park twice, with a smaller parking space the second time.
 
 Visual targets, mouse-button diagrams, brief action cues, and persistent checkmarks
 provide instructions and feedback without sound. Flat shapes use familiar 2D

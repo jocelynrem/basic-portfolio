@@ -310,3 +310,73 @@ body > footer a { text-decoration: none; }
   .celebration-badge strong { font-size: 20px; white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) { .celebration i { display: none; } .celebration-badge { animation: none; } .celebration { animation: celebration-exit 3s steps(1, end) forwards; } }
+
+/* Compact, single-workplane lesson for Chromebook screens. */
+.topbar { height: 40px; padding: 0 16px; }
+.brand { font-size: 18px; } .brand-icon { width: 26px; height: 26px; font-size: 24px; }
+main { padding: 8px 16px 0; }
+.intro { margin-bottom: 8px; } h1 { font-size: 20px; }
+#steps { margin-bottom: 8px; gap: 5px; }
+.step { padding: 6px 8px; gap: 6px; font-size: 12px; }
+.workshop { display: block; }
+.instruction { padding: 8px 12px 0; border: 0; display: flex; gap: 12px; align-items: baseline; }
+.instruction .eyebrow { margin: 0; }
+.instruction h2 { font-size: 18px; margin: 0; }
+.instruction > #instruction, .instruction > .mouse-guide, .instruction > .tip { display: none; }
+.play-column { padding: 8px 12px; }
+.stage-top { margin-bottom: 5px; }
+.task-banner { min-height: 44px; padding: 5px 10px; margin-bottom: 6px; gap: 10px; }
+#task { font-size: 15px; margin: 0; } #task-label { font-size: 9px; }
+#task-visual { min-height: 32px; min-width: 32px; }
+#task-visual .shape-art, #task-visual .goal-number { width: 32px; height: 32px; font-size: 24px; }
+#task-visual .goal-symbol { font-size: 30px; }
+#task-visual .frame-icon { width: 32px; height: 32px; font-size: 22px; }
+.stage { height: clamp(290px, calc(100dvh - 285px), 420px); }
+.activity-footer { margin-top: 6px; }
+#feedback { min-height: 36px; padding: 5px 10px; }
+.primary { padding: 10px 14px; }
+.below { padding: 6px 0; align-items: baseline; flex-wrap: wrap; }
+.keyboard-help { margin: 0; max-width: 450px; }
+body > footer { padding: 4px 16px; }
+.left-mouse-cue { position: absolute; top: 46px; left: 10px; width: 110px; display: flex; flex-direction: column; align-items: center; pointer-events: none; text-align: center; font-size: 12px; }
+.left-mouse-cue svg { width: 66px; height: 72px; }
+.orbit-goal { width: 100%; display: flex; flex-direction: column; align-items: center; border-top: 1px solid #bed1dc; padding-top: 5px; }
+.orbit-goal strong { font-size: 40px; line-height: 1; color: var(--blue); }
+#word-goal { position: absolute; top: 22%; left: 22%; right: 6%; display: flex; align-items: center; flex-direction: column; gap: 7px; }
+#word-goal small { font-size: 10px; font-weight: 750; }
+.word-round-2 { inset: 48% 6% 18% 22%; padding: 8px; gap: 8px; }
+.picture-piece { width: 60px; height: 66px; }
+.skill-celebration .celebration-badge { top: auto; bottom: 22px; flex-direction: row; padding: 10px 16px; border-width: 2px; border-radius: 10px; }
+.skill-celebration .celebration-badge span { font-size: 22px; }
+.skill-celebration .celebration-badge strong { font-size: 16px; }
+.skill-celebration { animation-duration: 1.8s; }
+.skill-celebration i { width: 6px; height: 9px; animation-duration: 1.4s; }
+@media (min-width: 760px) { #steps { grid-template-columns: repeat(7, 1fr); } }
+@media (max-width: 759px) {
+  .instruction { flex-wrap: wrap; gap: 4px 10px; }
+  .left-mouse-cue { width: 72px; left: 3px; font-size: 10px; }
+  .left-mouse-cue svg { width: 48px; height: 56px; }
+  .picture-piece { width: 42px; height: 54px; } .picture-piece .shape-art { width: 30px; height: 30px; }
+  .word-round-2 { bottom: 8%; } .practice-word { font-size: 20px; }
+}
+@media (min-width: 760px) {
+  main, body > footer { margin-left: auto; margin-right: auto; }
+  .step { font-size: 11px; padding: 6px; }
+  .step-number { width: 23px; height: 23px; }
+  .stage { height: clamp(280px, calc(100dvh - 310px), 420px); }
+}
+
+.picture-target.tree.placed .shape-art { color: #388b54; }
+.picture-target.flower.placed .shape-art { color: #d75d9d; }
+.picture-target.flower.placed::after { content: ''; position: absolute; width: 24%; height: 24%; left: 38%; top: 38%; background: #ffd35c; border-radius: 50%; }
+@media (max-height: 700px) and (min-width: 760px) {
+  .find-reference { top: 10%; gap: 4px; }
+  #reference-card { width: 100px; height: 108px; padding: 8px 18px 30px; }
+  #reference-card .shape-art { width: 52px; height: 52px; }
+  .find-reference .scroll-mouse-picture { width: 85px; height: 60px; }
+  .right-mouse-cue { top: 36px; padding: 6px; gap: 3px; }
+  .right-mouse-cue svg { width: 64px; height: 68px; }
+}
+
+#task-visual .rover-art { width: 44px; height: 34px; }
+#task-visual .parking-icon { width: 32px; height: 32px; font-size: 22px; }

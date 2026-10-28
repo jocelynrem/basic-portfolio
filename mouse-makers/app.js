@@ -3,11 +3,11 @@ const $ = selector => document.querySelector(selector);
 const stage = $('#stage');
 const activities = [
   { name: 'Click', title: 'Number chase', rounds: 3, guide: 'left', caption: 'Left click', instruction: 'Click in order.', tip: 'Correct clicks stop the number.', keyboard: 'Tab to a number and press Enter.' },
-  { name: 'Double-click', title: 'Highlight the word', rounds: 2, guide: 'left', caption: 'Click-click → highlight', instruction: 'Double-click the matching word.', tip: 'Two quick clicks. Keep the mouse still.', keyboard: 'Tab to a word and press Enter to highlight it.' },
-  { name: 'Drag', title: 'Build a picture', rounds: 3, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
+  { name: 'Double-click', title: 'Highlight the word', rounds: 1, guide: 'left', caption: 'Click-click → highlight', instruction: 'Double-click the matching word.', tip: 'Two quick clicks. Keep the mouse still.', keyboard: 'Tab to a word and press Enter to highlight it.' },
+  { name: 'Drag', title: 'Build a picture', rounds: 1, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
   { name: 'Scroll', title: 'Find the match', rounds: 1, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape AND the number.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
-  { name: 'Zoom', title: 'Fit the frame', rounds: 2, guide: 'wheel', caption: 'Roll wheel → Next', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. When green, click Next.' },
-  { name: 'Orbit', title: 'Find the symbol', rounds: 1, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Hold right + move to turn.', tip: 'When green, click Next.', keyboard: 'Focus the cube and use left and right arrows. When green, click Next.' },
+  { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → Next', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. When green, click Next.' },
+  { name: 'Orbit', title: 'Find the symbol', rounds: 2, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Hold right + move to turn.', tip: 'When green, click Next.', keyboard: 'Focus the cube and use left and right arrows. When green, click Next.' },
   { name: 'Pan', title: 'Park the rover', rounds: 2, guide: 'right', caption: 'Shift + hold right → move', instruction: 'Hold Shift + right. Move to park.', tip: 'Keep Shift held. Let go of the mouse first.', keyboard: 'Focus the workplane. Hold Shift and use arrow keys to move the view. Release Shift to check.' }
 ];
 const symbols = { square: '■', circle: '●', triangle: '▲', rectangle: '▯', hexagon: '⬡' };
@@ -99,6 +99,7 @@ function render(index, focus = false, requestedRound = null) {
   goal('', '');
   feedback('Your turn.');
   [clickActivity, doubleClickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
+  if (index < 3) stage.insertAdjacentHTML('beforeend', leftMouseCue(index));
   if (focus) $('#activity-title').focus();
 }
 function workplane(label = 'TOP VIEW') {
@@ -113,13 +114,14 @@ function objectButton(type, label, className = 'model-object') {
 }
 function doubleClickActivity() {
   workplane('DOUBLE-CLICK');
-  const words = activeRound === 0 ? ['SUN', 'CAT', 'DOG', 'HAT'] : ['SUN', 'CAT', 'DOG', 'HAT', 'BUG', 'CUP'];
-  const order = activeRound === 0 ? [0, 2, 1, 3] : [5, 3, 0, 4];
+  const words = ['SUN', 'CAT', 'DOG', 'HAT', 'BUG', 'CUP'];
+  const order = [5, 3, 0, 4];
   let matched = 0;
   const board = document.createElement('div');
-  board.className = `word-board word-round-${activeRound === 0 ? 0 : 2}`;
+  board.className = 'word-board word-round-2';
   function prompt() {
-    goal(`<strong class="goal-word">${words[order[matched]]}</strong>`, `Highlight ${words[order[matched]]}`);
+    goal('', '');
+    $('#word-goal').innerHTML = `<small>DOUBLE-CLICK THIS WORD</small><strong class="goal-word">${words[order[matched]]}</strong>`;
     task('Double-click this word.');
     count(matched, order.length, 'words');
   }
@@ -146,6 +148,7 @@ function doubleClickActivity() {
     label.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); highlight(); } };
     card.append(label, check); board.append(card);
   });
+  stage.insertAdjacentHTML('beforeend', '<div id="word-goal" aria-live="polite"></div>');
   stage.append(board); prompt();
   dispose = () => window.getSelection()?.removeAllRanges();
 }
@@ -237,12 +240,12 @@ function clickActivity() {
 }
 
 function dragActivity() {
-  const puzzles = [
-    { name: 'House', parts: [{type:'square',x:70,y:60,w:112,h:112}, {type:'triangle',x:70,y:38,w:124,h:95}, {type:'rectangle',x:70,y:64,w:48,h:70}] },
-    { name: 'Robot', parts: [{type:'rectangle',x:70,y:55,w:110,h:125}, {type:'square',x:70,y:31,w:85,h:85}, {type:'circle',x:62,y:78,w:56,h:56}, {type:'circle',x:78,y:78,w:56,h:56}] },
-    { name: 'Rocket', parts: [{type:'rectangle',x:70,y:53,w:110,h:145}, {type:'triangle',x:70,y:28,w:68,h:68}, {type:'circle',x:70,y:44,w:40,h:40}, {type:'triangle',x:70,y:78,w:56,h:56,flame:true}] }
-  ];
-  const puzzle = puzzles[activeRound];
+  const puzzle = { name: 'House and garden', parts: [
+    {type:'square',x:65,y:48,w:112,h:112}, {type:'triangle',x:65,y:26,w:128,h:90}, {type:'rectangle',x:65,y:52,w:45,h:64},
+    {type:'rectangle',x:84,y:48,w:46,h:100}, {decor:'tree',type:'circle',x:84,y:25,w:98,h:98},
+    {type:'rectangle',x:56,y:81,w:22,h:55}, {decor:'flower',type:'circle',x:56,y:70,w:48,h:48},
+    {type:'rectangle',x:92,y:81,w:22,h:55}, {decor:'flower',type:'circle',x:92,y:70,w:48,h:48}
+  ] };
   workplane(puzzle.name.toUpperCase());
   $('#activity-title').textContent = `Build a ${puzzle.name.toLowerCase()}`;
   goal('<span class="gesture-pair">◇ → ◇</span>', 'Drag each shape onto its outline');
@@ -250,11 +253,12 @@ function dragActivity() {
   const targets = []; let matched = 0;
   const cancellations = [];
   count(0, puzzle.parts.length, 'pieces');
-  const size = Math.min(1, stage.clientWidth * .45 / 180);
+  const size = Math.min(1, stage.clientWidth / 900, stage.clientHeight / 340);
   for (const part of puzzle.parts) {
     const home = document.createElement('div'); home.className = 'picture-target'; home.dataset.shape = part.type;
-    home.style.left = (stage.clientWidth * .7 + (part.x - 70) * 4 * size) + 'px';
-    home.style.top = (stage.clientHeight * .5 + (part.y - 50) * 3.65 * size) + 'px';
+    if (part.decor) home.classList.add(part.decor);
+    home.style.left = (stage.clientWidth * part.x / 100) + 'px';
+    home.style.top = (stage.clientHeight * part.y / 100) + 'px';
     home.style.width = part.w * size + 'px'; home.style.height = part.h * size + 'px';
     home.innerHTML = shapeArt(part.type, true);
     if (part.flame) home.classList.add('flame-piece');
@@ -265,7 +269,7 @@ function dragActivity() {
     const type = part.type;
     const b = objectButton(type, type, 'drag-object picture-piece');
     b.innerHTML = shapeArt(type) + `<small>${type}</small>`;
-    b.style.left = (i % 2 === 0 ? 13 : 34) + '%'; b.style.top = (i < 2 ? 30 : 71) + '%';
+    b.style.left = (22 + i % 3 * 10) + '%'; b.style.top = (25 + Math.floor(i / 3) * 28) + '%';
     b.setAttribute('aria-label', `Drag ${type} ${i + 1}`);
     let drag = null, keyboard = false, placed = false, origin = null;
     function reset() {
@@ -320,15 +324,19 @@ function dragActivity() {
   const cancel = () => cancellations.forEach(fn => fn());
   const resize = () => {
     cancel();
-    const scale = Math.min(1, stage.clientWidth * .45 / 180);
+    const scale = Math.min(1, stage.clientWidth / 900, stage.clientHeight / 340);
     targets.forEach(({home, part}) => {
-      home.style.left = (stage.clientWidth * .7 + (part.x - 70) * 4 * scale) + 'px';
-      home.style.top = (stage.clientHeight * .5 + (part.y - 50) * 3.65 * scale) + 'px';
+      home.style.left = (stage.clientWidth * part.x / 100) + 'px';
+      home.style.top = (stage.clientHeight * part.y / 100) + 'px';
       home.style.width = part.w * scale + 'px'; home.style.height = part.h * scale + 'px';
     });
   };
   window.addEventListener('blur', cancel); window.addEventListener('resize', resize);
   dispose = () => { window.removeEventListener('blur', cancel); window.removeEventListener('resize', resize); };
+}
+function leftMouseCue(index) {
+  const captions = ['Left click', 'Click-click', 'Hold left + move'];
+  return `<div class="left-mouse-cue"><svg viewBox="0 0 100 105" role="img" aria-label="${captions[index]}"><rect x="20" y="5" width="62" height="88" rx="30" fill="white" stroke="#345b72" stroke-width="3"/><path d="M51 6C33 6 21 19 21 36V44H51Z" fill="#ecaa26" stroke="#85540d" stroke-width="2"/><path d="M20 44H82M51 6V44" stroke="#345b72" stroke-width="2"/><rect x="47" y="17" width="8" height="21" rx="4" fill="white" stroke="#345b72" stroke-width="2"/></svg><strong>${captions[index]}</strong></div>`;
 }
 function rightMouseCue(shift = false) {
   return `<div class="right-mouse-cue">${shift ? '<kbd>Shift</kbd><b>+</b>' : ''}<svg viewBox="0 0 110 108" role="img" aria-label="Hold the right mouse button and move the mouse"><rect x="20" y="5" width="62" height="88" rx="30" fill="white" stroke="#345b72" stroke-width="3"/><path d="M51 6C69 6 81 19 81 36V44H51Z" fill="#ecaa26" stroke="#85540d" stroke-width="2"/><path d="M20 44H82M51 6V44" stroke="#345b72" stroke-width="2"/><rect x="47" y="17" width="8" height="21" rx="4" fill="white" stroke="#345b72" stroke-width="2"/><path d="M13 101H89M21 95L13 101 21 107M81 95L89 101 81 107" fill="none" stroke="#176b91" stroke-width="3"/></svg><strong>${shift ? 'Hold Shift + right' : 'Hold right + move'}</strong>${shift ? '<small>Move → park → let go</small>' : '<small>Turn → match → let go</small>'}</div>`;
@@ -336,7 +344,7 @@ function rightMouseCue(shift = false) {
 function celebrate(finale = false) {
   const layer = $('#celebration');
   layer.className = '';
-  layer.innerHTML = `<div class="celebration-badge"><span>${finale ? '★' : '✓'}</span><strong>${finale ? 'All 7 skills complete!' : activities[current].name + ' complete!'}</strong></div>` + Array.from({length: finale ? 90 : 36}, (_, i) => `<i style="--x:${(i * 37) % 100}%;--delay:${(i % 9) * .07}s;--spin:${i % 2 ? 540 : -540}deg;--color:${['#ecaa26','#267ea4','#df6840','#68aa70','#9b69b5'][i % 5]};--drift:${(i % 7 - 3) * 35}px"></i>`).join('');
+  layer.innerHTML = `<div class="celebration-badge"><span>${finale ? '★' : '✓'}</span><strong>${finale ? 'All 7 skills complete!' : activities[current].name + ' complete!'}</strong></div>` + Array.from({length: finale ? 90 : 10}, (_, i) => `<i style="--x:${(i * 37) % 100}%;--delay:${(i % 9) * .07}s;--spin:${i % 2 ? 540 : -540}deg;--color:${['#ecaa26','#267ea4','#df6840','#68aa70','#9b69b5'][i % 5]};--drift:${(i % 7 - 3) * 35}px"></i>`).join('');
   // Restart the CSS animation when students finish another skill quickly.
   void layer.offsetWidth;
   layer.className = finale ? 'celebration finale' : 'celebration skill-celebration';
@@ -389,7 +397,7 @@ function scene() {
   return $('.view-scene');
 }
 function zoomActivity() {
-  const sizes = [1.5, .75];
+  const sizes = [1.5, .75, 1.8, 1];
   const target = sizes[activeRound], tolerance = activeRound === 0 ? .1 : .05;
   if (activeRound === 0) modelScale = 1;
   stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view" disabled>Match the target</button>`;
@@ -415,11 +423,11 @@ function zoomActivity() {
   update();
 }
 function orbitActivity() {
-  const targets = [{ angle: 180, symbol: '★', name: 'star' }];
+  const targets = [{ angle: 180, symbol: '★', name: 'star' }, { angle: 90, symbol: '▲', name: 'triangle' }];
   const target = targets[activeRound];
   if (activeRound === 0) modelAngle = -32;
   const view = scene(); let drag = null;
-  stage.insertAdjacentHTML('beforeend', rightMouseCue());
+  stage.insertAdjacentHTML('beforeend', rightMouseCue().replace('</div>', `<div class="orbit-goal"><small>FIND THIS</small><strong>${target.symbol}</strong></div></div>`));
   stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view" disabled>Match the target</button>');
   goal(`<span class="goal-symbol">${target.symbol}</span>`, `Find the ${target.name} on the cube`);
   task('Hold right + move. Match the symbol.');
@@ -427,7 +435,7 @@ function orbitActivity() {
   function update() {
     $('.cube').style.transform = `rotateX(-22deg) rotateY(${modelAngle}deg)`;
     $('.model-grid').style.transform = `rotateX(65deg) rotateZ(${-modelAngle}deg)`;
-    readyToContinue(aligned() && !drag, () => { count(activeRound + 1, targets.length, 'face'); completeRound('Symbol found! ✓'); });
+    readyToContinue(aligned() && !drag, () => { count(activeRound + 1, targets.length, 'faces'); completeRound('Symbol found! ✓'); });
     feedback(aligned() ? '✓ Match! Let go, then click Next.' : 'Hold right + turn ↔');
   }
   view.oncontextmenu = e => e.preventDefault();
@@ -441,7 +449,7 @@ function orbitActivity() {
   view.onkeydown = e => { if (!roundDone && ['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); modelAngle += e.key === 'ArrowRight' ? 10 : -10; update(); } };
   const cancel = () => { drag = null; }; window.addEventListener('blur', cancel); dispose = () => window.removeEventListener('blur', cancel);
   $('#check-view').onclick = () => $('#next').onclick();
-  count(activeRound, targets.length, 'face'); update();
+  count(activeRound, targets.length, 'faces'); update();
 }
 function panActivity() {
   stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">' + roverArt() + '</div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">P</div></div><span class="view-tag">TOP VIEW</span><span class="key-state" id="key-state">Shift: not held</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>';

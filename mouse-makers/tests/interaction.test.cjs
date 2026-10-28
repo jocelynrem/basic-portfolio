@@ -180,8 +180,8 @@ test('zoom unlocks Next only while matched and advances with one click', () => {
   for (let i = 0; i < 15; i++) t.get('#zoom-out').onclick();
   t.get('#check-view').onclick();
   assert.equal(t.run('progress[4]'), 2);
-  assert.equal(t.run('current'), 5);
-  assert.equal(t.run('activeRound'), 0);
+  assert.equal(t.run('current'), 4);
+  assert.equal(t.run('activeRound'), 2);
 });
 test('orbit enables one-click continuation after releasing an aligned cube', () => {
   const t = setup(); t.run('render(5, false, 0);');
@@ -193,8 +193,8 @@ test('orbit enables one-click continuation after releasing an aligned cube', () 
   assert.equal(t.get('#next').disabled, false);
   t.get('#check-view').onclick();
   assert.equal(t.run('progress[5]'), 1);
-  assert.equal(t.run('current'), 6);
-  assert.equal(t.run('activeRound'), 0);
+  assert.equal(t.run('current'), 5);
+  assert.equal(t.run('activeRound'), 1);
   assert.equal(t.get('#next').disabled, true);
 });
 test('flat-shape activities use 2D geometry names', () => {
@@ -204,9 +204,9 @@ test('flat-shape activities use 2D geometry names', () => {
   assert.match(t.run("shapeArt('square')"), /width="80" height="80"/);
 });
 
-test('double-click requires the matching word, selects text, and completes both rounds', () => {
+test('double-click requires the matching word, selects text, and completes the word-line round', () => {
   const t = setup();
-  const orders = [[0, 2, 1, 3], [5, 3, 0, 4]];
+  const orders = [[5, 3, 0, 4]];
   orders.forEach((order, round) => {
     t.run(`render(1, false, ${round});`);
     const cards = t.get('#stage').children[0].children;
