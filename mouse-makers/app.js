@@ -93,6 +93,7 @@ function render(index, focus = false, requestedRound = null) {
   $('#next').textContent = 'Finish the task first';
   $('#next').disabled = true;
   $('#counter').textContent = '';
+  $('#task-controls').innerHTML = '';
   stage.className = 'stage';
   stage.innerHTML = '';
   stage.onpointerdown = stage.onpointermove = stage.onpointerup = stage.onpointercancel = stage.onkeydown = stage.oncontextmenu = null;
@@ -154,14 +155,13 @@ function doubleClickActivity() {
 }
 function clickActivity() {
   let speed = clickSpeeds[activeRound];
-  const roundNames = ['STATIONARY', 'SLOW MOVEMENT', 'FASTER MOVEMENT'];
-  workplane(roundNames[activeRound]);
+  stage.insertAdjacentHTML('beforeend', '<span class="plane-label" aria-hidden="true">WORKPLANE</span>');
   const items = [['square', '1'], ['circle', '2'], ['triangle', '3'], ['square', '4']];
-  const centers = [[.25, .4], [.73, .4], [.25, .72], [.73, .72]];
+  const centers = [[.25, .28], [.73, .28], [.25, .75], [.73, .75]];
   const targets = [];
   let selected = 0, elapsed = 0, previousTime = null, frame = null, held = null;
   let paused = speed > 0 && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  $('#activity-title').textContent = 'Number chase';
+  $('#activity-title').textContent = 'Number Chase';
   $('#instruction').textContent = 'Click 1 → 2 → 3 → 4.';
   $('#tip').textContent = speed ? 'Choose your speed above the numbers.' : 'These numbers stay still.';
   function prompt() {
@@ -204,7 +204,7 @@ function clickActivity() {
     select.innerHTML = '<option value="0.45">Slow</option><option value="1">Medium</option><option value="2">Fast</option><option value="3">Extra fast</option>';
     select.value = String(speed);
     select.onchange = () => { speed = Number(select.value); clickSpeeds[activeRound] = speed; };
-    label.append(select); controls.append(label, toggle); updateToggle(); stage.append(controls);
+    label.append(select); controls.append(label, toggle); updateToggle(); $('#task-controls').append(controls);
     if (paused) feedback('Movement paused. Use Resume when ready.');
     function animate(time) {
       if (roundDone) return;
@@ -217,7 +217,7 @@ function clickActivity() {
           // Each target has its own lane, so labels never cross or overlap.
           const phase = i * Math.PI / 2;
           const x = centers[i][0] + .075 * (Math.sin(elapsed + phase) - Math.sin(phase));
-          const y = centers[i][1] + .065 * (Math.cos(elapsed + phase) - Math.cos(phase));
+          const y = centers[i][1] + .035 * (Math.cos(elapsed + phase) - Math.cos(phase));
           b.style.left = x * 100 + '%'; b.style.top = y * 100 + '%';
         });
       }
@@ -517,6 +517,7 @@ $('#next').onclick = () => {
   goal('<strong class="goal-number">✓</strong>', 'All rounds complete'); task(`${activities.reduce((total, a) => total + a.rounds, 0)} rounds complete!`);
   $('#task-label').textContent = '✓ ALL SKILLS COMPLETE';
   $('#task-mouse').hidden = true;
+  $('#task-controls').innerHTML = '';
   $('#activity-title').textContent = 'All skills complete';
   $('#step-label').textContent = 'PRACTICE COMPLETE';
   $('#instruction').textContent = 'All seven skills practiced.';
