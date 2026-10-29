@@ -153,12 +153,16 @@ test('speed selector updates motion and remembers the chosen speed for that roun
   t.run('render(0, false, 2);');
   assert.equal(t.get('#click-speed').value, '0.45');
 });
-test('scroll target stays in the instruction card and advances only for the exact numbered card', () => {
+test('scroll target stays in the instruction card and advances only for the exact shape and color', () => {
   const t = setup(); t.run('render(3, false, 0);');
   const cards = t.get('.library-list').children;
   assert.equal(cards.length, 12);
+  assert.equal(new Set(cards.map(card => card['aria-label'])).size, 12);
+  assert.equal(cards[7]['aria-label'], 'orange triangle');
+  assert.equal(cards[2]['aria-label'], 'blue triangle');
+  assert.ok(cards.every(card => !card.innerHTML.includes('card-number')));
   assert.equal(t.get('#task-visual').innerHTML, cards[7].innerHTML);
-  cards[2].onclick(); // Same triangle, wrong number.
+  cards[2].onclick(); // Same triangle, wrong color.
   assert.equal(t.get('#counter').textContent, '0 / 2 matches');
   cards[7].onclick();
   assert.equal(t.get('#task-visual').innerHTML, cards[1].innerHTML);

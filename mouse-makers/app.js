@@ -5,7 +5,7 @@ const activities = [
   { name: 'Click', title: 'Number chase', rounds: 3, guide: 'left', caption: 'Left click', instruction: 'Click in order.', tip: 'Correct clicks stop the number.', keyboard: 'Tab to a number and press Enter.' },
   { name: 'Double-click', title: 'Highlight the word', rounds: 1, guide: 'left', caption: 'Click-click → highlight', instruction: 'Double-click the matching word.', tip: 'Two quick clicks. Keep the mouse still.', keyboard: 'Tab to a word and press Enter to highlight it.' },
   { name: 'Drag', title: 'Build a picture', rounds: 1, guide: 'left', caption: 'Hold left → move → let go', instruction: 'Drag shapes onto their outlines.', tip: 'Hold the button until you reach an outline.', keyboard: 'Tab to a shape. Enter picks it up. Arrow keys move it. Enter drops it. Escape cancels.' },
-  { name: 'Scroll', title: 'Find the match', rounds: 1, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape AND the number.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
+  { name: 'Scroll', title: 'Find the match', rounds: 1, guide: 'wheel', caption: 'Roll wheel → left click', instruction: 'Find the pictured card.', tip: 'Match the shape and color.', keyboard: 'Focus the cards and use arrow keys to scroll, or Tab between cards and press Enter.' },
   { name: 'Zoom', title: 'Fit the frame', rounds: 4, guide: 'wheel', caption: 'Roll wheel → Next', instruction: 'Make the picture fit.', tip: 'Roll up: bigger. Roll down: smaller.', keyboard: 'Focus the picture and press + or −, or use the zoom buttons. When green, click Next.' },
   { name: 'Orbit', title: 'Find the symbol', rounds: 2, guide: 'right', caption: 'Hold right → turn → let go', instruction: 'Hold right + move to turn.', tip: 'When green, click Next.', keyboard: 'Focus the cube and use left and right arrows. When green, click Next.' },
   { name: 'Pan', title: 'Park the rover', rounds: 2, guide: 'right', caption: 'Shift + hold right → move', instruction: 'Hold Shift + right. Move to park.', tip: 'Keep Shift held. Let go of the mouse first.', keyboard: 'Focus the workplane. Hold Shift and use arrow keys to move the view. Release Shift to check.' }
@@ -362,18 +362,23 @@ function scrollActivity() {
   const shapes = ['square', 'circle', 'triangle', 'rectangle', 'hexagon'];
   const orders = [[7, 1]];
   const order = orders[activeRound]; let found = 0;
-  function card(i) { return shapeArt(shapes[i % shapes.length]) + `<strong class="card-number">${i + 1}</strong>`; }
+  const colors = [{ name: 'blue', value: '#247ba5' }, { name: 'orange', value: '#d86a28' }, { name: 'purple', value: '#8b52b0' }];
+  const color = i => colors[Math.floor(i / shapes.length)];
+  const label = i => `${color(i).name} ${shapes[i % shapes.length]}`;
+  function card(i) {
+    return shapeArt(shapes[i % shapes.length]).replace('class="shape-art', 'class="scroll-shape shape-art').replace('<svg ', `<svg style="color:${color(i).value}" `);
+  }
   function prompt() {
     const i = order[found];
-    goal(card(i), `Find ${shapes[i % shapes.length]} card ${i + 1}`);
+    goal(card(i), `Find the ${label(i)}`);
     task('Scroll. Click this match.'); count(found, 2, 'matches');
   }
   for (let i = 0; i < 12; i++) {
     const b = document.createElement('button'); b.className = 'library-shape search-card'; b.innerHTML = card(i);
-    b.setAttribute('aria-label', `${shapes[i % shapes.length]} card ${i + 1}`);
+    b.setAttribute('aria-label', label(i));
     b.onclick = () => {
       if (roundDone) return;
-      if (i !== order[found]) { feedback('Match the picture AND number.', 'retry'); return; }
+      if (i !== order[found]) { feedback('Match the shape and color.', 'retry'); return; }
       b.classList.add('placed'); b.disabled = true; found++; count(found, 2, 'matches');
       if (found === 2) { goal('<strong class="goal-number">✓</strong>', 'Both cards found'); completeRound('Both matches found! ✓'); }
       else { prompt(); feedback('✓ Match! Find the new card.', 'success'); }

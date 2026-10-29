@@ -30,7 +30,7 @@ Seven skills contain 14 rounds:
   Fast, and Extra fast speeds, plus pause and reduced-motion support.
 - Drag five flat shapes into a house and one tree.
 - Double-click four target words in a line of six words, with the target directly above.
-- Scroll to find two picture-and-number cards with a mouse-wheel diagram.
+- Scroll to find two shape-and-color matches with a mouse-wheel diagram.
 - Zoom a rocket to fit four frames, alternating bigger and smaller with tighter fits.
 - Turn a 3D cube to find two symbols, shown beneath the right-button diagram.
 - Hold Shift and right-drag to park twice, with a smaller parking space the second time.

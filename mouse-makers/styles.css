@@ -496,3 +496,8 @@ body > footer { padding: 4px 16px; }
   #task-visual .goal-word { font-size: 32px; padding: 8px; }
   .workplane-surface #task { font-size: 17px; }
 }
+
+/* Matching targets use the identical large shape, color, and proportions. */
+.search-card { height: 136px; }
+.search-card .scroll-shape, #task-visual .scroll-shape { width: 104px; height: 104px; flex-shrink: 0; }
+@media (max-width: 759px) { .search-card .scroll-shape, #task-visual .scroll-shape { width: 88px; height: 88px; } }
