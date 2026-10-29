@@ -509,3 +509,63 @@ body > footer { padding: 4px 16px; }
 .workplane-surface > .task-banner { grid-template-columns: auto auto; min-width: 0; width: fit-content; justify-content: start; gap: 4px 20px; }
 .workplane-surface > .task-banner:has(#task-controls:not(:empty)) { min-width: 320px; }
 @media (max-width: 759px) { .instruction #task { font-size: 17px; } }
+
+/* Keep the large visual cue alongside the game on laptop screens. */
+#feedback:empty { visibility: hidden; }
+#task-visual.target-ready { outline: 3px solid #278252; outline-offset: 5px; border-radius: 6px; background: #e8f7e8; }
+#task-controls .click-controls { flex-wrap: wrap; gap: 6px; }
+.instruction #task { font-size: 18px; }
+.below { justify-content: space-between; }
+@media (min-width: 760px) {
+  .workplane-surface { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+  .workplane-surface > .task-banner,
+  .workplane-surface[data-skill="Double-click"] > .task-banner,
+  .workplane-surface > .task-banner:has(#task-controls:not(:empty)) {
+    min-width: 0; width: calc(100% - 20px); max-width: none; margin: 10px;
+    grid-template-columns: 1fr; justify-items: center; gap: 14px; padding: 12px;
+  }
+  #task-controls { width: 100%; }
+  #task-controls .click-controls { justify-content: center; }
+  #task-mouse, #task-visual { grid-column: 1; }
+  #task-mouse .right-mouse-cue { flex-wrap: nowrap; }
+  .workplane-surface > .stage,
+  .workplane-surface[data-skill="Click"] > .stage { height: clamp(320px, calc(100dvh - 230px), 480px); }
+  .workplane-surface[data-skill="Double-click"] .word-round-2 { inset: 20% 4% 20%; }
+  .search-cards { left: 6%; right: 6%; }
+  .workplane-surface[data-skill="Complete"] { display: block; }
+  .workplane-surface[data-skill="Complete"] > .task-banner { display: none; }
+}
+@media (min-width: 760px) and (max-width: 1100px) {
+  .picture-piece { width: 50px; height: 60px; }
+  .picture-piece .shape-art { width: 36px; height: 36px; }
+  .picture-piece small { font-size: 10px; }
+  .instruction h2 { font-size: 19px; }
+  .instruction #task { font-size: 17px; }
+}
+@media (min-width: 760px) and (max-width: 959px) {
+  .workplane-surface { grid-template-columns: 200px minmax(0, 1fr); }
+  #steps { gap: 4px; }
+  #steps .step { column-gap: 4px; padding: 8px 5px; font-size: 11px; }
+  #steps .step small { font-size: 9px; }
+  #task-mouse .right-mouse-cue { flex-wrap: wrap; }
+  .word-round-2 .word-card { padding: 8px; }
+  .word-round-2 .practice-word { font-size: 21px; }
+  .activity-footer { flex-wrap: nowrap; }
+  #feedback { flex-basis: auto; }
+}
+@media (max-width: 759px) {
+  .workplane-surface > .task-banner:has(#task-controls:not(:empty)) { min-width: 0; }
+  .workplane-surface[data-skill="Double-click"] .word-round-2 { inset: 6% 4%; }
+  .word-round-2 { align-content: center; }
+}
+
+@media (min-width: 760px) {
+  .workplane-surface[data-skill="Double-click"] { display: block; }
+  .workplane-surface[data-skill="Double-click"] > .task-banner { grid-template-columns: auto auto; width: fit-content; margin: 10px auto; }
+  .workplane-surface[data-skill="Double-click"] > .stage { height: clamp(200px, calc(100dvh - 390px), 300px); }
+  .workplane-surface[data-skill="Double-click"] .word-round-2 { inset: 8% 6% 20%; }
+}
+@media (min-width: 760px) {
+  .workplane-surface[data-skill="Double-click"] #task-mouse,
+  .workplane-surface[data-skill="Double-click"] #task-visual { grid-column: auto; }
+}

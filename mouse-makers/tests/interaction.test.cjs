@@ -181,7 +181,7 @@ test('zoom unlocks Next only while matched and advances with one click', () => {
   assert.equal(t.run('activeRound'), 1);
   assert.equal(t.get('#next').disabled, true);
   for (let i = 0; i < 15; i++) t.get('#zoom-out').onclick();
-  t.get('#check-view').onclick();
+  t.get('#next').onclick();
   assert.equal(t.run('progress[4]'), 2);
   assert.equal(t.run('current'), 4);
   assert.equal(t.run('activeRound'), 2);
@@ -194,7 +194,7 @@ test('orbit enables one-click continuation after releasing an aligned cube', () 
   assert.equal(t.get('#next').disabled, true);
   view.onpointerup(t.event());
   assert.equal(t.get('#next').disabled, false);
-  t.get('#check-view').onclick();
+  t.get('#next').onclick();
   assert.equal(t.run('progress[5]'), 1);
   assert.equal(t.run('current'), 5);
   assert.equal(t.run('activeRound'), 1);
