@@ -125,7 +125,7 @@ function doubleClickActivity() {
   board.className = 'word-board word-round-2';
   function prompt() {
     goal(`<strong class="goal-word">${words[order[matched]]}</strong>`, `Highlight ${words[order[matched]]}`);
-    task('Double-click this word.');
+    task('Double-click this word');
     count(matched, order.length, 'words');
   }
   words.forEach((word, index) => {
@@ -166,7 +166,7 @@ function clickActivity() {
   $('#tip').textContent = speed ? 'Choose your speed above the numbers.' : 'These numbers stay still.';
   function prompt() {
     goal(`<strong class="goal-number">${selected + 1}</strong>`, `Click number ${selected + 1}`);
-    task('Click this number.');
+    task('Click this number');
     count(selected, items.length, 'clicks');
   }
   items.forEach(([type, label], i) => {
@@ -245,7 +245,7 @@ function dragActivity() {
     {type:'rectangle',x:84,y:48,w:46,h:100}, {decor:'tree',type:'circle',x:84,y:25,w:98,h:98}
   ] };
   $('#activity-title').textContent = `Build a ${puzzle.name.toLowerCase()}`;
-  goal('<span class="gesture-pair">◇ → ◇</span>', 'Drag each shape onto its outline');
+  goal('', '');
   task('Drag → match → let go.');
   const targets = []; let matched = 0;
   const cancellations = [];
@@ -366,7 +366,7 @@ function scrollActivity() {
   function prompt() {
     const i = order[found];
     goal(card(i), `Find ${shapes[i % shapes.length]} card ${i + 1}`);
-    task('Roll the wheel. Find this card. Click it.'); count(found, 2, 'matches');
+    task('Scroll. Click this match.'); count(found, 2, 'matches');
   }
   for (let i = 0; i < 12; i++) {
     const b = document.createElement('button'); b.className = 'library-shape search-card'; b.innerHTML = card(i);
@@ -420,7 +420,7 @@ function orbitActivity() {
   const view = scene(); let drag = null;
   stage.insertAdjacentHTML('beforeend', '<button class="check-view" id="check-view" disabled>Match the target</button>');
   goal(`<span class="goal-symbol">${target.symbol}</span>`, `Find the ${target.name} on the cube`);
-  task('Hold right + move. Match the symbol.');
+  task('Hold right. Turn to this symbol.');
   const aligned = () => Math.abs(((modelAngle - target.angle + 540) % 360 + 360) % 360 - 180) <= 20;
   function update() {
     $('.cube').style.transform = `rotateX(-22deg) rotateY(${modelAngle}deg)`;
