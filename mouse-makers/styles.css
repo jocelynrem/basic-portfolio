@@ -444,3 +444,22 @@ body > footer { padding: 4px 16px; }
   #task-mouse .left-mouse-cue svg, #task-mouse .right-mouse-cue svg { width: 48px; height: 54px; }
   #task-mouse .scroll-mouse-picture { width: 70px; height: 54px; }
 }
+
+/* A visible path through the lesson, with one segment per round. */
+#steps { gap: 8px; margin-bottom: 10px; }
+#steps .step { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 7px; row-gap: 8px; min-height: 78px; padding: 9px 8px; font-size: 13px; line-height: 1.2; border-width: 2px; }
+#steps .step-number { width: 30px; height: 30px; font-size: 15px; }
+#steps .step small { font-size: 10px; margin-top: 5px; }
+.step-rounds { display: flex; gap: 4px; grid-column: 1 / -1; }
+.step-rounds i { height: 5px; flex: 1; background: #cedae2; border-radius: 5px; }
+.step-rounds .filled { background: #278252; }
+.step[aria-current="step"] .step-rounds i { background: #ffffff50; }
+.step[aria-current="step"] .step-rounds .filled { background: #c8f0aa; }
+#steps .step.done:not([aria-current]) { background: #edf7ef; border-color: #a5cdb1; }
+#steps .step[aria-current="step"] { box-shadow: 0 3px 0 #104f70; }
+#lesson-progress { color: #365a6d; font-weight: 650; }
+@media (min-width: 760px) and (max-height: 700px) {
+  .workplane-surface[data-skill="Click"] > .stage { height: 200px; }
+  .numbered-target { width: 66px; height: 66px; }
+}
+@media (max-width: 759px) { #steps .step { min-height: 72px; font-size: 12px; } }

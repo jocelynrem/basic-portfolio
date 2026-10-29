@@ -64,12 +64,17 @@ function completeRound(message) {
 let activeRound = 0;
 function roundIndex() { return activeRound; }
 function renderSteps() {
+  const completed = activities.filter((a, i) => progress[i] === a.rounds).length;
+  $('#lesson-progress').textContent = `${completed} of ${activities.length} skills complete · ${activities.length - completed} to go`;
   $('#steps').innerHTML = activities.map((a, i) => {
     const done = progress[i] === a.rounds;
     const locked = i > 0 && progress[i - 1] < activities[i - 1].rounds;
-    return `<button class="step ${done ? 'done' : ''}" data-step="${i}" ${i === current ? 'aria-current="step"' : ''} ${locked ? 'disabled' : ''}><span class="step-number">${done ? '✓' : i + 1}</span><span>${a.name}<small>${locked ? 'Locked' : `${progress[i]} / ${a.rounds} ${a.rounds === 1 ? "round" : "rounds"}`}</small></span></button>`;
+    const state = done ? 'Done' : i === current ? "You’re here" : i === current + 1 ? 'Up next' : 'Still to come';
+    const rounds = Array.from({length: a.rounds}, (_, round) => `<i class="${round < progress[i] ? 'filled' : ''}"></i>`).join('');
+    return `<button class="step ${done ? 'done' : ''}" data-step="${i}" aria-label="${a.name}: ${state}, ${progress[i]} of ${a.rounds} rounds complete" ${i === current ? 'aria-current="step"' : ''} ${locked ? 'disabled' : ''}><span class="step-number">${done ? '✓' : i + 1}</span><span>${a.name}<small>${state}</small></span><span class="step-rounds" aria-hidden="true">${rounds}</span></button>`;
   }).join('');
 }
+
 function render(index, focus = false, requestedRound = null) {
   dispose(); dispose = () => {};
   pendingCompletion = null;
