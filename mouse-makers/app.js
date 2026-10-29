@@ -105,9 +105,6 @@ function render(index, focus = false, requestedRound = null) {
   $('.workplane-surface').dataset.skill = a.name;
   if (focus) $('#activity-title').focus();
 }
-function workplane(label = 'TOP VIEW') {
-  stage.insertAdjacentHTML('beforeend', `<span class="view-tag" aria-hidden="true">${label}</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>`);
-}
 function objectButton(type, label, className = 'model-object') {
   const button = document.createElement('button');
   button.className = `${className} object-${type}`;
@@ -116,7 +113,6 @@ function objectButton(type, label, className = 'model-object') {
   return button;
 }
 function doubleClickActivity() {
-  workplane('DOUBLE-CLICK');
   const words = ['SUN', 'CAT', 'DOG', 'HAT', 'BUG', 'CUP'];
   const order = [5, 3, 0, 4];
   let matched = 0;
@@ -155,7 +151,6 @@ function doubleClickActivity() {
 }
 function clickActivity() {
   let speed = clickSpeeds[activeRound];
-  stage.insertAdjacentHTML('beforeend', '<span class="plane-label" aria-hidden="true">WORKPLANE</span>');
   const items = [['square', '1'], ['circle', '2'], ['triangle', '3'], ['square', '4']];
   const centers = [[.25, .28], [.73, .28], [.25, .75], [.73, .75]];
   const targets = [];
@@ -240,13 +235,10 @@ function clickActivity() {
 }
 
 function dragActivity() {
-  const puzzle = { name: 'House and garden', parts: [
+  const puzzle = { name: 'House', parts: [
     {type:'square',x:65,y:48,w:112,h:112}, {type:'triangle',x:65,y:26,w:128,h:90}, {type:'rectangle',x:65,y:52,w:45,h:64},
-    {type:'rectangle',x:84,y:48,w:46,h:100}, {decor:'tree',type:'circle',x:84,y:25,w:98,h:98},
-    {type:'rectangle',x:56,y:81,w:22,h:55}, {decor:'flower',type:'circle',x:56,y:70,w:48,h:48},
-    {type:'rectangle',x:92,y:81,w:22,h:55}, {decor:'flower',type:'circle',x:92,y:70,w:48,h:48}
+    {type:'rectangle',x:84,y:48,w:46,h:100}, {decor:'tree',type:'circle',x:84,y:25,w:98,h:98}
   ] };
-  workplane(puzzle.name.toUpperCase());
   $('#activity-title').textContent = `Build a ${puzzle.name.toLowerCase()}`;
   goal('<span class="gesture-pair">◇ → ◇</span>', 'Drag each shape onto its outline');
   task('Drag → match → let go.');
@@ -361,7 +353,6 @@ function readyToContinue(ready, finish) {
   $('#check-view').textContent = ready ? '✓ Next →' : 'Match the target';
 }
 function scrollActivity() {
-  workplane('SCROLL SEARCH');
   stage.insertAdjacentHTML('beforeend', '<div class="shape-library search-cards" tabindex="0" role="region" aria-label="Scroll to find the matching card"><div class="library-heading">SCROLL ↕</div><div class="library-list"></div></div>');
   const shapes = ['square', 'circle', 'triangle', 'rectangle', 'hexagon'];
   const orders = [[7, 1]];
@@ -390,14 +381,14 @@ function cubeMarkup() {
   return '<div class="cube"><div class="face front">●</div><div class="face back">★</div><div class="face right">＋</div><div class="face left">▲</div><div class="face top">■</div><div class="face bottom"></div></div>';
 }
 function scene() {
-  stage.innerHTML = `<div class="view-scene" tabindex="0" role="region" aria-label="3D workplane"><div class="scene-model"><div class="model-grid"></div>${cubeMarkup()}</div></div><span class="view-tag" id="view-label">3D VIEW</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>`;
+  stage.innerHTML = `<div class="view-scene" tabindex="0" role="region" aria-label="3D workplane"><div class="scene-model"><div class="model-grid"></div>${cubeMarkup()}</div></div>`;
   return $('.view-scene');
 }
 function zoomActivity() {
   const sizes = [1.5, .75, 1.8, 1];
   const target = sizes[activeRound], tolerance = activeRound === 0 ? .1 : .05;
   if (activeRound === 0) modelScale = 1;
-  stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><span class="view-tag" id="view-label">FIT THE FRAME</span><button class="check-view" id="check-view" disabled>Match the target</button>`;
+  stage.innerHTML = `<div class="zoom-game" tabindex="0" role="region" aria-label="Zoom the rocket to fit the dashed frame"><div class="zoom-frame" aria-hidden="true"></div><div class="zoom-picture">${rocketArt()}</div></div><div class="view-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div><button class="check-view" id="check-view" disabled>Match the target</button>`;
   const view = $('.zoom-game');
   $('.zoom-frame').style.width = 100 * target + 'px'; $('.zoom-frame').style.height = 140 * target + 'px';
   goal('<span class="frame-icon">↔</span>', 'Zoom to fit the frame'); task('Roll the wheel to fit the frame.');
@@ -408,7 +399,6 @@ function zoomActivity() {
     $('.zoom-picture').style.transform = `translate(-50%, -50%) scale(${modelScale})`;
     $('.zoom-frame').classList.toggle('ready', aligned());
     readyToContinue(aligned(), () => { count(activeRound + 1, sizes.length, 'frames'); completeRound('Perfect fit! ✓'); });
-    $('#view-label').textContent = aligned() ? '✓ FITS!' : modelScale < target ? '↑ BIGGER' : '↓ SMALLER';
     feedback(aligned() ? '✓ Fits! Click Next.' : modelScale < target ? 'Roll up ↑' : 'Roll down ↓');
     count(activeRound, sizes.length, 'frames');
   }
@@ -447,7 +437,7 @@ function orbitActivity() {
   count(activeRound, targets.length, 'faces'); update();
 }
 function panActivity() {
-  stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">' + roverArt() + '</div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">P</div></div><span class="view-tag">TOP VIEW</span><span class="key-state" id="key-state">Shift: not held</span><span class="plane-label" aria-hidden="true">WORKPLANE</span>';
+  stage.innerHTML = '<div class="pan-view" tabindex="0" role="region" aria-label="Pan workplane"><div class="pan-world"><div class="pan-marker">' + roverArt() + '</div><div class="pan-block block-one">■</div><div class="pan-block block-two">●</div></div><div class="pan-goal" aria-hidden="true">P</div></div><span class="key-state" id="key-state">Shift: not held</span>';
   const view = $('.pan-view'), world = $('.pan-world');
   const offsets = [[-.26, -.2], [.26, -.2]];
   let x = stage.clientWidth * offsets[activeRound][0], y = stage.clientHeight * offsets[activeRound][1];

@@ -28,7 +28,7 @@ Seven skills contain 14 rounds:
 
 - Click 1–4 in order: still, slow, then fast. Moving rounds offer Slow, Medium,
   Fast, and Extra fast speeds, plus pause and reduced-motion support.
-- Drag nine flat shapes into one house-and-garden picture with a tree and two flowers.
+- Drag five flat shapes into a house and one tree.
 - Double-click four target words in a line of six words, with the target directly above.
 - Scroll to find two picture-and-number cards with a mouse-wheel diagram.
 - Zoom a rocket to fit four frames, alternating bigger and smaller with tighter fits.
