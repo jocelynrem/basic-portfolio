@@ -70,7 +70,7 @@ function renderSteps() {
     const done = progress[i] === a.rounds;
     const locked = i > 0 && progress[i - 1] < activities[i - 1].rounds;
     const state = done ? 'Done' : i === current ? "You’re here" : i === current + 1 ? 'Up next' : 'Still to come';
-    const rounds = Array.from({length: a.rounds}, (_, round) => `<i class="${round < progress[i] ? 'filled' : ''}"></i>`).join('');
+    const rounds = Array.from({length: a.rounds}, (_, round) => `<i class="${round < progress[i] ? 'filled' : i === current && round === activeRound ? 'active' : ''}"></i>`).join('');
     return `<button class="step ${done ? 'done' : ''}" data-step="${i}" aria-label="${a.name}: ${state}, ${progress[i]} of ${a.rounds} rounds complete" ${i === current ? 'aria-current="step"' : ''} ${locked ? 'disabled' : ''}><span class="step-number">${done ? '✓' : i + 1}</span><span>${a.name}<small>${state}</small></span><span class="step-rounds" aria-hidden="true">${rounds}</span></button>`;
   }).join('');
 }

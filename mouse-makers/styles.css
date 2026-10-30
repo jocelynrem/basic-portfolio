@@ -445,24 +445,32 @@ body > footer { padding: 4px 16px; }
   #task-mouse .scroll-mouse-picture { width: 70px; height: 54px; }
 }
 
-/* A visible path through the lesson, with one segment per round. */
-#steps { gap: 8px; margin-bottom: 10px; }
-#steps .step { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 7px; row-gap: 8px; min-height: 78px; padding: 9px 8px; font-size: 13px; line-height: 1.2; border-width: 2px; }
-#steps .step-number { width: 30px; height: 30px; font-size: 15px; }
-#steps .step small { font-size: 10px; margin-top: 5px; }
+/* A connected lesson path, with a clear current skill and one segment per round. */
+#steps { gap: 12px; margin-bottom: 10px; padding: 8px; background: #244b60; border: 2px solid #18394d; border-radius: 12px; }
+#steps .step { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: 6px; row-gap: 6px; min-height: 84px; padding: 7px 6px; font-size: 15px; line-height: 1.1; border: 2px solid #c7d9e3; background: #f1f7fb; color: #304f62; }
+#steps .step:not(:last-child)::after { content: '›'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: #d7eaf4; font-size: 24px; line-height: 1; pointer-events: none; }
+#steps .step-number { width: 32px; height: 32px; font-size: 17px; font-weight: 850; color: #304f62; background: #dce9f1; }
+#steps .step small { font-size: 11px; font-weight: 700; margin-top: 5px; }
 .step-rounds { display: flex; gap: 4px; grid-column: 1 / -1; }
-.step-rounds i { height: 5px; flex: 1; background: #cedae2; border-radius: 5px; }
+.step-rounds i { height: 9px; flex: 1; background: #c2d3dd; border-radius: 5px; }
 .step-rounds .filled { background: #278252; }
-.step[aria-current="step"] .step-rounds i { background: #ffffff50; }
-.step[aria-current="step"] .step-rounds .filled { background: #c8f0aa; }
-#steps .step.done:not([aria-current]) { background: #edf7ef; border-color: #a5cdb1; }
-#steps .step[aria-current="step"] { box-shadow: 0 3px 0 #104f70; }
+#steps .step[aria-current="step"] { background: #ffda73; color: #253d4b; border-color: #ffe8a9; box-shadow: 0 0 0 2px #d99b21; }
+#steps .step[aria-current="step"] .step-number { background: #244b60; color: white; }
+#steps .step[aria-current="step"] .step-rounds i { background: #bd983e; }
+#steps .step[aria-current="step"] .step-rounds .active { background: #244b60; box-shadow: inset 0 0 0 2px #fff7df; }
+#steps .step[aria-current="step"] .step-rounds .filled { background: #22644f; }
+#steps .step.done:not([aria-current]) { background: #e3f4e7; border-color: #8ac39b; color: #20583d; }
+#steps .step.done .step-number { background: #22644f; color: white; }
 #lesson-progress { color: #365a6d; font-weight: 650; }
 @media (min-width: 760px) and (max-height: 700px) {
   .workplane-surface[data-skill="Click"] > .stage { height: 200px; }
   .numbered-target { width: 66px; height: 66px; }
 }
-@media (max-width: 759px) { #steps .step { min-height: 72px; font-size: 12px; } }
+@media (max-width: 759px) {
+  #steps { gap: 8px; }
+  #steps .step { min-height: 78px; font-size: 13px; }
+  #steps .step:not(:last-child)::after { content: none; }
+}
 
 /* Keep the gesture and target visually dominant; progress lives in the skill cards. */
 .workplane-surface > .task-banner { gap: 4px 18px; padding: 6px 14px; min-width: min(480px, calc(100% - 20px)); }
@@ -529,7 +537,7 @@ body > footer { padding: 4px 16px; }
   #task-mouse, #task-visual { grid-column: 1; }
   #task-mouse .right-mouse-cue { flex-wrap: nowrap; }
   .workplane-surface > .stage,
-  .workplane-surface[data-skill="Click"] > .stage { height: clamp(320px, calc(100dvh - 230px), 480px); }
+  .workplane-surface[data-skill="Click"] > .stage { height: clamp(320px, calc(100dvh - 254px), 480px); }
   .workplane-surface[data-skill="Double-click"] .word-round-2 { inset: 20% 4% 20%; }
   .search-cards { left: 6%; right: 6%; }
   .workplane-surface[data-skill="Complete"] { display: block; }
@@ -544,9 +552,12 @@ body > footer { padding: 4px 16px; }
 }
 @media (min-width: 760px) and (max-width: 959px) {
   .workplane-surface { grid-template-columns: 200px minmax(0, 1fr); }
-  #steps { gap: 4px; }
-  #steps .step { column-gap: 4px; padding: 8px 5px; font-size: 11px; }
-  #steps .step small { font-size: 9px; }
+  #steps { gap: 10px; padding: 6px; }
+  #steps .step { grid-template-columns: 1fr; justify-items: center; column-gap: 0; row-gap: 4px; padding: 5px 3px; font-size: 12px; text-align: center; }
+  #steps .step-number { width: 28px; height: 28px; font-size: 16px; }
+  #steps .step small { font-size: 10px; margin-top: 3px; }
+  #steps .step:not(:last-child)::after { right: -10px; font-size: 20px; }
+  .step-rounds { width: 100%; }
   #task-mouse .right-mouse-cue { flex-wrap: wrap; }
   .word-round-2 .word-card { padding: 8px; }
   .word-round-2 .practice-word { font-size: 21px; }
@@ -562,7 +573,7 @@ body > footer { padding: 4px 16px; }
 @media (min-width: 760px) {
   .workplane-surface[data-skill="Double-click"] { display: block; }
   .workplane-surface[data-skill="Double-click"] > .task-banner { grid-template-columns: auto auto; width: fit-content; margin: 10px auto; }
-  .workplane-surface[data-skill="Double-click"] > .stage { height: clamp(200px, calc(100dvh - 390px), 300px); }
+  .workplane-surface[data-skill="Double-click"] > .stage { height: clamp(170px, calc(100dvh - 414px), 300px); }
   .workplane-surface[data-skill="Double-click"] .word-round-2 { inset: 8% 6% 20%; }
 }
 @media (min-width: 760px) {
