@@ -109,7 +109,7 @@ function render(index, focus = false, requestedRound = null) {
   [clickActivity, doubleClickActivity, dragActivity, scrollActivity, zoomActivity, orbitActivity, panActivity][index]();
   $('#task-mouse').hidden = false;
   $('#task-mouse').innerHTML = index < 3 ? leftMouseCue(index) : index < 5 ? scrollMouseArt() : rightMouseCue(index === 6);
-  if (focus) $('#activity-title').focus();
+  if (focus) $('#task').focus({ preventScroll: true });
 }
 function objectButton(type, label, className = 'model-object') {
   const button = document.createElement('button');
