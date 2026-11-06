@@ -93,6 +93,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   display:flex;
   align-items:center;
   gap:12px;
+  margin:0;
   font-weight:720;
   font-size:1rem;
 }
@@ -134,60 +135,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .header :focus-visible {
   outline-color:#d1e3ff;
-}
-
-.intro {
-  background:var(--blue-wash);
-  border-bottom:1px solid var(--line);
-}
-
-.intro-inner {
-  padding-block:38px 31px;
-}
-
-.eyebrow {
-  color:#345680;
-  font-weight:750;
-  font-size:.76rem;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  margin:0 0 8px;
-}
-
-.intro h1 {
-  font-family:Georgia,'Times New Roman',serif;
-  font-size:clamp(2.25rem,4.4vw,3.45rem);
-  line-height:1.08;
-  letter-spacing:-.037em;
-  font-weight:700;
-  max-width:890px;
-  margin:0;
-}
-
-.intro-copy {
-  max-width:670px;
-  margin:13px 0 21px;
-  color:#374d6b;
-  font-size:1.04rem;
-}
-
-.intro-meta {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  font-size:.79rem;
-  font-weight:700;
-}
-
-.intro-meta span {
-  padding:4px 10px;
-  border:1px solid #c6d6eb;
-  border-radius:20px;
-  background:#f3f7fd;
-}
-
-.intro-meta span:empty {
-  display:none;
 }
 
 .workspace {
@@ -428,6 +375,49 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin:0 0 8px;
 }
 
+.csta-details {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 20px;
+  margin:0 0 18px;
+  font-size:.9rem;
+}
+
+.csta-details .full-width {
+  grid-column:1/-1;
+}
+
+.csta-details dt {
+  font-weight:720;
+}
+
+.csta-details dd {
+  margin:2px 0 0;
+  color:var(--muted);
+}
+
+.csta-details p {
+  margin:0;
+}
+
+.csta-details p + p {
+  margin-top:6px;
+}
+
+.csta-details ul {
+  margin:0;
+  padding-left:1.2em;
+}
+
+.csta-details li + li {
+  margin-top:4px;
+}
+
+.standard-source {
+  margin:12px 0 0;
+  font-size:.84rem;
+}
+
 .connection {
   padding:9px 0;
   border-top:1px solid #dce5f0;
@@ -588,11 +578,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   padding-block:30px 44px;
 }
 
-.timeline-controls {
+.timeline-controls,.timeline-week-controls {
   display:flex;
   flex-wrap:wrap;
   align-items:end;
   gap:12px;
+}
+
+.timeline-week-controls {
+  max-width:100%;
 }
 
 .timeline-controls label {
@@ -758,6 +752,30 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   list-style:none;
 }
 
+.timeline-cs-label {
+  margin:5px 0 2px;
+  color:var(--muted);
+  font-size:.8rem;
+  font-weight:700;
+}
+
+.timeline-cs-list {
+  margin:0 0 6px;
+  padding-left:17px;
+}
+
+.timeline-quarter-timing {
+  margin:2px 0 0;
+  color:var(--muted);
+  font-size:.78rem;
+}
+
+.timeline-quarter-guides {
+  margin:5px 0 0;
+  padding-left:17px;
+  font-size:.82rem;
+}
+
 .timeline-note,.timeline-source {
   color:var(--muted);
   font-size:.82rem;
@@ -796,21 +814,55 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .source-list {
   display:grid;
+  gap:24px;
+}
+
+.guide-group {
+  min-width:0;
+}
+
+.guide-heading {
+  margin:0 0 10px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--line);
+  font-size:1.1rem;
+}
+
+.source-grid {
+  display:grid;
   grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
   gap:10px;
 }
 
 .source-card {
+  --subject-ink:#254f84;
+  --subject-wash:#e9f0fa;
   padding:13px;
   background:white;
   border:1px solid var(--line);
+  border-top:3px solid var(--subject-ink);
   border-radius:9px;
 }
 
-.source-card h3 {
+.source-card[data-subject="ELA"] {
+  --subject-ink:#674182;
+  --subject-wash:#f2ebf8;
+}
+
+.source-card[data-subject="Science"] {
+  --subject-ink:#235f45;
+  --subject-wash:#e5f4eb;
+}
+
+.source-card[data-subject="Social studies"] {
+  --subject-ink:#88471c;
+  --subject-wash:#faf0e6;
+}
+
+.source-card h4 {
   font-size:.94rem;
   line-height:1.35;
-  margin:4px 0;
+  margin:8px 0 4px;
 }
 
 .source-card p {
@@ -820,11 +872,13 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .source-card .source-category {
-  font-size:.73rem;
-  color:#355986;
+  display:inline-block;
+  padding:3px 7px;
+  border-radius:4px;
+  font-size:.78rem;
+  color:var(--subject-ink);
+  background:var(--subject-wash);
   font-weight:750;
-  text-transform:uppercase;
-  letter-spacing:.04em;
 }
 
 .references {
@@ -927,12 +981,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
     margin-top:11px;
     padding-top:8px;
   }
-  .intro-inner {
-    padding-block:24px 20px;
-  }
-  .intro-copy {
-    margin-bottom:14px;
-  }
   .header-row {
     gap:8px;
     min-height:0;
@@ -941,6 +989,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   }
   .navigation {
     gap:2px;
+    min-width:0;
+    flex-wrap:wrap;
   }
   .navigation a {
     padding:6px 8px;
@@ -961,6 +1011,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   .standard>summary,.standard-body {
     padding-inline:11px;
   }
+  .csta-details {
+    grid-template-columns:minmax(0,1fr);
+  }
   .results-header {
     flex-wrap:wrap;
     gap:2px 9px;
@@ -973,10 +1026,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   <a class="skip" href="#main">Skip to content</a>
   <header class="header">
     <div class="shell header-row">
-      <div class="brand">
+      <h1 class="brand">
         <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7h6m6 0h6M3 17h6m6 0h6M7 7l10 10M7 17 17 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="7" r="2" fill="currentColor"/><circle cx="17" cy="17" r="2" fill="currentColor"/></svg></span>
         <span>Moore County CS Crosswalk</span>
-      </div>
+      </h1>
       <nav class="navigation" aria-label="Main navigation">
         <a href="#timeline" data-view="timeline" aria-current="page">Teaching timeline</a>
         <a href="#standards" data-view="standards">CS standards</a>
@@ -985,26 +1038,22 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
     </div>
   </header>
   <main id="main" tabindex="-1">
-    <section class="intro" aria-labelledby="title">
-      <div class="shell intro-inner">
-        <p class="eyebrow">2026–27 planning reference</p>
-        <h1 id="title">Computer science across the curriculum</h1>
-        <p class="intro-copy">See what the district plans to teach by grade and date, or find a computer science standard that connects to the curriculum.</p>
-        <div class="intro-meta"><span>Pre-K–5</span><span id="standard-total"></span><span id="guide-total"></span></div>
-      </div>
-    </section>
     <section id="timeline-view" class="shell timeline" aria-labelledby="timeline-heading">
-      <div class="section-head"><h2 id="timeline-heading">What’s being taught?</h2><p>Choose a grade and date to see the NC standards and their expected timing.</p></div>
+      <div class="section-head"><h2 id="timeline-heading">What’s being taught?</h2><p>See NC standards by grade and teaching week, or review a whole quarter. Math follows the district’s Eureka Math pacing guides.</p></div>
       <div class="timeline-controls">
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
-        <label for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
-        <div class="week-buttons"><button type="button" id="week-back" aria-label="Previous teaching week">←</button><button type="button" id="week-next" aria-label="Next teaching week">→</button></div>
+        <label for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
+        <div id="timeline-week-controls" class="timeline-week-controls">
+          <label for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
+          <div class="week-buttons"><button type="button" id="week-back" aria-label="Previous teaching week">←</button><button type="button" id="week-next" aria-label="Next teaching week">→</button></div>
+        </div>
+        <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
       </div>
       <p id="timeline-range" class="timeline-range">2026–27 school year</p>
       <div class="week-header"><h3 id="timeline-week"></h3><p id="timeline-day-note" role="status"></p></div>
       <div id="timeline-days" class="day-strip" aria-label="Days in this school week"></div>
       <div id="timeline-subjects" class="subject-grid"></div>
-      <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Quarter overview</strong> covers standards listed for a grading period. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
+      <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
     </section>
     <section id="standards-view" class="shell workspace" aria-label="Standards explorer" hidden>
       <aside class="filters" aria-label="Filter standards">
@@ -1019,15 +1068,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
       </aside>
       <section class="results" aria-label="Search results">
         <label class="search-label" for="search">Search standards</label>
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="search" placeholder="Try fractions, erosion, or reading fluency"></div>
-        <div class="results-header"><h2>Standards</h2><p id="result-count" role="status"></p></div>
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="search" placeholder="Try E3-PRO-PD-04, debugging, or fractions"></div>
+        <div class="results-header"><h2>CS standards</h2><p id="result-count" role="status"></p></div>
         <div id="result-list" class="cards"></div>
         <button type="button" id="more" class="more" hidden>Show more standards</button>
-        <details class="legend"><summary>How to read the crosswalk</summary><p>Standards are summarized in plain language. <strong>Adapt</strong> means the activity needs the change described in the connection details. Related objectives are grouped under their overall NC standard. MCS pacing is matched to the underlying objectives in the same grade and subject.</p></details>
+        <details class="legend"><summary>How to read the crosswalk</summary><p>The catalog covers the 2026 CSTA foundational standards for Pre-K through grade 5. <strong>Adapt</strong> means the activity needs the change described in the connection details. Related objectives are grouped under their overall NC standard. MCS pacing is matched to the underlying objectives in the same grade and subject.</p></details>
+        <p class="standard-source">Catalog adapted from the <a href="https://csteachers.org/pk12standards/">2026 CSTA PK–12 Computer Science Standards</a> by the Computer Science Teachers Association, under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
       </section>
     </section>
     <section id="sources-view" class="shell sources" aria-labelledby="sources-heading" hidden>
-      <div class="section-head"><h2 id="sources-heading">District pacing guides</h2><p>Open the source for its full pacing, program, and unit details. This page lists guides that open without signing in. Use the MCS curriculum hub for school-only materials.</p></div>
+      <div class="section-head"><h2 id="sources-heading">District pacing guides</h2><p>Browse by grade and subject. Math guides follow Eureka Math. Use the MCS curriculum hub for school-only materials.</p></div>
       <div class="source-filters"><label for="source-grade">Grade<select id="source-grade"></select></label><label for="source-subject">Subject<select id="source-subject"></select></label></div>
       <div id="sources-list" class="source-list"></div>
       <section class="references" aria-labelledby="references-heading"><h2 id="references-heading">Standards references</h2><ul id="reference-links"></ul></section>
@@ -5581,6 +5631,16 @@ window.districtData = {
       "subject": "Math",
       "year": "2026–27",
       "program": "Big Ideas Math",
+      "note": "District weekly planning guide. When a weekly cell lists several topics, the standard is attached to the week as a whole."
+    },
+    {
+      "id": "mcs-math4-e",
+      "title": "Eureka 2026-27 4th Grade Eureka Math Pacing Guide-Week by Week",
+      "url": "https://docs.google.com/document/d/1-PqkIgDQdNZ85ssib58BEYQyV_sZdFESyKRyyfcxOHc/edit?usp=sharing",
+      "grade": "4",
+      "subject": "Math",
+      "year": "2026–27",
+      "program": "Eureka Math",
       "note": "District weekly planning guide. When a weekly cell lists several topics, the standard is attached to the week as a whole."
     },
     {
@@ -13875,6 +13935,636 @@ window.districtData = {
       "unit": "Chapter 13",
       "window": "May 24-28",
       "location": "Quarter 4 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.4",
+      "quarter": 1,
+      "unit": "Building a Math Community through Real Data",
+      "window": "Aug 26-28",
+      "location": "Quarter 1 · Week 1"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.1",
+      "quarter": 1,
+      "unit": "Module 1 · Topic A",
+      "window": "Aug 31-Sept 4",
+      "location": "Quarter 1 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.1",
+      "quarter": 1,
+      "unit": "Module 1 · Topic B",
+      "window": "Sept 7-11",
+      "location": "Quarter 1 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.1",
+      "quarter": 1,
+      "unit": "Module 1 · Topic B",
+      "window": "Sept 7-11",
+      "location": "Quarter 1 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.2",
+      "quarter": 1,
+      "unit": "Module 1 · Topic B",
+      "window": "Sept 7-11",
+      "location": "Quarter 1 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.2",
+      "quarter": 1,
+      "unit": "Module 1 · Topics C and D",
+      "window": "Sept 14-18",
+      "location": "Quarter 1 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.7",
+      "quarter": 1,
+      "unit": "Module 1 · Topics C and D",
+      "window": "Sept 14-18",
+      "location": "Quarter 1 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.4",
+      "quarter": 1,
+      "unit": "Module 1 · Topics C and D",
+      "window": "Sept 14-18",
+      "location": "Quarter 1 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.4",
+      "quarter": 1,
+      "unit": "Module 1 · Topic D",
+      "window": "Sept 21-25",
+      "location": "Quarter 1 · Week 5"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.3",
+      "quarter": 1,
+      "unit": "Module 1 · Topic D",
+      "window": "Sept 21-25",
+      "location": "Quarter 1 · Week 5"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.4",
+      "quarter": 1,
+      "unit": "Module 1 · Topics D and E",
+      "window": "Sept 28-Oct 2",
+      "location": "Quarter 1 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.3",
+      "quarter": 1,
+      "unit": "Module 1 · Topics D and E",
+      "window": "Sept 28-Oct 2",
+      "location": "Quarter 1 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.1",
+      "quarter": 1,
+      "unit": "Module 1 · Topics D and E",
+      "window": "Sept 28-Oct 2",
+      "location": "Quarter 1 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.2",
+      "quarter": 1,
+      "unit": "Module 1 · Topics D and E",
+      "window": "Sept 28-Oct 2",
+      "location": "Quarter 1 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 1,
+      "unit": "Module 1 assessment / Module 2 · Topic A",
+      "window": "Oct 5-9",
+      "location": "Quarter 1 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 1,
+      "unit": "Module 1 assessment / Module 2 · Topic A",
+      "window": "Oct 5-9",
+      "location": "Quarter 1 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.3",
+      "quarter": 1,
+      "unit": "Rectilinear area / Module 2 · Topic B",
+      "window": "Oct 12-16",
+      "location": "Quarter 1 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 1,
+      "unit": "Rectilinear area / Module 2 · Topic B",
+      "window": "Oct 12-16",
+      "location": "Quarter 1 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 1,
+      "unit": "Module 2 · Topics B and C",
+      "window": "Oct 19-23",
+      "location": "Quarter 1 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.1",
+      "quarter": 1,
+      "unit": "Module 2 · Topics B and C",
+      "window": "Oct 19-23",
+      "location": "Quarter 1 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 1,
+      "unit": "Module 2 · Topics B and C",
+      "window": "Oct 19-23",
+      "location": "Quarter 1 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 2,
+      "unit": "Module 2 · Topic C",
+      "window": "Oct 26-30",
+      "location": "Quarter 2 · Week 1"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.3",
+      "quarter": 2,
+      "unit": "Module 2 · Topics C and D",
+      "window": "Nov 2-6",
+      "location": "Quarter 2 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.1",
+      "quarter": 2,
+      "unit": "Module 2 · Topics C and D",
+      "window": "Nov 2-6",
+      "location": "Quarter 2 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.4",
+      "quarter": 2,
+      "unit": "Module 2 · Topics D and E",
+      "window": "Nov 9-13",
+      "location": "Quarter 2 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.4",
+      "quarter": 2,
+      "unit": "Module 2 · Topic E / Module 3 · Topic A",
+      "window": "Nov 16-20 & 23-24",
+      "location": "Quarter 2 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.5",
+      "quarter": 2,
+      "unit": "Module 2 · Topic E / Module 3 · Topic A",
+      "window": "Nov 16-20 & 23-24",
+      "location": "Quarter 2 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 2,
+      "unit": "Module 2 · Topic E / Module 3 · Topic A",
+      "window": "Nov 16-20 & 23-24",
+      "location": "Quarter 2 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 2,
+      "unit": "Module 2 · Topic E / Module 3 · Topic A",
+      "window": "Nov 16-20 & 23-24",
+      "location": "Quarter 2 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 2,
+      "unit": "Module 3 · Topic B",
+      "window": "Nov 30-Dec 4",
+      "location": "Quarter 2 · Week 5"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 2,
+      "unit": "Module 3 · Topics C and D",
+      "window": "Dec 7-11",
+      "location": "Quarter 2 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 2,
+      "unit": "Module 3 · Topic D",
+      "window": "Dec 14-18",
+      "location": "Quarter 2 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.5",
+      "quarter": 2,
+      "unit": "Module 3 · Topics D and E",
+      "window": "Jan 4-8",
+      "location": "Quarter 2 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.1",
+      "quarter": 2,
+      "unit": "Module 3 · Topics D and E",
+      "window": "Jan 4-8",
+      "location": "Quarter 2 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.2",
+      "quarter": 2,
+      "unit": "Module 3 · Topics D and E",
+      "window": "Jan 4-8",
+      "location": "Quarter 2 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.OA.3",
+      "quarter": 2,
+      "unit": "Module 3 · Topic F",
+      "window": "Jan 11-15",
+      "location": "Quarter 2 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NBT.6",
+      "quarter": 2,
+      "unit": "Module 3 · Topic F",
+      "window": "Jan 11-15",
+      "location": "Quarter 2 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.3",
+      "quarter": 3,
+      "unit": "Module 4 · Topic A",
+      "window": "Jan 18-22 & 25-29",
+      "location": "Quarter 3 · Week 1"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.3",
+      "quarter": 3,
+      "unit": "Module 4 · Topics A and B",
+      "window": "Feb 1-5",
+      "location": "Quarter 3 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.1",
+      "quarter": 3,
+      "unit": "Module 4 · Topics A and B",
+      "window": "Feb 1-5",
+      "location": "Quarter 3 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.1",
+      "quarter": 3,
+      "unit": "Module 4 · Topics B and C",
+      "window": "Feb 8-12",
+      "location": "Quarter 3 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.2",
+      "quarter": 3,
+      "unit": "Module 4 · Topics B and C",
+      "window": "Feb 8-12",
+      "location": "Quarter 3 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.2",
+      "quarter": 3,
+      "unit": "Module 4 · Topics C and D",
+      "window": "Feb 15-19",
+      "location": "Quarter 3 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.3",
+      "quarter": 3,
+      "unit": "Module 4 · Topics C and D",
+      "window": "Feb 15-19",
+      "location": "Quarter 3 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.2",
+      "quarter": 3,
+      "unit": "Module 4 · Topics C and D",
+      "window": "Feb 15-19",
+      "location": "Quarter 3 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.3",
+      "quarter": 3,
+      "unit": "Module 4 · Topics D and E",
+      "window": "Feb 22-26",
+      "location": "Quarter 3 · Week 5"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.3",
+      "quarter": 3,
+      "unit": "Module 4 · Topics E and F",
+      "window": "March 1-5",
+      "location": "Quarter 3 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.2",
+      "quarter": 3,
+      "unit": "Module 4 · Topics E and F",
+      "window": "March 1-5",
+      "location": "Quarter 3 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.4",
+      "quarter": 3,
+      "unit": "Module 4 · Topics E and F",
+      "window": "March 1-5",
+      "location": "Quarter 3 · Week 6"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.4",
+      "quarter": 3,
+      "unit": "Module 4 · Topic F and data review",
+      "window": "March 8-12",
+      "location": "Quarter 3 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.4",
+      "quarter": 3,
+      "unit": "Module 4 · Topic F and data review",
+      "window": "March 8-12",
+      "location": "Quarter 3 · Week 7"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.6",
+      "quarter": 3,
+      "unit": "Module 5 · Topics A and B",
+      "window": "March 15-19",
+      "location": "Quarter 3 · Week 8"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.6",
+      "quarter": 3,
+      "unit": "Module 5 · Topics B and C",
+      "window": "March 22-26",
+      "location": "Quarter 3 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.7",
+      "quarter": 3,
+      "unit": "Module 5 · Topics B and C",
+      "window": "March 22-26",
+      "location": "Quarter 3 · Week 9"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.NF.6",
+      "quarter": 4,
+      "unit": "Module 5 · Topics C and D",
+      "window": "April 5-9",
+      "location": "Quarter 4 · Week 1"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.2",
+      "quarter": 4,
+      "unit": "Module 5 · Topics C and D",
+      "window": "April 5-9",
+      "location": "Quarter 4 · Week 1"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.G.1",
+      "quarter": 4,
+      "unit": "Module 6 · Topics A and B",
+      "window": "April 12-16",
+      "location": "Quarter 4 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.6",
+      "quarter": 4,
+      "unit": "Module 6 · Topics A and B",
+      "window": "April 12-16",
+      "location": "Quarter 4 · Week 2"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.MD.6",
+      "quarter": 4,
+      "unit": "Module 6 · Topics B and C",
+      "window": "April 19-23",
+      "location": "Quarter 4 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.G.1",
+      "quarter": 4,
+      "unit": "Module 6 · Topics B and C",
+      "window": "April 19-23",
+      "location": "Quarter 4 · Week 3"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.G.3",
+      "quarter": 4,
+      "unit": "Module 6 · Topic D",
+      "window": "April 26-30",
+      "location": "Quarter 4 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.G.1",
+      "quarter": 4,
+      "unit": "Module 6 · Topic D",
+      "window": "April 26-30",
+      "location": "Quarter 4 · Week 4"
+    },
+    {
+      "sourceId": "mcs-math4-e",
+      "grade": "4",
+      "subject": "Math",
+      "code": "NC.4.G.2",
+      "quarter": 4,
+      "unit": "Module 6 · Topic D",
+      "window": "April 26-30",
+      "location": "Quarter 4 · Week 4"
     },
     {
       "sourceId": "mcs-math5-b",
@@ -22402,6 +23092,7 @@ window.timelineData = {
     const byCode = new Map();
     const curriculum = new Map();
     const catalog = createCatalog(wording);
+    const teachingConnections = new Map();
 
     for (const link of district.curriculum) {
       const links = curriculum.get(unitKey(link)) || [];
@@ -22426,6 +23117,12 @@ window.timelineData = {
         const placements = new Map();
 
         if (!connection.label.startsWith('Other grade') && connection.label !== 'Practice') {
+          const overall = catalog.overall(subject, record.grade, code);
+          const teachingKey = codeKey(record.grade, subject, overall.code);
+          const related = teachingConnections.get(teachingKey) || [];
+          related.push({ record, code: normalizeCode(code), label: connection.label });
+          teachingConnections.set(teachingKey, related);
+
           const exact = byCode.get(codeKey(record.grade, subject, code)) || [];
           const parent = subject === 'ELA' && /^(?:RF|RI|RL|SL|W|L)\.[K1-5]\.\d+\.?[a-g]$/i.test(code)
             ? code.replace(/\.?[a-g]$/i, '') : '';
@@ -22434,12 +23131,25 @@ window.timelineData = {
             placements.set(placementKey(entry), { ...entry, broader: normalizeCode(entry.code) !== normalizeCode(code) });
           }
         }
+        if (subject === 'Math' && !placements.size) return null;
         return { ...connection, code, filterSubject: subject, placements: [...placements.values()] };
-      }));
+      })).filter(Boolean);
       return { ...record, connections: groupConnections(connections, record.grade, catalog) };
     });
 
-    return { records: indexed, sources, entries, catalog };
+    function relatedStandards(grade, subject, overallCode, pacingCodes) {
+      const parent = normalizeCode(overallCode);
+      const matches = new Map();
+      for (const match of teachingConnections.get(codeKey(grade, subject, parent)) || []) {
+        // A guide listing the whole standard can match its objectives. A guide
+        // listing specific objectives only matches those and the whole standard.
+        if (!pacingCodes.has(parent) && match.code !== parent && !pacingCodes.has(match.code)) continue;
+        if (!matches.has(match.record.id) || !match.label) matches.set(match.record.id, match);
+      }
+      return [...matches.values()];
+    }
+
+    return { records: indexed, sources, entries, catalog, relatedStandards };
   }
 
   function timingMatches(entry, timing) {
@@ -22456,9 +23166,10 @@ window.timelineData = {
       const connections = record.connections.filter(c => !subject || subject === c.filterSubject).map(c => ({
         ...c, placements: c.placements.filter(p => timingMatches(p, timing))
       })).filter(c => !timing || c.placements.length);
-      if (!connections.length) continue;
+      if ((subject || timing) && !connections.length) continue;
 
-      const searchable = [record.id, record.title, gradeLabels[record.grade], record.concept, record.subconcept];
+      const searchable = [record.id, record.title, gradeLabels[record.grade], record.concept, record.subconcept,
+        record.boundaries, record.practices, record.dispositions, record.unpluggedExamples, record.unpluggedExamplesOriginal].flat();
       const timings = new Map();
       for (const c of connections) {
         searchable.push(c.subject, c.code, c.statement, c.label, c.notes.join(' '), c.objectives.flat().join(' '));
@@ -22606,18 +23317,29 @@ window.timelineData = {
 })(typeof window === 'undefined' ? globalThis : window);
 
 </script>
+<script src="./csta-details.js"></script>
 <script>
 (function () {
   'use strict';
 
   const { createIndex, gradeLabels, normalizeCode, placementKey, search } = window.crosswalk;
   const { datePlacement, dayNumber, isoDate, mergeSpans, readCalendar, timelineDay } = window.mcsCalendar;
-  const { records, links } = window.standardsData;
-  const district = window.districtData;
+  const { records: mappings, links } = window.standardsData;
+  const connectionsById = new Map(mappings.map(({ id, connections }) => [id, connections]));
+  const records = window.cstaCatalog.map(record => ({ ...record, connections: connectionsById.get(record.id) || [] }));
+  const standardIds = new Set(records.map(record => record.id));
+  const districtSources = window.districtData.sources.filter(source => source.subject !== 'Math' || source.program === 'Eureka Math');
+  const activeSourceIds = new Set(districtSources.map(source => source.id));
+  const district = {
+    sources: districtSources,
+    entries: window.districtData.entries.filter(entry => activeSourceIds.has(entry.sourceId)),
+    curriculum: window.districtData.curriculum.filter(entry => activeSourceIds.has(entry.sourceId))
+  };
   const calendar = readCalendar(window.timelineData.calendar);
   const index = createIndex(records, district, { wording: window.timelineData.wording, calendar, datePlacement });
   const grades = ['K', '1', '2', '3', '4', '5'];
   const districtSubjects = ['Math', 'ELA', 'Science', 'Social studies'];
+  const subjectLabel = subject => subject === 'ELA' ? 'English language arts' : subject;
   const subjects = [...new Set(index.records.flatMap(record => record.connections.map(c => c.filterSubject)))].sort();
   const concepts = [...new Set(records.map(record => record.concept))];
   const perPage = 24;
@@ -22626,11 +23348,17 @@ window.timelineData = {
   const nav = [...document.querySelectorAll('[data-view]')];
   const dateInput = byId('timeline-date');
   const gradeInput = byId('timeline-grade');
+  const timelineMode = byId('timeline-mode');
+  const quarterInput = byId('timeline-quarter');
   const shortDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   const fullDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
   const shortDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' });
-  const basisLabels = { guide: 'Guide dates', estimate: 'Calendar estimate', quarter: 'Quarter overview', year: 'Throughout the year', unit: 'Unit sequence' };
+  const basisLabels = { guide: 'Guide dates', estimate: 'Calendar estimate', quarter: 'Listed for the quarter', year: 'Throughout the year', unit: 'Unit sequence' };
   let limit = perPage;
+  let linkedStandard = '';
+  let chosenQuarter;
+
+  const standardHref = id => `#standards/${encodeURIComponent(id)}`;
 
   function make(tag, cls, text) {
     const element = document.createElement(tag);
@@ -22662,8 +23390,9 @@ window.timelineData = {
     ['3', 'Quarter 3'], ['4', 'Quarter 4'], ['no-quarter', 'No quarter listed']
   ]);
   options(byId('source-grade'), 'All grades', schoolGrades);
-  options(byId('source-subject'), 'All subjects', pairs(districtSubjects));
+  options(byId('source-subject'), 'All subjects', districtSubjects.map(subject => [subject, subjectLabel(subject)]));
   options(gradeInput, '', schoolGrades);
+  options(quarterInput, '', calendar.quarters.map((_, index) => [String(index + 1), `Quarter ${index + 1}`]));
 
   function dateLabel(day, formatter = shortDate) {
     return formatter.format(new Date(`${isoDate(day)}T00:00:00Z`));
@@ -22793,8 +23522,41 @@ window.timelineData = {
     }
   }
 
+  function detailField(label, values, fullWidth = false) {
+    const field = make('div', fullWidth ? 'full-width' : '');
+    const description = make('dd');
+    if (values.length === 1 || label === 'Boundary statement') {
+      description.append(...values.map(value => make('p', '', value)));
+    } else {
+      const list = make('ul');
+      list.append(...values.map(value => make('li', '', value)));
+      description.append(list);
+    }
+    field.append(make('dt', '', label), description);
+    return field;
+  }
+
+  function renderCstaDetails(record, body) {
+    const details = make('dl', 'csta-details');
+    details.append(
+      detailField('Concept', [record.concept]),
+      detailField('Subconcept', [record.subconcept]),
+      detailField('Boundary statement', record.boundaries, true),
+      detailField('Practices', record.practices),
+      detailField('Dispositions', record.dispositions)
+    );
+    if (record.unpluggedExamples.length) {
+      details.append(detailField('CSTA unplugged examples', record.unpluggedExamples, true));
+    }
+    if (record.unpluggedExamplesOriginal?.length) {
+      details.append(detailField('Unplugged ideas from this crosswalk', record.unpluggedExamplesOriginal, true));
+    }
+    body.append(make('h3', '', 'CSTA standard details'), details);
+  }
+
   function standardCard(record) {
     const card = make('details', 'standard');
+    card.id = `standard-${record.id}`;
     const summary = make('summary');
     const heading = make('div');
     const meta = make('div', 'card-meta');
@@ -22812,8 +23574,10 @@ window.timelineData = {
     card.addEventListener('toggle', () => {
       if (!card.open || card.children.length > 1) return;
       const body = make('div', 'standard-body');
+      renderCstaDetails(record, body);
       body.append(make('h3', '', 'North Carolina connections'));
-      renderConnections(record, body);
+      if (record.connections.length) renderConnections(record, body);
+      else body.append(make('p', '', 'No North Carolina or Moore County connections are listed for this standard.'));
       card.append(body);
     });
     return card;
@@ -22821,7 +23585,8 @@ window.timelineData = {
 
   function renderResults({ appendFrom = 0 } = {}) {
     const filters = Object.fromEntries(Object.entries(controls).map(([key, element]) => [key === 'search' ? 'query' : key, element.value]));
-    const results = search(index, filters);
+    const matches = search(index, filters);
+    const results = linkedStandard ? matches.filter(record => record.id === linkedStandard) : matches;
     const list = byId('result-list');
     if (!appendFrom) list.replaceChildren();
     if (!results.length) list.append(make('p', 'empty', 'No standards match these filters. Try a shorter search or clear a filter.'));
@@ -22839,43 +23604,89 @@ window.timelineData = {
     renderResults();
   }
 
+  function clearStandardFilters() {
+    for (const control of Object.values(controls)) control.value = '';
+  }
+
+  function changeFilters() {
+    if (linkedStandard) {
+      linkedStandard = '';
+      window.history.replaceState(null, '', '#standards');
+    }
+    updateFilters();
+  }
+
   function renderSources() {
     const grade = byId('source-grade').value;
     const subject = byId('source-subject').value;
     const list = byId('sources-list');
     list.replaceChildren();
-    const shown = district.sources.filter(source => (!grade || source.grade === grade) && (!subject || source.subject === subject));
-    shown.sort((a, b) => grades.indexOf(a.grade) - grades.indexOf(b.grade) || districtSubjects.indexOf(a.subject) - districtSubjects.indexOf(b.subject));
-    for (const source of shown) {
-      const card = make('article', 'source-card');
-      const gradeName = source.grade === 'K' ? 'Kindergarten' : gradeLabels[source.grade];
-      card.append(make('span', 'source-category', `${gradeName} · ${source.subject}`));
-      const title = make('h3');
-      title.append(link(source.url, source.title));
-      card.append(title, make('p', '', [source.program, source.year].filter(Boolean).join(' · ')));
-      if (source.note) card.append(make('p', '', source.note));
-      list.append(card);
+    for (const [level, gradeName] of schoolGrades) {
+      if (grade && grade !== level) continue;
+      const guides = district.sources.filter(source => source.grade === level && (!subject || source.subject === subject));
+      if (!guides.length) continue;
+      guides.sort((a, b) => districtSubjects.indexOf(a.subject) - districtSubjects.indexOf(b.subject));
+
+      const group = make('section', 'guide-group');
+      const heading = make('h3', 'guide-heading', gradeName);
+      heading.id = `guide-grade-${level}`;
+      group.setAttribute('aria-labelledby', heading.id);
+      const grid = make('div', 'source-grid');
+      for (const source of guides) {
+        const card = make('article', 'source-card');
+        card.dataset.subject = source.subject;
+        card.append(make('span', 'source-category', subjectLabel(source.subject)));
+        const title = make('h4');
+        title.append(link(source.url, source.title));
+        card.append(title, make('p', '', [source.program, source.year].filter(Boolean).join(' · ')));
+        if (source.note) card.append(make('p', '', source.note));
+        grid.append(card);
+      }
+      group.append(heading, grid);
+      list.append(group);
     }
-    if (!shown.length) list.append(make('p', 'empty', 'No district guides match these filters.'));
+    if (!list.childElementCount) list.append(make('p', 'empty', 'No district guides match these filters.'));
   }
 
-  function standardList(entries, grade, subject) {
+  function standardList(entries, grade, subject, quarter = false) {
     const unique = new Map();
     for (const entry of entries) {
       const standard = index.catalog.overall(subject, grade, entry.code);
-      if (standard.text) unique.set(normalizeCode(standard.code), standard);
+      if (!standard.text) continue;
+      const key = normalizeCode(standard.code);
+      if (!unique.has(key)) unique.set(key, { ...standard, pacingCodes: new Set(), timing: new Set() });
+      const item = unique.get(key);
+      item.pacingCodes.add(normalizeCode(entry.code));
+      if (quarter) {
+        const timing = entry.timing || [entry.source?.program, basisLabels[entry.dates?.basis]].filter(Boolean).join(' · ');
+        if (timing) item.timing.add(timing);
+      }
     }
     const standards = [...unique.values()];
-    const rows = standards.map(({ code, text }) => {
+    const rows = standards.map(({ code, text, pacingCodes, timing }) => {
       const row = make('li', '', text);
       row.append(document.createTextNode(' '), make('code', '', code));
+      if (timing.size) row.append(make('p', 'timeline-quarter-timing', [...timing].join(' / ')));
+      const related = index.relatedStandards(grade, subject, code, pacingCodes);
+      if (related.length) {
+        const links = make('ul', 'timeline-cs-list');
+        for (const { record, label } of related) {
+          const item = make('li');
+          const anchor = make('a', '', `${record.id} · ${record.title}`);
+          anchor.href = standardHref(record.id);
+          item.append(anchor);
+          if (label === 'Adapt') item.append(document.createTextNode(' (Adapt)'));
+          links.append(item);
+        }
+        row.append(make('p', 'timeline-cs-label', 'Related CS standards'), links);
+      }
       return row;
     });
     const list = make('ul', 'timeline-standards');
     list.append(...rows.slice(0, 4));
     if (rows.length > 4) {
       const extra = make('details', 'placement timeline-more');
-      extra.append(make('summary', '', `More standards (${rows.length - 4})`));
+      extra.append(make('summary', '', `More ${quarter ? 'quarter ' : ''}standards (${rows.length - 4})`));
       const remainder = make('ul', 'timeline-standards');
       remainder.append(...rows.slice(4));
       extra.append(remainder);
@@ -22935,59 +23746,113 @@ window.timelineData = {
       offset += weeks * 5;
       return { start, end: calendar.teaching[offset - 1], codes };
     });
-    const current = blocks.filter(({ start, end }) => view.targets.some(day => day >= start && day <= end));
+    const current = blocks.filter(span => spanInTimeline(span, view));
     card.append(make('p', 'timeline-note', 'Dates are estimates based on the guide’s suggested pacing.'));
-    for (const { start, end, codes } of current) {
-      const group = make('div', 'timeline-group');
-      const heading = make('div', 'timeline-group-heading');
-      heading.append(make('span', 'basis-badge estimate', 'Projected pacing'), make('strong', '', spanLabel({ start, end })));
-      group.append(heading, standardList(codes.map(code => ({ code })), grade, 'Science'));
-      card.append(group);
-    }
     if (!current.length) {
-      card.append(make('p', 'timeline-note', 'The projected schedule has no standards for this date.'));
+      card.append(make('p', 'timeline-note', `The projected schedule has no standards for this ${view.isQuarter ? 'quarter' : 'date'}.`));
+    } else if (view.isQuarter) {
+      const entries = current.flatMap(({ start, end, codes }) => codes.map(code => ({
+        code, timing: `Projected pacing · ${spanLabel({ start, end })}`
+      })));
+      card.append(standardList(entries, grade, 'Science', true));
+    } else {
+      for (const { start, end, codes } of current) {
+        const group = make('div', 'timeline-group');
+        const heading = make('div', 'timeline-group-heading');
+        heading.append(make('span', 'basis-badge estimate', 'Projected pacing'), make('strong', '', spanLabel({ start, end })));
+        group.append(heading, standardList(codes.map(code => ({ code })), grade, 'Science'));
+        card.append(group);
+      }
     }
     card.append(sciencePacingLink(grade));
   }
 
+  function spanInTimeline({ start, end }, view) {
+    return view.isQuarter ? start <= view.end && end >= view.start : view.targets.some(day => day >= start && day <= end);
+  }
+
+  function appendQuarterStandards(card, entries, grade, subject) {
+    const standards = standardList(entries, grade, subject, true);
+    if (standards.childElementCount) card.append(standards);
+    else card.append(make('p', 'timeline-note', 'Open the guide to check the listed standards.'));
+    if (subject === 'Science') return;
+
+    const sources = new Set(entries.map(entry => entry.source).filter(Boolean));
+    if (!sources.size) return;
+    const list = make('ul', 'timeline-quarter-guides');
+    for (const source of sources) {
+      const item = make('li');
+      item.append(link(source.url, source.program ? `Open ${source.program} pacing guide` : 'Open pacing guide'));
+      list.append(item);
+    }
+    card.append(list);
+  }
+
   function renderSubject(grade, subject, view) {
     const card = make('section', 'timeline-subject');
-    const name = subject === 'ELA' ? 'English language arts' : subject;
-    card.append(make('h4', '', name));
+    card.append(make('h4', '', subjectLabel(subject)));
     if (subject === 'Science' && window.timelineData.sciencePacing[grade]) {
       renderProjectedScience(card, grade, view);
       return card;
     }
-    const groups = new Map();
-    for (const entry of index.entries) {
-      if (entry.grade !== grade || entry.subject !== subject) continue;
+    const entries = index.entries.filter(entry => {
+      if (entry.grade !== grade || entry.subject !== subject) return false;
       const { basis, spans } = entry.dates;
-      if (basis === 'quarter' && entry.quarter !== view.quarter) continue;
-      if ((basis === 'guide' || basis === 'estimate') && !view.targets.some(day => spans.some(span => day >= span.start && day <= span.end))) continue;
-      const key = `${basis}|${entry.sourceId}`;
-      if (!groups.has(key)) groups.set(key, { basis, entries: [] });
-      groups.get(key).entries.push(entry);
-    }
-    const order = Object.keys(basisLabels);
-    const sections = [...groups.values()].sort((a, b) => order.indexOf(a.basis) - order.indexOf(b.basis));
-    if (!sections.length) {
-      const note = make('p', 'timeline-note', 'No pacing is listed for this date.');
+      if (basis === 'quarter') return entry.quarter === view.quarter;
+      if (basis === 'guide' || basis === 'estimate') return spans.some(span => spanInTimeline(span, view));
+      return basis !== 'unit' || !view.isQuarter;
+    });
+    if (!entries.length) {
+      const period = view.isQuarter ? 'quarter' : 'date';
+      let message = `No pacing is listed for this ${period}.`;
+      if (subject === 'Math') {
+        const hasGuide = district.sources.some(source => source.grade === grade && source.subject === subject);
+        message = hasGuide ? `No Eureka Math pacing is listed for this ${period}.` : 'No Eureka Math pacing guide is listed here for this grade.';
+      }
+      const note = make('p', 'timeline-note', message);
       if (subject !== 'Science') {
         note.append(document.createTextNode(' '), link('https://sites.google.com/ncmcs.org/curriculum/k-5', 'Check the MCS curriculum hub'));
       }
       card.append(note);
+    } else if (view.isQuarter) {
+      appendQuarterStandards(card, entries, grade, subject);
+    } else {
+      const groups = new Map();
+      for (const entry of entries) {
+        const { basis } = entry.dates;
+        const key = `${basis}|${entry.sourceId}`;
+        if (!groups.has(key)) groups.set(key, { basis, entries: [] });
+        groups.get(key).entries.push(entry);
+      }
+      const order = Object.keys(basisLabels);
+      const sections = [...groups.values()].sort((a, b) => order.indexOf(a.basis) - order.indexOf(b.basis));
+      for (const { basis, entries } of sections) card.append(timelineSourceGroup(entries, grade, subject, basis));
     }
-    for (const { basis, entries } of sections) card.append(timelineSourceGroup(entries, grade, subject, basis));
     if (subject === 'Science') card.append(sciencePacingLink(grade));
     return card;
   }
 
   function renderTimeline() {
+    const isQuarter = timelineMode.value === 'quarter';
     const selected = timelineDay(dateInput.value, calendar);
     const subjects = byId('timeline-subjects');
     const strip = byId('timeline-days');
     subjects.replaceChildren();
     strip.replaceChildren();
+    byId('timeline-quarter-control').hidden = !isQuarter;
+    byId('timeline-week-controls').hidden = isQuarter;
+    strip.hidden = isQuarter;
+    if (isQuarter) {
+      const quarter = chosenQuarter ?? (selected?.quarter || 1);
+      quarterInput.value = String(quarter);
+      const period = calendar.quarters[quarter - 1];
+      byId('timeline-week').textContent = `Quarter ${quarter} · ${spanLabel(period)}`;
+      byId('timeline-day-note').textContent = `Showing standards for Quarter ${quarter} (${spanLabel(period)}).`;
+      for (const subject of districtSubjects) {
+        subjects.append(renderSubject(gradeInput.value, subject, { ...period, quarter, isQuarter }));
+      }
+      return;
+    }
     if (!selected) {
       byId('timeline-week').textContent = 'Choose a school-year date';
       byId('timeline-day-note').textContent = `Enter a date between ${dateLabel(calendar.first)} and ${dateLabel(calendar.last)}.`;
@@ -23033,7 +23898,8 @@ window.timelineData = {
 
   function showView() {
     const hash = window.location.hash;
-    const view = hash === '#sources' ? 'sources' : hash === '#standards' ? 'standards' : 'timeline';
+    const isStandards = hash === '#standards' || hash.startsWith('#standards/');
+    const view = hash === '#sources' ? 'sources' : isStandards ? 'standards' : 'timeline';
     byId('standards-view').hidden = view !== 'standards';
     byId('sources-view').hidden = view !== 'sources';
     byId('timeline-view').hidden = view !== 'timeline';
@@ -23041,12 +23907,26 @@ window.timelineData = {
       if (item.dataset.view === view) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
     }
+    const requested = hash.match(/^#standards\/([A-Z0-9-]+)$/i)?.[1].toUpperCase();
+    if (standardIds.has(requested)) {
+      linkedStandard = requested;
+      clearStandardFilters();
+      controls.search.value = linkedStandard;
+      updateFilters();
+      const card = byId(`standard-${linkedStandard}`);
+      card.open = true;
+      card.querySelector('summary').focus();
+    } else if (linkedStandard) {
+      linkedStandard = '';
+      clearStandardFilters();
+      updateFilters();
+    }
   }
 
-  for (const control of Object.values(controls)) control.addEventListener(control.type === 'search' ? 'input' : 'change', updateFilters);
+  for (const control of Object.values(controls)) control.addEventListener(control.type === 'search' ? 'input' : 'change', changeFilters);
   byId('reset').addEventListener('click', () => {
-    for (const control of Object.values(controls)) control.value = '';
-    updateFilters();
+    clearStandardFilters();
+    changeFilters();
     controls.search.focus();
   });
   byId('more').addEventListener('click', () => {
@@ -23056,12 +23936,18 @@ window.timelineData = {
   });
   for (const id of ['source-grade', 'source-subject']) byId(id).addEventListener('change', renderSources);
   gradeInput.value = 'K';
+  timelineMode.value = 'week';
   dateInput.min = isoDate(calendar.first);
   dateInput.max = isoDate(calendar.last);
   const today = dayNumber(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }));
   dateInput.value = isoDate(Number.isFinite(today) ? Math.max(calendar.first, Math.min(calendar.last, today)) : calendar.first);
   dateInput.addEventListener('change', renderTimeline);
   gradeInput.addEventListener('change', renderTimeline);
+  timelineMode.addEventListener('change', renderTimeline);
+  quarterInput.addEventListener('change', () => {
+    chosenQuarter = Number(quarterInput.value);
+    renderTimeline();
+  });
   byId('week-back').addEventListener('click', () => moveWeek(-1));
   byId('week-next').addEventListener('click', () => moveWeek(1));
   const calendarLink = byId('timeline-calendar-link');
@@ -23070,8 +23956,6 @@ window.timelineData = {
   calendarLink.rel = 'noopener noreferrer';
   byId('timeline-range').textContent = `${spanLabel({ start: calendar.first, end: calendar.last })} · 2026–27 school year`;
   window.addEventListener('hashchange', showView);
-  byId('standard-total').textContent = `${records.length} CSTA standards`;
-  byId('guide-total').textContent = `${district.sources.length} MCS pacing guides`;
   for (const reference of links) {
     const item = make('li');
     item.append(link(reference.url, reference.title));
