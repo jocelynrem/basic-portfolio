@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Search Pre-K–5 computer science standards, North Carolina connections, and Moore County Schools pacing.">
   <title>Moore County CS Crosswalk</title>
+  <link rel="icon" type="image/svg+xml" href="./smart-toy.svg">
   <style>
 :root {
   color-scheme:light;
@@ -99,18 +100,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .brand-mark {
-  display:grid;
-  place-items:center;
+  display:block;
+  flex:none;
   width:36px;
   height:36px;
   border:1px solid #819fc9;
   border-radius:10px;
-  background:#2b466c;
-  color:#e0edff;
-}
-
-.brand-mark svg {
-  width:23px;
 }
 
 .navigation {
@@ -1034,7 +1029,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   <header class="header">
     <div class="shell header-row">
       <h1 class="brand">
-        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7h6m6 0h6M3 17h6m6 0h6M7 7l10 10M7 17 17 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="7" r="2" fill="currentColor"/><circle cx="17" cy="17" r="2" fill="currentColor"/></svg></span>
+        <img class="brand-mark" src="./smart-toy.svg" width="36" height="36" alt="">
         <span>Moore County CS Crosswalk</span>
       </h1>
       <nav class="navigation" aria-label="Main navigation">
