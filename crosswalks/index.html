@@ -499,37 +499,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   font-weight:700;
 }
 
-.placement-list {
-  list-style:none;
-  margin:5px 0 0;
-  padding:0 0 0 11px;
-  border-left:2px solid #c6d7ee;
-  display:grid;
-  gap:6px;
-}
-
-.placement-list li {
-  line-height:1.42;
-}
-
-.placement-list small {
-  display:block;
-  color:var(--muted);
-  font-size:.76rem;
-}
-
-.placement-list a {
-  font-size:.78rem;
-}
-
-.placement-list a+a {
-  margin-left:12px;
-}
-
-.guide-fallback {
-  font-size:.78rem;
-}
-
 .more {
   display:block;
   margin:16px auto 0;
@@ -784,6 +753,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .timeline-cs-list {
   margin:0;
   padding-left:17px;
+}
+
+.timeline-cs-reference {
+  margin-inline-start:6px;
+  font-size:.78rem;
+  white-space:nowrap;
 }
 
 .timeline-quarter-timing {
@@ -23363,7 +23338,7 @@ window.timelineData = {
 (function () {
   'use strict';
 
-  const { createIndex, gradeLabels, normalizeCode, placementKey, search } = window.crosswalk;
+  const { createIndex, gradeLabels, normalizeCode, search } = window.crosswalk;
   const { datePlacement, dayNumber, isoDate, mergeSpans, readCalendar, timelineDay } = window.mcsCalendar;
   const { records: mappings, links } = window.standardsData;
   const connectionsById = new Map(mappings.map(({ id, connections }) => [id, connections]));
@@ -23416,6 +23391,13 @@ window.timelineData = {
     return anchor;
   }
 
+  function cstaStandardLink(id, text) {
+    const query = new URLSearchParams({ q: id, ec: '1' });
+    const reference = link(`https://csteachers.org/pk12standards/view/?${query}`, text);
+    reference.setAttribute('aria-label', `${text} for ${id}`);
+    return reference;
+  }
+
   function options(select, all, values) {
     if (all) select.add(new Option(all, ''));
     for (const [value, label] of values) select.add(new Option(label, value));
@@ -23466,7 +23448,7 @@ window.timelineData = {
     for (const { program, basis, spans } of programs.values()) {
       const labels = mergeSpans(spans, calendar).map(spanLabel);
       const visible = labels.slice(0, 3);
-      if (labels.length > 3) visible.push(`${labels.length - 3} more in guide details`);
+      if (labels.length > 3) visible.push(`and ${labels.length - 3} more`);
       const timing = [basisLabels[basis], visible.join(', ')].filter(Boolean).join(' · ');
       const line = make('li');
       line.append(make('strong', '', program ? `${program} ` : ''), document.createTextNode(program ? `· ${timing}` : timing));
@@ -23475,31 +23457,7 @@ window.timelineData = {
     return list;
   }
 
-  function renderPlacement(placement) {
-    const item = make('li');
-    const unit = placement.unit || placement.location || 'District guide entry';
-    item.append(make('strong', '', unit));
-    const details = [];
-    if (placement.location && placement.location !== unit) details.push(placement.location);
-    else if (placement.quarter && !placement.location) details.push(`Quarter ${placement.quarter}`);
-    if (placement.window && placement.window !== unit) details.push(placement.window);
-    if (placement.source?.program) details.push(placement.source.program);
-    if (placement.broader) details.push(`Guide lists broader standard ${placement.code}`);
-    if (details.length) item.append(make('small', '', details.join(' · ')));
-    if (placement.source) {
-      const guide = link(placement.source.url, 'Pacing guide');
-      guide.setAttribute('aria-label', `Pacing guide for ${unit}`);
-      item.append(guide);
-    }
-    for (const unitLink of placement.unitLinks) {
-      const curriculum = link(unitLink.url, 'Unit curriculum');
-      curriculum.setAttribute('aria-label', `Unit curriculum for ${unit}`);
-      item.append(curriculum);
-    }
-    return item;
-  }
-
-  function connectionRow(connection, record) {
+  function connectionRow(connection) {
     const row = make('section', 'connection');
     row.append(make('p', 'connection-statement', connection.statement));
     const top = make('div', 'connection-top');
@@ -23519,23 +23477,7 @@ window.timelineData = {
       for (const note of connection.notes) notes.append(make('p', '', note));
       row.append(notes);
     }
-    if (connection.placements.length) {
-      row.append(timingSummary(connection.placements));
-      const placement = make('details', 'placement');
-      placement.append(make('summary', '', 'Guide details'));
-      const list = make('ul', 'placement-list');
-      const details = new Map(connection.placements.map(entry => [placementKey(entry), entry]));
-      for (const entry of details.values()) list.append(renderPlacement(entry));
-      placement.append(list);
-      row.append(placement);
-    } else if (!connection.label.startsWith('Other grade') && districtSubjects.includes(connection.filterSubject)) {
-      const guide = district.sources.find(source => source.grade === record.grade && source.subject === connection.filterSubject);
-      if (guide) {
-        const note = make('p', 'guide-fallback');
-        note.append(document.createTextNode('No matching district timing for this code. '), link(guide.url, 'Open a grade-level guide'));
-        row.append(note);
-      }
-    }
+    if (connection.placements.length) row.append(timingSummary(connection.placements));
     return row;
   }
 
@@ -23553,11 +23495,11 @@ window.timelineData = {
     for (const [subject, connections] of bySubject) {
       connections.sort((a, b) => Number(Boolean(b.placements.length)) - Number(Boolean(a.placements.length)) || Number(Boolean(a.label)) - Number(Boolean(b.label)));
       const group = make('section', 'connection-group');
-      group.append(make('h4', '', subject), connectionRow(connections[0], record));
+      group.append(make('h4', '', subject), connectionRow(connections[0]));
       if (connections.length > 1) {
         const rest = make('details', 'placement more-connections');
         rest.append(make('summary', '', `More ${subject} connections (${connections.length - 1})`));
-        for (const connection of connections.slice(1)) rest.append(connectionRow(connection, record));
+        for (const connection of connections.slice(1)) rest.append(connectionRow(connection));
         group.append(rest);
       }
       body.append(group);
@@ -23566,7 +23508,7 @@ window.timelineData = {
       const rest = make('details', 'placement more-connections');
       rest.open = !bySubject.size;
       rest.append(make('summary', '', `Other grades and practices (${secondary.length})`));
-      for (const connection of secondary) rest.append(connectionRow(connection, record));
+      for (const connection of secondary) rest.append(connectionRow(connection));
       body.append(rest);
     }
   }
@@ -23597,8 +23539,8 @@ window.timelineData = {
     if (record.unpluggedExamples.length) {
       details.append(detailField('CSTA unplugged examples', record.unpluggedExamples, true));
     }
-    const source = make('p', 'csta-card-source');
-    source.append(link('https://csteachers.org/pk12standards/view/', 'Computer Science Teachers Association (2026)'));
+    const source = make('p', 'csta-card-source', 'Computer Science Teachers Association (2026) · ');
+    source.append(cstaStandardLink(record.id, 'View official CSTA standard'));
     body.append(make('h3', '', 'CSTA standard details'), source, details);
   }
 
@@ -23733,8 +23675,7 @@ window.timelineData = {
         const details = make('details', 'timeline-cs-details');
         const summary = make('summary', '', 'Related CS standards');
         summary.setAttribute('aria-label', `Related CS standards for ${code}`);
-        const credit = make('p', 'timeline-cs-credit');
-        credit.append(link('https://csteachers.org/pk12standards/', 'Computer Science Teachers Association (2026)'));
+        const credit = make('p', 'timeline-cs-credit', 'Computer Science Teachers Association (2026)');
         const links = make('ul', 'timeline-cs-list');
         for (const { record, label } of related) {
           const item = make('li');
@@ -23742,6 +23683,9 @@ window.timelineData = {
           anchor.href = standardHref(record.id);
           item.append(anchor);
           if (label === 'Adapt') item.append(document.createTextNode(' (Adapt)'));
+          const reference = cstaStandardLink(record.id, 'CSTA reference');
+          reference.className = 'timeline-cs-reference';
+          item.append(document.createTextNode(' '), reference);
           links.append(item);
         }
         details.append(summary, links, credit);
