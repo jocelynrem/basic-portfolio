@@ -413,9 +413,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin-top:4px;
 }
 
-.standard-source {
-  margin:12px 0 0;
+.standard-source,.csta-card-source {
+  margin:0 0 12px;
   font-size:.84rem;
+}
+
+.crosswalk-ideas {
+  margin:0 0 18px;
+  padding-left:1.2em;
+  color:var(--muted);
+  font-size:.9rem;
 }
 
 .connection {
@@ -1053,7 +1060,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
       <div class="week-header"><h3 id="timeline-week"></h3><p id="timeline-day-note" role="status"></p></div>
       <div id="timeline-days" class="day-strip" aria-label="Days in this school week"></div>
       <div id="timeline-subjects" class="subject-grid"></div>
-      <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
+      <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><p>This crosswalk connects North Carolina standards to the <a href="https://csteachers.org/pk12standards/">Computer Science Teachers Association’s 2026 standards</a>.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
     </section>
     <section id="standards-view" class="shell workspace" aria-label="Standards explorer" hidden>
       <aside class="filters" aria-label="Filter standards">
@@ -1070,10 +1077,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
         <label class="search-label" for="search">Search standards</label>
         <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="search" placeholder="Try E3-PRO-PD-04, debugging, or fractions"></div>
         <div class="results-header"><h2>CS standards</h2><p id="result-count" role="status"></p></div>
+        <p class="standard-source">Standard codes and wording, concepts, subconcepts, boundary statements, practices, dispositions, and CSTA unplugged examples come from the Computer Science Teachers Association’s <a href="https://csteachers.org/pk12standards/">2026 CSTA PK–12 Computer Science Standards</a>. This Pre-K–5 selection is formatted for the crosswalk and shared under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>. The North Carolina and district connections and additional unplugged ideas were added for this crosswalk.</p>
         <div id="result-list" class="cards"></div>
         <button type="button" id="more" class="more" hidden>Show more standards</button>
         <details class="legend"><summary>How to read the crosswalk</summary><p>The catalog covers the 2026 CSTA foundational standards for Pre-K through grade 5. <strong>Adapt</strong> means the activity needs the change described in the connection details. Related objectives are grouped under their overall NC standard. MCS pacing is matched to the underlying objectives in the same grade and subject.</p></details>
-        <p class="standard-source">Catalog adapted from the <a href="https://csteachers.org/pk12standards/">2026 CSTA PK–12 Computer Science Standards</a> by the Computer Science Teachers Association, under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
       </section>
     </section>
     <section id="sources-view" class="shell sources" aria-labelledby="sources-heading" hidden>
@@ -23548,10 +23555,9 @@ window.timelineData = {
     if (record.unpluggedExamples.length) {
       details.append(detailField('CSTA unplugged examples', record.unpluggedExamples, true));
     }
-    if (record.unpluggedExamplesOriginal?.length) {
-      details.append(detailField('Unplugged ideas from this crosswalk', record.unpluggedExamplesOriginal, true));
-    }
-    body.append(make('h3', '', 'CSTA standard details'), details);
+    const source = make('p', 'csta-card-source');
+    source.append(link('https://csteachers.org/pk12standards/view/', 'Computer Science Teachers Association (2026)'));
+    body.append(make('h3', '', 'CSTA standard details'), source, details);
   }
 
   function standardCard(record) {
@@ -23575,7 +23581,12 @@ window.timelineData = {
       if (!card.open || card.children.length > 1) return;
       const body = make('div', 'standard-body');
       renderCstaDetails(record, body);
-      body.append(make('h3', '', 'North Carolina connections'));
+      if (record.unpluggedExamplesOriginal?.length) {
+        const ideas = make('ul', 'crosswalk-ideas');
+        ideas.append(...record.unpluggedExamplesOriginal.map(idea => make('li', '', idea)));
+        body.append(make('h3', '', 'Unplugged ideas from this crosswalk'), ideas);
+      }
+      body.append(make('h3', '', 'Crosswalk connections to North Carolina'));
       if (record.connections.length) renderConnections(record, body);
       else body.append(make('p', '', 'No North Carolina or Moore County connections are listed for this standard.'));
       card.append(body);
@@ -23678,7 +23689,7 @@ window.timelineData = {
           if (label === 'Adapt') item.append(document.createTextNode(' (Adapt)'));
           links.append(item);
         }
-        row.append(make('p', 'timeline-cs-label', 'Related CS standards'), links);
+        row.append(make('p', 'timeline-cs-label', 'Related CSTA standards'), links);
       }
       return row;
     });
