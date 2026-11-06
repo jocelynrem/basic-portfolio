@@ -340,8 +340,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timing-chip {
-  background:var(--blue-wash);
-  color:#254f84;
+  background:var(--sand);
+  color:var(--rust);
   padding:2px 7px;
   border-radius:5px;
   font-weight:680;
@@ -23270,7 +23270,11 @@ window.timelineData = {
         if (subject === 'Math' && !placements.size) return null;
         return { ...connection, code, filterSubject: subject, placements: [...placements.values()] };
       })).filter(Boolean);
-      return { ...record, connections: groupConnections(connections, record.grade, catalog) };
+      return {
+        ...record,
+        connections: groupConnections(connections, record.grade, catalog),
+        hasMcsTiming: connections.some(connection => connection.placements.length)
+      };
     });
 
     function relatedStandards(grade, subject, overallCode, pacingCodes) {
@@ -23306,17 +23310,15 @@ window.timelineData = {
 
       const searchable = [record.id, record.title, gradeLabels[record.grade], record.concept, record.subconcept,
         record.boundaries, record.practices, record.dispositions, record.unpluggedExamples, record.unpluggedExamplesOriginal].flat();
-      const timings = new Map();
       for (const c of connections) {
         searchable.push(c.subject, c.code, c.statement, c.label, c.notes.join(' '), c.objectives.flat().join(' '));
         for (const p of c.placements) {
           searchable.push(p.unit, p.location, p.window, p.source?.program);
-          timings.set(placementKey(p), p);
         }
       }
       const fullText = searchable.join(' ').toLowerCase();
       if (!terms.every(term => fullText.includes(term))) continue;
-      results.push({ ...record, connections, timingCount: timings.size });
+      results.push({ ...record, connections });
     }
     return results;
   }
@@ -23677,8 +23679,8 @@ window.timelineData = {
     meta.append(make('span', 'card-code', record.id), make('span', 'grade-label', gradeLabels[record.grade]));
     const badges = make('div', 'chips');
     badges.append(make('span', '', `${record.concept} · ${record.subconcept}`));
-    if (record.timingCount) {
-      badges.append(make('span', 'timing-chip', 'MCS timing available'));
+    if (!record.hasMcsTiming) {
+      badges.append(make('span', 'timing-chip', 'No MCS timing'));
     }
     heading.append(meta, make('span', 'standard-title', record.title), badges);
     const chevron = make('span', 'chevron');
