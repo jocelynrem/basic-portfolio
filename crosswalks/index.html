@@ -23725,8 +23725,8 @@ window.timelineData = {
     }
     const standards = [...unique.values()];
     const rows = standards.map(({ code, text, pacingCodes, timing }) => {
-      const row = make('li', '', text);
-      row.append(document.createTextNode(' '), make('code', '', code));
+      const row = make('li');
+      row.append(make('code', '', code), document.createTextNode(` ${text}`));
       if (timing.size) row.append(make('p', 'timeline-quarter-timing', [...timing].join(' / ')));
       const related = index.relatedStandards(grade, subject, code, pacingCodes);
       if (related.length) {
