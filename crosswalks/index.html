@@ -584,23 +584,23 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin-bottom:16px;
 }
 
-.timeline-controls,.timeline-week-controls {
+.timeline-controls {
   display:flex;
-  flex-wrap:wrap;
   align-items:end;
   gap:12px;
-}
-
-.timeline-week-controls {
-  max-width:100%;
 }
 
 .timeline-controls label {
   display:grid;
   gap:4px;
-  width:min(180px,100%);
+  flex:0 1 180px;
+  min-width:0;
   font-size:.84rem;
   font-weight:750;
+}
+
+.timeline-view-control {
+  margin-inline-start:auto;
 }
 
 .timeline-controls select,.timeline-controls input,.week-buttons button {
@@ -638,9 +638,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   display:flex;
   flex-wrap:wrap;
   justify-content:space-between;
-  align-items:baseline;
+  align-items:center;
   gap:4px 12px;
   margin-bottom:7px;
+}
+
+.week-title {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px 12px;
 }
 
 .week-header h3,.week-header p {
@@ -754,19 +761,28 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   font-size:.75rem;
 }
 
-.timeline-standards li:has(> details) {
+.timeline-standards li:has(> .timeline-more) {
   list-style:none;
 }
 
-.timeline-cs-label {
-  margin:5px 0 2px;
-  color:var(--muted);
-  font-size:.8rem;
+.timeline-cs-details {
+  margin:5px 0 6px;
+}
+
+.timeline-cs-details > summary {
+  width:fit-content;
+  color:var(--navy);
+  font-size:.82rem;
   font-weight:700;
 }
 
+.timeline-cs-credit {
+  margin:4px 0 0;
+  font-size:.78rem;
+}
+
 .timeline-cs-list {
-  margin:0 0 6px;
+  margin:0;
   padding-left:17px;
 }
 
@@ -921,10 +937,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
     grid-template-columns:1fr;
   }
 
-  .timeline-controls label {
-    flex:1 1 130px;
-  }
-
   .timeline-day small {
     font-size:.68rem;
   }
@@ -1010,6 +1022,26 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   }
 }
 
+@media(max-width:600px) {
+  .timeline-controls {
+    gap:6px;
+  }
+  .timeline-controls label {
+    flex:1 1 0;
+  }
+  .timeline-controls label[for="timeline-date"] {
+    flex-grow:1.3;
+  }
+  .timeline-controls .timeline-view-control {
+    flex-grow:1.1;
+  }
+  .timeline-controls select,.timeline-controls input {
+    width:100%;
+    padding-inline:5px;
+    font-size:.82rem;
+  }
+}
+
 @media(max-width:380px) {
   .shell {
     width:calc(100% - 22px);
@@ -1048,15 +1080,18 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
       <div class="section-head"><h2 id="timeline-heading">MCS K-5 Curriculum Timeline</h2></div>
       <div class="timeline-controls">
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
-        <label for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
-        <div id="timeline-week-controls" class="timeline-week-controls">
-          <label for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
-          <div class="week-buttons"><button type="button" id="week-back" aria-label="Previous teaching week">←</button><button type="button" id="week-next" aria-label="Next teaching week">→</button></div>
-        </div>
+        <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
         <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
+        <label class="timeline-view-control" for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
       </div>
       <p id="timeline-range" class="timeline-range">2026–27 school year</p>
-      <div class="week-header"><h3 id="timeline-week"></h3><p id="timeline-day-note" role="status"></p></div>
+      <div class="week-header">
+        <div class="week-title">
+          <h3 id="timeline-week"></h3>
+          <div id="timeline-week-buttons" class="week-buttons"><button type="button" id="week-back" aria-label="Previous teaching week">←</button><button type="button" id="week-next" aria-label="Next teaching week">→</button></div>
+        </div>
+        <p id="timeline-day-note" role="status"></p>
+      </div>
       <div id="timeline-days" class="day-strip" aria-label="Days in this school week"></div>
       <div id="timeline-subjects" class="subject-grid"></div>
       <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><p>This crosswalk connects North Carolina standards to the <a href="https://csteachers.org/pk12standards/">Computer Science Teachers Association’s 2026 standards</a>.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
@@ -23399,6 +23434,14 @@ window.timelineData = {
   options(byId('source-subject'), 'All subjects', districtSubjects.map(subject => [subject, subjectLabel(subject)]));
   options(gradeInput, '', schoolGrades);
   options(quarterInput, '', calendar.quarters.map((_, index) => [String(index + 1), `Quarter ${index + 1}`]));
+  const compactTimeline = window.matchMedia('(max-width: 480px)');
+  function labelTimelineOptions() {
+    gradeInput.options[0].label = compactTimeline.matches ? 'K' : 'Kindergarten';
+    timelineMode.options[0].label = compactTimeline.matches ? 'Weekly' : 'Week by week';
+    timelineMode.options[1].label = compactTimeline.matches ? 'Quarterly' : 'Quarter overview';
+  }
+  compactTimeline.addEventListener('change', labelTimelineOptions);
+  labelTimelineOptions();
 
   function dateLabel(day, formatter = shortDate) {
     return formatter.format(new Date(`${isoDate(day)}T00:00:00Z`));
@@ -23679,6 +23722,11 @@ window.timelineData = {
       if (timing.size) row.append(make('p', 'timeline-quarter-timing', [...timing].join(' / ')));
       const related = index.relatedStandards(grade, subject, code, pacingCodes);
       if (related.length) {
+        const details = make('details', 'timeline-cs-details');
+        const summary = make('summary', '', 'Related CS standards');
+        summary.setAttribute('aria-label', `Related CS standards for ${code}`);
+        const credit = make('p', 'timeline-cs-credit');
+        credit.append(link('https://csteachers.org/pk12standards/', 'Computer Science Teachers Association (2026)'));
         const links = make('ul', 'timeline-cs-list');
         for (const { record, label } of related) {
           const item = make('li');
@@ -23688,7 +23736,8 @@ window.timelineData = {
           if (label === 'Adapt') item.append(document.createTextNode(' (Adapt)'));
           links.append(item);
         }
-        row.append(make('p', 'timeline-cs-label', 'Related CSTA standards'), links);
+        details.append(summary, links, credit);
+        row.append(details);
       }
       return row;
     });
@@ -23851,6 +23900,7 @@ window.timelineData = {
     strip.replaceChildren();
     byId('timeline-quarter-control').hidden = !isQuarter;
     byId('timeline-week-controls').hidden = isQuarter;
+    byId('timeline-week-buttons').hidden = isQuarter;
     strip.hidden = isQuarter;
     if (isQuarter) {
       const quarter = chosenQuarter ?? (selected?.quarter || 1);
