@@ -23721,10 +23721,7 @@ window.timelineData = {
       if (!unique.has(key)) unique.set(key, { ...standard, pacingCodes: new Set(), timing: new Set() });
       const item = unique.get(key);
       item.pacingCodes.add(normalizeCode(entry.code));
-      if (quarter) {
-        const timing = entry.timing || [entry.source?.program, basisLabels[entry.dates?.basis]].filter(Boolean).join(' · ');
-        if (timing) item.timing.add(timing);
-      }
+      if (quarter && entry.timing) item.timing.add(entry.timing);
     }
     const standards = [...unique.values()];
     const rows = standards.map(({ code, text, pacingCodes, timing }) => {
