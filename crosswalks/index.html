@@ -23677,6 +23677,15 @@ window.timelineData = {
     for (const [level, gradeName] of schoolGrades) {
       if (grade && grade !== level) continue;
       const guides = district.sources.filter(source => source.grade === level && (!subject || source.subject === subject));
+      const sciencePage = window.timelineData.sciencePages[level];
+      if (sciencePage && (!subject || subject === 'Science') && !guides.some(guide => guide.subject === 'Science')) {
+        guides.push({
+          subject: 'Science',
+          title: `${gradeName} Science Pacing Guide`,
+          url: sciencePage,
+          note: 'Sign in with an MCS account to open the pacing guide from this page.'
+        });
+      }
       if (!guides.length) continue;
       guides.sort((a, b) => districtSubjects.indexOf(a.subject) - districtSubjects.indexOf(b.subject));
 
@@ -23691,7 +23700,9 @@ window.timelineData = {
         card.append(make('span', 'source-category', subjectLabel(source.subject)));
         const title = make('h4');
         title.append(link(source.url, source.title));
-        card.append(title, make('p', '', [source.program, source.year].filter(Boolean).join(' · ')));
+        card.append(title);
+        const context = [source.program, source.year].filter(Boolean).join(' · ');
+        if (context) card.append(make('p', '', context));
         if (source.note) card.append(make('p', '', source.note));
         grid.append(card);
       }
