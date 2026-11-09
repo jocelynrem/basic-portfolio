@@ -687,12 +687,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timeline-day {
-  display:flex;
-  flex-wrap:wrap;
-  align-content:center;
-  align-items:baseline;
-  justify-content:center;
-  gap:2px 5px;
+  display:grid;
+  align-content:start;
+  justify-items:center;
+  gap:3px;
   min-height:58px;
   padding:6px 4px;
   border:0;
@@ -717,15 +715,56 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   background:var(--blue-wash);
 }
 
+.timeline-day-date,.timeline-day-badges {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:baseline;
+  gap:2px 5px;
+}
+
+.timeline-day-badges {
+  align-items:center;
+  gap:3px;
+  min-width:0;
+}
+
 .timeline-day strong {
   font-size:1.1rem;
 }
 
 .timeline-day small {
-  flex-basis:100%;
   color:var(--muted);
   overflow-wrap:anywhere;
   font-size:.72rem;
+}
+
+.timeline-day-badge {
+  max-width:100%;
+  padding:1px 5px;
+  border:1px solid;
+  border-radius:4px;
+  font-size:.72rem;
+  font-weight:750;
+  line-height:1.2;
+}
+
+.day-badge-today {
+  background:#e2f3ec;
+  border-color:#86b6a1;
+  color:#145246;
+}
+
+.day-badge-closed {
+  background:#fbe3e3;
+  border-color:#e6a7ab;
+  color:#832c33;
+}
+
+.day-badge-early {
+  background:#fff0cd;
+  border-color:#e6c46a;
+  color:#73470c;
 }
 
 .timeline-day[aria-pressed="true"] {
@@ -1064,6 +1103,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 @media(max-width:600px) {
+  .timeline-day-badge {
+    padding-inline:2px;
+    font-size:.66rem;
+  }
   .timeline-controls {
     gap:6px;
   }
@@ -1086,6 +1129,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 @media(max-width:380px) {
   .shell {
     width:calc(100% - 22px);
+  }
+  .timeline-day {
+    padding-inline:3px;
+  }
+  .timeline-day-date {
+    column-gap:2px;
+  }
+  .timeline-day strong {
+    font-size:1rem;
   }
   .standard>summary,.standard-body {
     padding-inline:11px;
@@ -24091,14 +24143,31 @@ window.timelineData = {
     byId('week-next').disabled = !calendar.weekStarts.some(start => start > selected.start);
     for (const day of selected.days) {
       const date = isoDate(day);
-      const state = calendar.closed.get(day) || (calendar.early.has(day) ? 'Early release' : day < calendar.first || day > calendar.last ? 'Outside school year' : 'School day');
+      const closure = calendar.closed.get(day);
+      const earlyRelease = calendar.early.has(day);
+      const outsideYear = day < calendar.first || day > calendar.last;
+      const state = outsideYear ? 'Outside school year' : closure ? `No school, ${closure}` : earlyRelease ? 'Early release' : 'School day';
       const button = make('button', 'timeline-day');
       button.type = 'button';
-      button.disabled = day < calendar.first || day > calendar.last;
+      button.disabled = outsideYear;
       button.setAttribute('aria-pressed', String(day === selected.selected));
       button.setAttribute('aria-label', `${dateLabel(day, fullDate)}, ${state}`);
-      button.append(make('span', '', dateLabel(day, shortDay)), make('strong', '', Number(date.slice(-2))));
-      if (state !== 'School day') button.append(make('small', '', state));
+      const dayLabel = make('span', 'timeline-day-date');
+      dayLabel.append(make('span', '', dateLabel(day, shortDay)), make('strong', '', Number(date.slice(-2))));
+      button.append(dayLabel);
+      const badges = make('span', 'timeline-day-badges');
+      if (day === today) {
+        button.setAttribute('aria-current', 'date');
+        badges.append(make('span', 'timeline-day-badge day-badge-today', 'Today'));
+      }
+      if (!outsideYear && closure) {
+        button.title = closure;
+        badges.append(make('span', 'timeline-day-badge day-badge-closed', 'No school'));
+      } else if (!outsideYear && earlyRelease) {
+        badges.append(make('span', 'timeline-day-badge day-badge-early', 'Early release'));
+      }
+      if (badges.childElementCount) button.append(badges);
+      if (outsideYear) button.append(make('small', '', state));
       button.addEventListener('click', () => {
         dateInput.value = date;
         renderTimeline();
