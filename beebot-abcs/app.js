@@ -455,7 +455,6 @@ function moveBy(deltaRow, deltaCol) {
     nextCol < 0 ||
     nextCol >= GRID.cols
   ) {
-    setStatus("Bee-Bot cannot move off the mat, so it stays on the current square.");
     return false;
   }
 
@@ -528,6 +527,8 @@ async function runSequence() {
   setControlAvailability();
   setStatus("Bee-Bot is running the program.");
 
+  let stoppedAtEdge = false;
+
   for (let index = 0; index < state.sequence.length; index += 1) {
     if (state.cancelRequested) {
       break;
@@ -546,22 +547,29 @@ async function runSequence() {
       break;
     }
 
-    if (executeCommand(command)) {
-      playStepSound();
-    } else {
+    if (!executeCommand(command)) {
+      stoppedAtEdge = true;
+      setStatus(`Program stopped at step ${index + 1}. Bee-Bot reached the edge of the mat.`);
       playBlockedMoveSound();
       token.classList.add("blocked");
+      await sleep(620);
+      token.classList.remove("blocked");
+      break;
     }
 
+    playStepSound();
     await sleep(command === "pause" ? 900 : 620);
-    token.classList.remove("blocked");
   }
 
   state.isRunning = false;
-  playStopSound();
   renderSequence();
   setControlAvailability();
 
+  if (stoppedAtEdge) {
+    return;
+  }
+
+  playStopSound();
   if (!state.cancelRequested) {
     setStatus(`Program finished on ${getCellLabel(state.row, state.col)}.`);
   }
