@@ -550,7 +550,17 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timeline > .section-head {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:3px 12px;
   margin-bottom:16px;
+}
+
+.timeline > .section-head .timeline-range {
+  margin:0;
+  font-size:.8rem;
 }
 
 .timeline-controls {
@@ -572,7 +582,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin-inline-start:auto;
 }
 
-.timeline-controls select,.timeline-controls input,.week-buttons button {
+.timeline-controls select,.timeline-controls input {
   min-width:0;
   min-height:42px;
   padding:8px 10px;
@@ -584,13 +594,50 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .week-buttons {
   display:flex;
   flex:none;
-  gap:6px;
+  gap:1px;
 }
 
 .week-buttons button {
   min-width:44px;
+  min-height:44px;
+  padding:6px 9px;
+  border:0;
+  background:var(--blue-wash);
+  color:var(--navy);
   font-weight:700;
   font-size:1rem;
+}
+
+.week-buttons button:hover:enabled {
+  background:#dce8f8;
+}
+
+#week-back {
+  border-radius:7px 0 0 7px;
+}
+
+#week-next {
+  border-radius:0 7px 7px 0;
+}
+
+#week-today {
+  margin-inline-start:7px;
+  border-radius:7px;
+  background:var(--navy);
+  color:var(--white);
+  font-size:.87rem;
+}
+
+#week-today:hover:enabled {
+  background:#29476c;
+}
+
+.week-buttons button:focus-visible,.timeline-day:focus-visible {
+  outline-offset:-4px;
+}
+
+#week-today:focus-visible {
+  outline-color:var(--white);
 }
 
 .week-buttons button:disabled,.timeline-day:disabled {
@@ -598,30 +645,35 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   cursor:default;
 }
 
-.timeline-range {
-  color:var(--muted);
-  margin:6px 0 18px;
-  font-size:.8rem;
+.timeline-calendar {
+  margin-block:16px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--white);
 }
 
-.week-header {
-  display:grid;
-  gap:4px;
-  margin-bottom:7px;
-}
-
-.week-title {
+.week-toolbar {
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap:8px 12px;
+  padding:8px 10px;
 }
 
-.week-header h3,.week-header p {
+.week-context {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:1px 12px;
+  min-width:0;
+  padding-block:8px;
+}
+
+.week-context h3,.week-context p {
   margin:0;
 }
 
-.week-header p {
+.week-context p {
   color:var(--muted);
   font-size:.85rem;
 }
@@ -629,21 +681,40 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .day-strip {
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:6px;
-  margin-bottom:16px;
+  border-top:1px solid var(--line);
+  border-radius:0 0 9px 9px;
+  background:#f2f6fb;
 }
 
 .timeline-day {
-  display:grid;
-  align-content:start;
-  min-height:76px;
-  padding:7px 5px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:var(--white);
+  display:flex;
+  flex-wrap:wrap;
+  align-content:center;
+  align-items:baseline;
+  justify-content:center;
+  gap:2px 5px;
+  min-height:58px;
+  padding:6px 4px;
+  border:0;
+  border-inline-start:1px solid var(--line);
+  border-bottom:3px solid transparent;
+  background:transparent;
   text-align:center;
   font-size:.8rem;
   line-height:1.3;
+}
+
+.timeline-day:first-child {
+  border-inline-start:0;
+  border-bottom-left-radius:9px;
+}
+
+.timeline-day:last-child {
+  border-bottom-right-radius:9px;
+}
+
+.timeline-day:hover:enabled {
+  background:var(--blue-wash);
 }
 
 .timeline-day strong {
@@ -651,19 +722,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timeline-day small {
+  flex-basis:100%;
   color:var(--muted);
   overflow-wrap:anywhere;
   font-size:.72rem;
 }
 
 .timeline-day[aria-pressed="true"] {
-  background:var(--navy);
-  border-color:var(--navy);
-  color:var(--white);
-}
-
-.timeline-day[aria-pressed="true"] small {
-  color:#e5efff;
+  background:#dce8f8;
+  border-bottom-color:var(--navy);
+  color:var(--navy);
 }
 
 .subject-grid {
@@ -1050,26 +1118,30 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   </header>
   <main id="main" tabindex="-1">
     <section id="timeline-view" class="shell timeline" aria-labelledby="timeline-heading">
-      <div class="section-head"><h2 id="timeline-heading">MCS K-5 Curriculum Timeline</h2></div>
+      <div class="section-head">
+        <h2 id="timeline-heading">MCS K-5 Curriculum Timeline</h2>
+        <p id="timeline-range" class="timeline-range">2026–27 school year</p>
+      </div>
       <div class="timeline-controls">
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
         <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
         <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
         <label class="timeline-view-control" for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
       </div>
-      <p id="timeline-range" class="timeline-range">2026–27 school year</p>
-      <div class="week-header">
-        <div class="week-title">
-          <h3 id="timeline-week"></h3>
+      <section class="timeline-calendar" aria-labelledby="timeline-week">
+        <div class="week-toolbar">
+          <div class="week-context">
+            <h3 id="timeline-week"></h3>
+            <p id="timeline-day-note" role="status"></p>
+          </div>
           <div id="timeline-week-buttons" class="week-buttons" role="group" aria-label="Week navigation">
             <button type="button" id="week-back" aria-label="Previous teaching week">←</button>
             <button type="button" id="week-next" aria-label="Next teaching week">→</button>
             <button type="button" id="week-today">Today</button>
           </div>
         </div>
-        <p id="timeline-day-note" role="status"></p>
-      </div>
-      <div id="timeline-days" class="day-strip" aria-label="Days in this school week"></div>
+        <div id="timeline-days" class="day-strip" role="group" aria-label="Days in this school week"></div>
+      </section>
       <div id="timeline-subjects" class="subject-grid"></div>
       <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><p>This crosswalk connects North Carolina standards to the <a href="https://csteachers.org/pk12standards/">Computer Science Teachers Association’s 2026 standards</a>.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
     </section>
@@ -23992,13 +24064,13 @@ window.timelineData = {
     byId('timeline-week-buttons').hidden = isQuarter;
     const today = currentSchoolDay();
     todayButton.disabled = today < calendar.first || today > calendar.last;
-    strip.hidden = isQuarter;
+    strip.hidden = isQuarter || !selected;
     if (isQuarter) {
       const quarter = chosenQuarter ?? (selected?.quarter || 1);
       quarterInput.value = String(quarter);
       const period = calendar.quarters[quarter - 1];
       byId('timeline-week').textContent = `Quarter ${quarter} · ${spanLabel(period)}`;
-      byId('timeline-day-note').textContent = `Showing standards for Quarter ${quarter} (${spanLabel(period)}).`;
+      byId('timeline-day-note').textContent = `${period.days.length} teaching days in Quarter ${quarter}.`;
       for (const subject of districtSubjects) {
         subjects.append(renderSubject(gradeInput.value, subject, { ...period, quarter, isQuarter }));
       }
@@ -24025,7 +24097,8 @@ window.timelineData = {
       button.disabled = day < calendar.first || day > calendar.last;
       button.setAttribute('aria-pressed', String(day === selected.selected));
       button.setAttribute('aria-label', `${dateLabel(day, fullDate)}, ${state}`);
-      button.append(make('span', '', dateLabel(day, shortDay)), make('strong', '', Number(date.slice(-2))), make('small', '', state));
+      button.append(make('span', '', dateLabel(day, shortDay)), make('strong', '', Number(date.slice(-2))));
+      if (state !== 'School day') button.append(make('small', '', state));
       button.addEventListener('click', () => {
         dateInput.value = date;
         renderTimeline();
