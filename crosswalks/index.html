@@ -583,6 +583,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .week-buttons {
   display:flex;
+  flex:none;
   gap:6px;
 }
 
@@ -604,18 +605,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .week-header {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:space-between;
-  align-items:center;
-  gap:4px 12px;
+  display:grid;
+  gap:4px;
   margin-bottom:7px;
 }
 
 .week-title {
   display:flex;
-  flex-wrap:wrap;
-  align-items:center;
+  justify-content:space-between;
+  align-items:flex-start;
   gap:8px 12px;
 }
 
@@ -1063,7 +1061,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
       <div class="week-header">
         <div class="week-title">
           <h3 id="timeline-week"></h3>
-          <div id="timeline-week-buttons" class="week-buttons"><button type="button" id="week-back" aria-label="Previous teaching week">←</button><button type="button" id="week-next" aria-label="Next teaching week">→</button></div>
+          <div id="timeline-week-buttons" class="week-buttons" role="group" aria-label="Week navigation">
+            <button type="button" id="week-back" aria-label="Previous teaching week">←</button>
+            <button type="button" id="week-next" aria-label="Next teaching week">→</button>
+            <button type="button" id="week-today">Today</button>
+          </div>
         </div>
         <p id="timeline-day-note" role="status"></p>
       </div>
@@ -23488,6 +23490,10 @@ window.timelineData = {
   const gradeInput = byId('timeline-grade');
   const timelineMode = byId('timeline-mode');
   const quarterInput = byId('timeline-quarter');
+  const todayButton = byId('week-today');
+  const schoolDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/New_York'
+  });
   const shortDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   const fullDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
   const shortDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' });
@@ -23969,6 +23975,11 @@ window.timelineData = {
     return card;
   }
 
+  function currentSchoolDay() {
+    const parts = Object.fromEntries(schoolDate.formatToParts(new Date()).map(({ type, value }) => [type, value]));
+    return dayNumber(`${parts.year}-${parts.month}-${parts.day}`);
+  }
+
   function renderTimeline() {
     const isQuarter = timelineMode.value === 'quarter';
     const selected = timelineDay(dateInput.value, calendar);
@@ -23979,6 +23990,8 @@ window.timelineData = {
     byId('timeline-quarter-control').hidden = !isQuarter;
     byId('timeline-week-controls').hidden = isQuarter;
     byId('timeline-week-buttons').hidden = isQuarter;
+    const today = currentSchoolDay();
+    todayButton.disabled = today < calendar.first || today > calendar.last;
     strip.hidden = isQuarter;
     if (isQuarter) {
       const quarter = chosenQuarter ?? (selected?.quarter || 1);
@@ -24077,7 +24090,7 @@ window.timelineData = {
   timelineMode.value = 'week';
   dateInput.min = isoDate(calendar.first);
   dateInput.max = isoDate(calendar.last);
-  const today = dayNumber(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }));
+  const today = currentSchoolDay();
   dateInput.value = isoDate(Number.isFinite(today) ? Math.max(calendar.first, Math.min(calendar.last, today)) : calendar.first);
   dateInput.addEventListener('change', renderTimeline);
   gradeInput.addEventListener('change', renderTimeline);
@@ -24088,6 +24101,11 @@ window.timelineData = {
   });
   byId('week-back').addEventListener('click', () => moveWeek(-1));
   byId('week-next').addEventListener('click', () => moveWeek(1));
+  todayButton.addEventListener('click', () => {
+    const today = currentSchoolDay();
+    if (today >= calendar.first && today <= calendar.last) dateInput.value = isoDate(today);
+    renderTimeline();
+  });
   const calendarLink = byId('timeline-calendar-link');
   calendarLink.href = calendar.url;
   calendarLink.target = '_blank';
