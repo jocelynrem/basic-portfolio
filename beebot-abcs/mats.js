@@ -1,5 +1,6 @@
 // To add a mat, put its image in assets/ and add an entry below.
 // Rows and columns describe the image grid; start coordinates are zero-based.
+// Optional start.position gives the center of a landmark as image percentages.
 // aspectRatio is image width / height. cellLabels are optional.
 const MATS = [
   {
@@ -64,6 +65,24 @@ const MATS = [
       ["Pumpkin pile", "Red wheelbarrow", "Pumpkin", "Pumpkin crate", "Watering can"],
       ["Squirrel", "Sunflower", "Barn", "Pumpkin vine", "Pumpkin"],
       ["Hay bale", "Pumpkin", "Fence", "Pumpkin", "Yellow wheelbarrow"],
+    ],
+  },
+  {
+    id: "landforms",
+    name: "Landforms",
+    image: "assets/landforms.webp",
+    alt: "Four-column, five-row landforms map with a compass rose in B3",
+    grid: { rows: 5, cols: 4 },
+    aspectRatio: 4 / 5,
+    start: { row: 2, col: 1, direction: 0, position: { left: 37.3, top: 50.9 } },
+    freePlacement: true,
+    instructions: "Bee-Bot starts on the compass rose in B3, facing north. Drag it to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the compass rose. Switching mats clears the program.",
+    cellLabels: [
+      ["Hills (A1)", "B1", "C1", "Lake (D1)"],
+      ["Ocean (A2)", "B2", "Forest (C2)", "River (D2)"],
+      ["A3", "the compass rose (B3)", "C3", "Pond (D3)"],
+      ["A4", "B4", "Mountains (C4)", "Plateau (D4)"],
+      ["A5", "Volcano (B5)", "C5", "Island (D5)"],
     ],
   },
 ];

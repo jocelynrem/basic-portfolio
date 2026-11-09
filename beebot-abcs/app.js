@@ -205,6 +205,10 @@ function playStopSound() {
 }
 
 function cellCenterPercent(row, col) {
+  if (START.position && isStartCell(row, col)) {
+    return START.position;
+  }
+
   return {
     left: ((col + 0.5) / GRID.cols) * 100,
     top: ((row + 0.5) / GRID.rows) * 100,
