@@ -175,6 +175,17 @@ function playStepSound() {
   });
 }
 
+function playBlockedMoveSound() {
+  scheduleTone({
+    startFrequency: 290,
+    endFrequency: 150,
+    duration: 0.19,
+    volume: 0.065,
+    type: "triangle",
+    filterFrequency: 1600,
+  });
+}
+
 function playStopSound() {
   scheduleTone({
     startFrequency: 520,
@@ -460,31 +471,31 @@ function executeCommand(command) {
     state.direction = (state.direction + 3) % 4;
     updateBeeBotPosition();
     updateInfo();
-    return;
+    return true;
   }
 
   if (command === "right") {
     state.direction = (state.direction + 1) % 4;
     updateBeeBotPosition();
     updateInfo();
-    return;
+    return true;
   }
 
   const forward = DIRECTIONS[state.direction];
 
   if (command === "forward") {
-    moveBy(forward.deltaRow, forward.deltaCol);
-    return;
+    return moveBy(forward.deltaRow, forward.deltaCol);
   }
 
   if (command === "backward") {
-    moveBy(-forward.deltaRow, -forward.deltaCol);
-    return;
+    return moveBy(-forward.deltaRow, -forward.deltaCol);
   }
 
   if (command === "pause") {
     setStatus("Bee-Bot is pausing.");
   }
+
+  return true;
 }
 
 function sleep(ms) {
@@ -535,9 +546,15 @@ async function runSequence() {
       break;
     }
 
-    playStepSound();
-    executeCommand(command);
+    if (executeCommand(command)) {
+      playStepSound();
+    } else {
+      playBlockedMoveSound();
+      token.classList.add("blocked");
+    }
+
     await sleep(command === "pause" ? 900 : 620);
+    token.classList.remove("blocked");
   }
 
   state.isRunning = false;
@@ -555,6 +572,7 @@ function placeAtStart() {
   state.col = START.col;
   state.direction = START.direction;
   state.drag = null;
+  token.classList.remove("blocked");
   updateBeeBotPosition();
   updateInfo();
 }
