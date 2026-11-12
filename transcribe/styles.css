@@ -454,11 +454,12 @@ textarea {
 .app-footer {
   display: flex;
   gap: 18px;
-  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
   padding: 22px 0 4px;
 }
 
-.app-footer a {
+.app-footer a:not(.portfolio-return) {
   color: var(--brand);
   font-size: 0.92rem;
   font-weight: 700;
