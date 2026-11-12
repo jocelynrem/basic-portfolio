@@ -574,6 +574,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
  .discard-pickup,.goal-slot-action{align-items:center;justify-content:center}
  #modal .modal-actions{flex-wrap:wrap}
  .goal-pattern,.goal-block,.goal-group{flex-wrap:wrap;overflow:visible;max-width:100%}
+ .goal-pattern .tile.goal-tile{width:44px;height:44px}
  #rack{
   display:grid;grid-template-columns:repeat(auto-fit,44px);justify-content:center;
   min-width:0;width:100%;gap:12px 6px;
