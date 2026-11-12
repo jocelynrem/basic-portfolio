@@ -6,10 +6,10 @@ export function discardClaims(s,target=null,maxTilesAway=Infinity){
  const options=G.claimOptions(s,0);
  if(!target||!options.length)return options;
  const hand=s.hands[0],exposed=s.exposed[0],discard=s.discards.at(-1).tile;
+ const {matched:baseline,missing}=G.evaluate(hand,exposed,target);
+ if(missing>maxTilesAway)return options;
  const groups=G.compatible(target,exposed);
  if(target.concealed||!groups)return options.filter(option=>option.win);
- const {matched:baseline,missing}=G.evaluate(hand,exposed,target);
- if(missing>maxTilesAway)return options.filter(option=>option.win);
  const naturals=hand.filter(tile=>tile.k===discard.k),jokers=hand.filter(tile=>tile.k==='J');
  return options.filter(option=>{
   if(option.win)return true;

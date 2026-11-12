@@ -1,7 +1,7 @@
 import * as G from './engine.mjs?v=wind-sort-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=wind-sort-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=call-prompt-range-1';
 import {recommendHands} from './recommendations.mjs?v=all-lines-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -28,7 +28,7 @@ const callPromptOptions=[
  {value:'all',label:'All eligible calls'},
  {value:'chosen',label:'Chosen hand · any distance'},
  ...[1,2,3].map(maxTilesAway=>({
-  value:String(maxTilesAway),label:`Chosen hand · within ${maxTilesAway} ${maxTilesAway===1?'tile':'tiles'}`,maxTilesAway
+  value:String(maxTilesAway),label:`Filter within ${maxTilesAway} ${maxTilesAway===1?'tile':'tiles'} of chosen hand`,maxTilesAway
  }))
 ];
 let callPrompt=callPromptOptions[0];
