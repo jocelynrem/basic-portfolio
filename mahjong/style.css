@@ -150,16 +150,37 @@
 #table-center .discards{flex:1;min-height:0;max-height:none;gap:6px;align-items:flex-start;padding:3px 4px 9px;width:100%;background:none}
 .discards .tile.mini{width:36px;height:50px}.discards .tile.mini .tile-number{font-size:13px;left:3px;top:2px}.discards .tile.mini svg.tile-art{top:17px;height:calc(100% - 21px)}.discards .tile.mini:is(.honor,.flower,.joker) svg.tile-art{top:3px;height:calc(100% - 6px)}.discards .tile.latest-discard{width:42px;height:58px}
 .charleston-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 12px;
   margin: 0 0 6px;
   min-width: 0;
-  overflow-x: auto;
+  padding: 0 10px;
+  border: 1px solid #d7dfcc;
+  border-radius: 5px;
+  background: #f1f3e7;
   color: #4b5e51;
-  font-size: clamp(0.5rem, 2.5vw, 0.75rem);
+  font-size: 0.75rem;
   line-height: 1.5;
-  white-space: nowrap;
 }
-@media (max-width: 420px) {
-  .charleston-info { letter-spacing: -0.01em; }
+.charleston-info[hidden], .charleston-guide[hidden] { display: none; }
+.charleston-info:has(.charleston-guide[hidden]) { width: max-content; }
+.charleston-guide { display: contents; }
+.charleston-steps { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.charleston-toggle { display: inline-flex; align-items: center; gap: 8px; }
+.charleston-info .text-button { min-height: 32px; font-size: inherit; }
+.charleston-help { margin-left: auto; }
+.charleston-chevron {
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+  transform: translateY(-2px) rotate(45deg);
+}
+.charleston-toggle[aria-expanded="false"] .charleston-chevron { transform: rotate(-45deg); }
+@media (max-width: 600px) {
+  .charleston-steps { order: 1; flex-basis: 100%; padding-bottom: 5px; }
 }
 .charleston-info [aria-current="step"] {
   color: #345b43;
@@ -533,6 +554,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 @media (max-width:760px), (orientation:landscape) and (min-width:500px) and (max-width:1050px) and (max-height:500px), (any-pointer:coarse){
  .site-header :is(.brand,.settings-button,.header-new-game),
  .table-discards,
+ .charleston-info .text-button,
  .player-zone .action-buttons .button,
  .rack-under .table-text-button,
  .round-result-head .button,
@@ -647,11 +669,6 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   color: var(--ink);
   font-size: 15px;
   font-weight: 650;
-}
-
-.suggestion-limit {
-  color: #52684d;
-  font-size: 12px;
 }
 
 #hand-list.ranked-hands .hand-card {

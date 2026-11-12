@@ -2,7 +2,7 @@ import * as G from './engine.mjs?v=wind-sort-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=wind-sort-1';
-import {MAX_TILES_AWAY,recommendHands} from './recommendations.mjs';
+import {recommendHands} from './recommendations.mjs?v=all-lines-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -11,7 +11,7 @@ import {tileAdvice} from './hints.mjs?v=wind-sort-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=mobile-ranchers-1';
+import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=portfolio-parlor-1';
 let tileStyle='modern',hideConcealed=false,discardOrder='time',soundEnabled=false;try{tileStyle=validStyle(localStorage.getItem('parlor-tile-style'));hideConcealed=localStorage.getItem('parlor-hide-concealed')==='true';discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';soundEnabled=localStorage.getItem('parlor-sound')==='true';}catch{}
 try{if(localStorage.getItem('parlor-theme-version')!=='modern-garden-1'){tileStyle='modern';localStorage.setItem('parlor-tile-style',tileStyle);localStorage.setItem('parlor-theme-version','modern-garden-1');}}catch{}
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
@@ -251,14 +251,15 @@ function renderHands(){
  const rows=recommendHands(s.hands[0],s.exposed[0],{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements});
  const contents=rows.map(({target,away})=>{
   const chosen=goalKey===target.key;
-  return `<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
+  const available=Number.isFinite(away);
+  const distance=available?(away===0?'Ready':away+' away'):'Unavailable';
+  return `<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}" ${available?'':'disabled title="Conflicts with your exposures"'}>
    <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
-   <span class="hand-values">${target.concealed?'<span class="concealed-badge">Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${away===0?'Ready':away+' away'}</strong></span></span>
+   <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
   </button>`;
- }).join('')||`<p class="empty-recommendations">No hands within ${MAX_TILES_AWAY} tiles match your current filters.</p>`;
+ }).join('')||'<p class="empty-recommendations">No hands match your current filters.</p>';
  $('#hands-panel').innerHTML=`<div class="card-intro">
-  <h2>Suggested hands</h2>
-  <span class="suggestion-limit">Up to ${MAX_TILES_AWAY} tiles away</span>
+  <span class="card-year">2026</span>
   <label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>
   <button class="text-button picker-close" data-action="toggle-hands" aria-label="Close hand picker">×</button>
  </div><div id="hand-list" class="ordered-hands ranked-hands">${contents}</div>`;
@@ -268,7 +269,7 @@ function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??
 function currentPlan(){const target=targetFor(pinned,goalKey);return target?{target,...matchHandTiles(s.hands[0],s.exposed[0],target,jokerPlacements(target))}:null;}
 function renderHandFocus(plan){
  const el=$('#hand-focus');el.hidden=false;el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
- const picker=`<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide suggestions':'See suggested hands'}</button>`;
+ const picker=`<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide all lines':'See all lines'}</button>`;
  if(!plan){delete el.dataset.handId;delete el.dataset.targetKey;el.innerHTML=`<div class="hand-picker-empty">${picker}</div>`;return;}
  const {target}=plan;el.dataset.handId=target.id;el.dataset.targetKey=target.key;
  const hasJoker=s.hands[0].some(t=>t.k==='J');
@@ -429,7 +430,7 @@ function renderTableTools(){
 }
 function scheduleBot(){clearTimeout(botTimer);if(modal.open)return;if(s.phase==='wallSetup'){botTimer=setTimeout(()=>{if(s.setupStep<=s.wallIndex)s.setupStep++;else G.finishSetup(s);render();},s.setupStep===0?900:1800);return;}if(s.phase==='wallPush'){botTimer=setTimeout(()=>{finishWallPush(s);render();},1800);return;}if(s.turn!==0&&['draw','discard'].includes(s.phase))botTimer=setTimeout(()=>{G.botStep(s);selected.clear();playSound();render();},1100);}
 function charlestonHelp(){show('Charleston rules',`<p>Everyone exchanges tiles at the same time. Your right is Mabel, across is Rose, and left is June. You keep the same number of tiles on your rack after every pass.</p><div class="lesson-sequence"><strong>1. First Charleston · required</strong><span>RIGHT → ACROSS → LEFT</span><p>Choose 3 unwanted tiles each time. The third pass (left) allows a blind pass.</p><strong>2. Second Charleston · optional</strong><span>LEFT → ACROSS → RIGHT</span><p>Any player can stop before this round begins. Once begun, complete all 3 passes. The final right pass allows a blind pass.</p><strong>3. Courtesy pass · optional</strong><span>ACROSS · 0, 1, 2, OR 3 TILES</span><p>You exchange with Rose across the table. Mabel and June make their own agreement. Here, Rose accepts your choice; Mabel and June agree on 3 each.</p></div><h3>What is a blind pass?</h3><p>On the first left or final right, you can keep more of your rack. Select fewer than 3 of your own tiles. The rest are taken from the packet coming to you and passed onward <strong>without looking</strong>. Select none to pass all 3 incoming tiles unseen.</p><p><strong>Never pass jokers.</strong> Our arrows show the route; received tiles have a small NEW marker. The next pass is ready automatically. Unseen tiles stay face down.</p><div class="modal-actions">${btn('Back to the table','close')}${btn('See card rules','card-rules','outline')}</div>`,'');}
-function rules(){show('How to play',`<p>Build a 14-tile hand that matches a line on your 2026 NMJL card. The table uses the 2026 card’s allowed hands, suit variations, and joker rules.</p><h3>First, the Charleston</h3><p>Pass right, across, left. A second round (left, across, right) is optional, followed by an optional courtesy pass across. Jokers stay on your rack.</p>${btn('Walk me through the Charleston','charleston-help','outline small')}<h3>Then, draw and discard</h3><p>East begins with 14 tiles and discards first. East rotates to the next player each hand. On later turns, draw a tile, consider a joker exchange, then discard.</p><h3>Calling a tile</h3><p>We pause when a discard can complete an eligible exposed pung, kong, quint, or sextet, or a winning hand. Singles and pairs can only be called for Mahjong. Concealed hands cannot have prior exposures.</p><h3>Jokers and dragons</h3><p>Gold highlights show usable jokers while leaving them unassigned. To place one in your chosen hand, click a faded space in a group of three or more, then click the joker on your rack. Click its J badge to free it. Called exposures let you select your own tiles, including jokers. Jokers can fill identical groups of 3 or more, never singles or pairs. Replace a joker in an exposure with its natural tile on your turn. Bams match green dragons; craks match red; dots match white (soap). A zero is a white dragon, not a joker.</p><h3>Choose a hand to practice</h3><p>Suggested hands shows options up to ${MAX_TILES_AWAY} tiles away, starting with the closest. Each row shows one way to build the hand with your current tiles. Choose a row to highlight matching tiles and keep that target below your rack.</p><p>This teaching table prevents invalid calls and gives you unlimited thinking time. It does not simulate penalties for verbal miscalls or dead hands, and scores four rounds before declaring a game winner.</p><div class="modal-actions">${btn('Let’s play','close')}${btn('Read the rules','card-rules','outline')}</div>`,'AMERICAN MAHJONG · 2026');}
+function rules(){show('How to play',`<p>Build a 14-tile hand that matches a line on your 2026 NMJL card. The table uses the 2026 card’s allowed hands, suit variations, and joker rules.</p><h3>First, the Charleston</h3><p>Pass right, across, left. A second round (left, across, right) is optional, followed by an optional courtesy pass across. Jokers stay on your rack.</p>${btn('Walk me through the Charleston','charleston-help','outline small')}<h3>Then, draw and discard</h3><p>East begins with 14 tiles and discards first. East rotates to the next player each hand. On later turns, draw a tile, consider a joker exchange, then discard.</p><h3>Calling a tile</h3><p>We pause when a discard can complete an eligible exposed pung, kong, quint, or sextet, or a winning hand. Singles and pairs can only be called for Mahjong. Concealed hands cannot have prior exposures.</p><h3>Jokers and dragons</h3><p>Gold highlights show usable jokers while leaving them unassigned. To place one in your chosen hand, click a faded space in a group of three or more, then click the joker on your rack. Click its J badge to free it. Called exposures let you select your own tiles, including jokers. Jokers can fill identical groups of 3 or more, never singles or pairs. Replace a joker in an exposure with its natural tile on your turn. Bams match green dragons; craks match red; dots match white (soap). A zero is a white dragon, not a joker.</p><h3>Choose a hand to practice</h3><p>The hand list shows all card lines, starting with the closest. Each row shows one way to build the hand with your current tiles. Choose a row to highlight matching tiles and keep that target below your rack.</p><p>This teaching table prevents invalid calls and gives you unlimited thinking time. It does not simulate penalties for verbal miscalls or dead hands, and scores four rounds before declaring a game winner.</p><div class="modal-actions">${btn('Let’s play','close')}${btn('Read the rules','card-rules','outline')}</div>`,'AMERICAN MAHJONG · 2026');}
 function tileGuide(){show('Tile guide',`<p>A standard American set has 152 tiles: 108 suit tiles, 28 winds and dragons, 8 flowers, and 8 jokers.</p>${[['Bams',['B1','B2','B3','B4','B5','B6','B7','B8','B9']],['Craks',['C1','C2','C3','C4','C5','C6','C7','C8','C9']],['Dots',['D1','D2','D3','D4','D5','D6','D7','D8','D9']],['Winds',['E','S','W','N']],['Dragons',['G','R','H']],['Special',['F','J']]].map(([l,ks])=>`<div class="tile-guide-row"><label>${l}</label>${ks.map(k=>tile(k,'mini')).join('')}</div>`).join('')}<p><strong>White dragon = soap = 0.</strong> It can be a dragon or the zero in a year hand. Flowers are interchangeable; jokers have their own rules.</p>`,'THE TILE GUIDE');}
 function cancelPass(){
  if(activePass){activePass.cancelled=true;activePass.layer?.remove();activePass=null;}
@@ -595,6 +596,18 @@ document.addEventListener('change',e=>{
 });
 modal.addEventListener('close',()=>{modal.classList.remove('tile-style-modal');scheduleBot();});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
+const charlestonToggle=$('#charleston-toggle'),charlestonGuide=$('#charleston-guide');
+function setCharlestonGuideOpen(open){
+ charlestonGuide.hidden=!open;
+ charlestonToggle.setAttribute('aria-expanded',String(open));
+}
+try{setCharlestonGuideOpen(localStorage.getItem('parlor-charleston-guide')!=='closed');}catch{}
+charlestonToggle.addEventListener('click',()=>{
+ const open=charlestonGuide.hidden;
+ setCharlestonGuideOpen(open);
+ try{localStorage.setItem('parlor-charleston-guide',open?'open':'closed');}catch{}
+ updateBoardSpace();
+});
 const boardObserver=new ResizeObserver(updateBoardSpace);boardObserver.observe($('#seat2'));boardObserver.observe($('.player-zone'));
 window.addEventListener('resize',()=>{
  if(mobileArrange&&!touchRack()){mobileArrange=false;renderActions();}

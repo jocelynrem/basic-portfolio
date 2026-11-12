@@ -1,5 +1,5 @@
 import {specialArt} from './special-art.mjs?v=audit-pass-1';
-import {mobileTileArt} from './mobile-tile-art.mjs';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=portfolio-parlor-1';
 export const STYLES={
  modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
  minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
