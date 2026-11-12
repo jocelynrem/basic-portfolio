@@ -6,7 +6,8 @@
   <meta name="theme-color" content="#faf9f6">
   <title>Sound Machine · Classroom</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="classroom.css">
+  <link rel="stylesheet" href="classroom.css?v=20261112">
+  <link rel="stylesheet" href="../assets/portfolio-return.css">
   <script src="classroom-sounds.js" defer></script>
   <script src="soundboard.js" defer></script>
 </head>
@@ -33,7 +34,11 @@
       <div class="playback-state"><span class="status-dot" aria-hidden="true"></span><p id="playback-status" role="status" aria-live="polite">Ready when you are.</p></div>
       <div class="playback-controls"><div class="volume"><label for="volume"><span>Volume</span><output id="volume-value" for="volume">40%</output></label><input id="volume" type="range" min="0" max="100" step="5" value="40"></div><button id="stop-sound-btn" class="stop" type="button" title="Stop sound (Escape)"><span aria-hidden="true">■</span> Stop sound <kbd>esc</kbd></button></div>
     </section>
-    <footer><span>Teacher controls · Esc to stop</span><span>12 sounds <span aria-hidden="true">·</span> Up to 10 seconds <span aria-hidden="true">·</span> One at a time</span></footer>
+    <footer class="board-footer">
+      <span>Teacher controls · Esc to stop</span>
+      <span>12 sounds <span aria-hidden="true">·</span> Up to 10 seconds <span aria-hidden="true">·</span> One at a time</span>
+      <a class="portfolio-return" href="../">Back to Jocelyn Remington’s portfolio</a>
+    </footer>
   </main>
 </body>
 </html>

@@ -48,6 +48,7 @@ select {
   margin: 0 auto;
   padding: clamp(0.55rem, 1.6vh, 1.5rem) 0 clamp(0.7rem, 2vh, 2rem);
   display: flex;
+  flex-direction: column;
 }
 
 .board-card {

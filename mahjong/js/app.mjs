@@ -415,12 +415,9 @@ function renderTableTools(){
  if(!passingTiles)return;
  const step=s.phase==='charleston'?`${s.passRound}-${s.passStep}`:s.phase;
  for(const label of document.querySelectorAll('[data-charleston-step]')){
-  label.classList.toggle('current',label.dataset.charlestonStep===step);
+  if(label.dataset.charlestonStep===step)label.setAttribute('aria-current','step');
+  else label.removeAttribute('aria-current');
  }
-}
-function setCharlestonGuideOpen(open){
- $('#charleston-guide').hidden=!open;
- $('#charleston-toggle').setAttribute('aria-expanded',String(open));
 }
 function scheduleBot(){clearTimeout(botTimer);if(modal.open)return;if(s.phase==='wallSetup'){botTimer=setTimeout(()=>{if(s.setupStep<=s.wallIndex)s.setupStep++;else G.finishSetup(s);render();},s.setupStep===0?900:1800);return;}if(s.phase==='wallPush'){botTimer=setTimeout(()=>{finishWallPush(s);render();},1800);return;}if(s.turn!==0&&['draw','discard'].includes(s.phase))botTimer=setTimeout(()=>{G.botStep(s);selected.clear();playSound();render();},1100);}
 function charlestonHelp(){show('Charleston rules',`<p>Everyone exchanges tiles at the same time. Your right is Mabel, across is Rose, and left is June. You keep the same number of tiles on your rack after every pass.</p><div class="lesson-sequence"><strong>1. First Charleston · required</strong><span>RIGHT → ACROSS → LEFT</span><p>Choose 3 unwanted tiles each time. The third pass (left) allows a blind pass.</p><strong>2. Second Charleston · optional</strong><span>LEFT → ACROSS → RIGHT</span><p>Any player can stop before this round begins. Once begun, complete all 3 passes. The final right pass allows a blind pass.</p><strong>3. Courtesy pass · optional</strong><span>ACROSS · 0, 1, 2, OR 3 TILES</span><p>You exchange with Rose across the table. Mabel and June make their own agreement. Here, Rose accepts your choice; Mabel and June agree on 3 each.</p></div><h3>What is a blind pass?</h3><p>On the first left or final right, you can keep more of your rack. Select fewer than 3 of your own tiles. The rest are taken from the packet coming to you and passed onward <strong>without looking</strong>. Select none to pass all 3 incoming tiles unseen.</p><p><strong>Never pass jokers.</strong> Our arrows show the route; received tiles have a small NEW marker. The next pass is ready automatically. Unseen tiles stay face down.</p><div class="modal-actions">${btn('Back to the table','close')}${btn('See card rules','card-rules','outline')}</div>`,'');}
@@ -590,13 +587,6 @@ document.addEventListener('change',e=>{
 });
 modal.addEventListener('close',()=>{modal.classList.remove('tile-style-modal');scheduleBot();});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
-try{setCharlestonGuideOpen(localStorage.getItem('parlor-charleston-guide')!=='closed');}catch{}
-$('#charleston-toggle').addEventListener('click',()=>{
- const open=$('#charleston-guide').hidden;
- setCharlestonGuideOpen(open);
- try{localStorage.setItem('parlor-charleston-guide',open?'open':'closed');}catch{}
- updateBoardSpace();
-});
 const boardObserver=new ResizeObserver(updateBoardSpace);boardObserver.observe($('#seat2'));boardObserver.observe($('.player-zone'));
 window.addEventListener('resize',()=>{
  if(mobileArrange&&!touchRack()){mobileArrange=false;renderActions();}

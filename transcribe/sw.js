@@ -1,4 +1,4 @@
-const CACHE_NAME = "noteflow-shell-v1";
+const CACHE_NAME = "noteflow-shell-v2";
 const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
