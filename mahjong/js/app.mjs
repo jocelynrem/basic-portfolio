@@ -3,7 +3,7 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=wind-sort-1';
 import {MAX_TILES_AWAY,recommendHands} from './recommendations.mjs';
-import {patternBlocks,targetBlocks} from './hand-groups.mjs?v=hand-notation-1';
+import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
 import {practiceGame} from './learning.mjs?v=wind-sort-1';
@@ -237,7 +237,7 @@ function targetNotation(target,extraClass=''){
    const [key,count]=target.groups[index];
    description.push(`${count} × ${G.tileName(key)}`);
    const color=notationColors[key[0]]??'honor';
-   return `<span class="${color}">${esc(symbols)}</span>`;
+   return `<span class="${color}">${esc(displaySymbols(symbols,target.section))}</span>`;
   });
   return `<span class="hand-group" aria-hidden="true">${parts.join('')}</span>`;
  }).join('');

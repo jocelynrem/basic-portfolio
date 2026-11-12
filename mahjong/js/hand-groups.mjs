@@ -22,3 +22,8 @@ export function targetBlocks(target){
 export function patternBlocks(target){
  return targetBlocks(target).map(block=>block.map(part=>part.index));
 }
+
+// Dragon color comes from the tile's suit. Keep zero for the year patterns.
+export function displaySymbols(symbols,section){
+ return symbols.replace(/H/g,section==='2026'?'0':'D').replace(/[RG]/g,'D');
+}
