@@ -9,10 +9,11 @@ export function specialArt(k,style,p){
  }
  if(!['N','E','S','W'].includes(k))return null;
  let frame='';
- if(style==='botanical')frame=`<path d="M8 43Q1 27 8 12M32 43Q39 27 32 12" stroke="${p.bam}" stroke-width="1" fill="none"/>${[18,29,40].map(y=>`<path d="M6 ${y}Q0 ${y-6} 3 ${y-8}Q9 ${y-6} 6 ${y}M34 ${y}Q40 ${y-6} 37 ${y-8}Q31 ${y-6} 34 ${y}" fill="${p.leaf}"/>`).join('')}`;
- else if(style==='deco')frame=`<path d="M20 3L37 28L20 53L3 28Z" fill="none" stroke="${p.gold}" stroke-width="1.2"/>`;
+ if(style==='botanical')frame=`<path d="M7 49Q14 46 20 51Q26 46 33 49" stroke="${p.bam}" stroke-width="1" fill="none"/><path d="M14 48Q7 50 5 44Q11 43 14 48M26 48Q33 50 35 44Q29 43 26 48" fill="${p.leaf}"/>`;
+ else if(style==='deco')frame=`<path d="M13 12L20 3L27 12M13 44L20 53L27 44" fill="none" stroke="${p.gold}" stroke-width="1.2"/>`;
  else if(style==='minimal')frame=`<path d="M6 45H15M25 11H34" stroke="${p.mint}" stroke-width="2" stroke-linecap="round"/><circle cx="33" cy="44" r="2.2" fill="${p.pink}"/>`;
- else if(style==='coastal')frame=`<circle cx="20" cy="28" r="18" fill="none" stroke="${p.dot}" stroke-width="1"/><path d="M11 49Q20 45 29 49" stroke="${p.bam}" stroke-width="1.4" fill="none"/>`;
- else frame=`<path d="M6 17A16 16 0 0 1 34 17" stroke="${accent}" stroke-width="3" fill="none"/><path d="M8 47H32" stroke="${p.gold}" stroke-width="1.4"/>`;
- return `<g data-wind="${k}">${frame}<text x="20" y="39" text-anchor="middle" font-family="${style==='botanical'?'Georgia,serif':'Arial,sans-serif'}" font-size="30" font-weight="600" fill="${ink}">${k}</text></g>`;
+ else if(style==='coastal')frame=`<path d="M11 12Q20 4 29 12" stroke="${p.dot}" fill="none"/><path d="M9 49Q14 45 20 49T31 49" stroke="${p.bam}" stroke-width="1.4" fill="none"/>`;
+ else frame=`<path d="M7 12A17 17 0 0 1 33 12" stroke="${accent}" stroke-width="2" fill="none"/><path d="M8 47H32" stroke="${p.gold}" stroke-width="1.4"/>`;
+ const botanical=style==='botanical',wideLetter=botanical&&k==='W'?' textLength="35" lengthAdjust="spacingAndGlyphs"':'';
+ return `<g data-wind="${k}">${frame}<text x="20" y="41" text-anchor="middle" font-family="${botanical?'Georgia,serif':'Arial,sans-serif'}" font-size="36" font-weight="600" fill="${ink}"${wideLetter}>${k}</text></g>`;
 }

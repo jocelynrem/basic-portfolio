@@ -1,15 +1,14 @@
 import * as G from './engine.mjs?v=wind-sort-1';
 
-export function discardClaims(s,target=null,maxTilesAway=Infinity){
+export function discardClaims(s,target=null){
  if(s.phase!=='claim'&&!(s.phase==='draw'&&s.turn===0))return [];
  if(s.discards.at(-1)?.passedByPlayer)return [];
  const options=G.claimOptions(s,0);
  if(!target||!options.length)return options;
  const hand=s.hands[0],exposed=s.exposed[0],discard=s.discards.at(-1).tile;
- const {matched:baseline,missing}=G.evaluate(hand,exposed,target);
- if(missing>maxTilesAway)return options;
  const groups=G.compatible(target,exposed);
  if(target.concealed||!groups)return options.filter(option=>option.win);
+ const {matched:baseline}=G.evaluate(hand,exposed,target);
  const naturals=hand.filter(tile=>tile.k===discard.k),jokers=hand.filter(tile=>tile.k==='J');
  return options.filter(option=>{
   if(option.win)return true;
@@ -25,11 +24,11 @@ export function discardClaims(s,target=null,maxTilesAway=Infinity){
   return false;
  });
 }
-export function prepareDiscardClaims(s,target,maxTilesAway){
- const options=discardClaims(s,target,maxTilesAway);
+export function prepareDiscardClaims(s,target){
+ const options=discardClaims(s,target);
  if(!target||s.phase!=='claim'||options.length)return options;
  G.resolveDiscard(s,true);
- return discardClaims(s,target,maxTilesAway);
+ return discardClaims(s,target);
 }
 export function passDiscard(s){
  if(s.phase!=='claim')return false;

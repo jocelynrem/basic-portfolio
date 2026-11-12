@@ -10,10 +10,10 @@ const marks={
 
 const suits={B:['bam',29],C:['crak',29],D:['dot',31]};
 const windMarkers={
- N:'M30 7l-4 5h8Z',
- E:'M55 38l-5-4v8Z',
- W:'M5 38l5 4v-8Z',
- S:'M30 69l4-5h-8Z'
+ N:'M30 4l-3 4h6Z',
+ E:'M55 7l-4-3v6Z',
+ W:'M5 7l4 3v-6Z',
+ S:'M30 73l3-4h-6Z'
 };
 const windInk='#25384d',jokerInk='#66325f',flowerInk='#8d4c16',markerInk='#8f561e';
 
@@ -41,7 +41,7 @@ function mobileFace(k,p){
   return `<g data-joker="true">${mark('star',30,32,49,jokerInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,65,13,'#fffdf5')}</g>`;
  }
  if(Object.hasOwn(windMarkers,k)){
-  return `<g data-wind="${k}">${lettering(k,30,54,46,windInk)}<path d="${windMarkers[k]}" fill="${markerInk}"/></g>`;
+  return `<g data-wind="${k}">${lettering(k,30,63,62,windInk)}<path d="${windMarkers[k]}" fill="${markerInk}"/></g>`;
  }
  return '';
 }

@@ -1,7 +1,7 @@
 import * as G from './engine.mjs?v=wind-sort-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=call-prompt-range-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=action-call-filter-1';
 import {recommendHands} from './recommendations.mjs?v=all-lines-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -11,7 +11,7 @@ import {tileAdvice} from './hints.mjs?v=wind-sort-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=portfolio-parlor-1';
+import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=wind-letter-size-1';
 let tileStyle='modern',hideConcealed=false,discardOrder='time',soundEnabled=false;try{tileStyle=validStyle(localStorage.getItem('parlor-tile-style'));hideConcealed=localStorage.getItem('parlor-hide-concealed')==='true';discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';soundEnabled=localStorage.getItem('parlor-sound')==='true';}catch{}
 try{if(localStorage.getItem('parlor-theme-version')!=='modern-garden-1'){tileStyle='modern';localStorage.setItem('parlor-tile-style',tileStyle);localStorage.setItem('parlor-theme-version','modern-garden-1');}}catch{}
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
@@ -24,18 +24,8 @@ let difficultyPreference='easy';try{difficultyPreference=G.normalizeDifficulty(l
 let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Error();}catch{s=null;}s||=newMatch(difficultyPreference);normalizeMatch(s);
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,swaps=[],swapMessage='';
-const callPromptOptions=[
- {value:'all',label:'All eligible calls'},
- {value:'chosen',label:'Chosen hand · any distance'},
- ...[1,2,3].map(maxTilesAway=>({
-  value:String(maxTilesAway),label:`Filter within ${maxTilesAway} ${maxTilesAway===1?'tile':'tiles'} of chosen hand`,maxTilesAway
- }))
-];
-let callPrompt=callPromptOptions[0];
-try{
- const saved=localStorage.getItem('parlor-call-prompts')??(localStorage.getItem('parlor-helpful-calls')==='true'?'chosen':'all');
- callPrompt=callPromptOptions.find(option=>option.value===saved)??callPrompt;
-}catch{}
+const hasJokersForCallFilter=()=>s.hands[0].filter(tile=>tile.k==='J').length>=2;
+const callFilterTarget=target=>s.onlyChosenHandCalls&&hasJokersForCallFilter()?target:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
 let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match-2026'));}catch{}
 s.jokerPlacements||={};
@@ -43,6 +33,7 @@ s.dealer??=0;s.handNumber??=savedMatch?.handNumber||1;s.scores??=savedMatch?.sco
 const modal=$('#modal');
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(label,action,cls='',disabled=false)=>`<button class="button ${cls}" data-action="${action}" ${disabled?'disabled':''}>${label}</button>`;
+const secondCharlestonActions=()=>btn('Start second Charleston','second')+btn('Skip to courtesy pass','stop-charleston','outline');
 const pos=[[50,88],[88,48],[50,9],[12,48]],passNames=['','right','across','left'];
 const jokerLabel='<svg class="tile-joker-label" viewBox="0 0 36 10" aria-hidden="true" focusable="false"><text x="18" y="8.5" text-anchor="middle" textLength="32" lengthAdjust="spacingAndGlyphs">JOKER</text></svg>';
 function tile(t,size='',interactive=false,extra='',style=tileStyle){
@@ -60,6 +51,11 @@ function playSound(){if(!sound)return;try{const ctx=new(window.AudioContext||win
 function save(){try{localStorage.setItem('parlor-hand-picker-open',String(pickerOpen));}catch{}s.receivedIds=[...receivedIds];s.goalHandId=pinned;s.goalTargetKey=goalKey;try{localStorage.setItem(STORE,JSON.stringify(s));if(!s.practiceSession)localStorage.setItem('parlor-match-2026',JSON.stringify({scores:s.scores,scoreHistory:s.scoreHistory,dealer:s.dealer,handNumber:s.handNumber}));}catch{}}
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4800);}
 function show(title,body,eyebrow=''){clearTimeout(botTimer);modal.classList.remove('tile-style-modal');modal.dataset.view=''; $('#modal-eyebrow').textContent=eyebrow;$('#modal-eyebrow').hidden=!eyebrow;$('#modal-content').innerHTML=`<h2 id="modal-title">${title}</h2>${body}`;if(!modal.open)modal.showModal();}
+function showSecondCharlestonChoice(){
+ show('Second Charleston?',`<div class="modal-actions">${secondCharlestonActions()}</div>`);
+ modal.dataset.view='second-charleston';
+ $('#modal [data-action="second"]').focus();
+}
 function exposedMarkup(p,size='tiny',splitAt=0){
  const groups=s.exposed[p].map((e,group)=>`<div class="exposure" title="${e.tiles.length} ${G.tileName(e.k)}">${e.tiles.map(t=>{
   const face=tile(t,size,false,p===0&&matchingIds.has(t.id)?'hand-match':'');let content=face;
@@ -114,7 +110,7 @@ function renderActions(){
   description=phase==='courtesy'?'Choose 0–3 tiles to exchange across.':blind?`${3-selected.size} incoming tiles will pass unseen.`:`Choose 3 tiles for ${G.NAMES[dir]}.`;
   actions=btn(passing?'Passing…':phase==='courtesy'?`Pass ${need} tile${need===1?'':'s'}`:blind&&selected.size<3?`Pass · ${3-selected.size} blind`:`Pass · ${selected.size}/3`,'pass','',passing||(phase!=='courtesy'&&!blind&&selected.size!==3));
  }else if(phase==='charlestonChoice'){
-  title='Second Charleston?';actions=btn('Start second Charleston','second')+btn('Skip to courtesy pass','stop-charleston','outline');icon='⇄';
+  title='Second Charleston?';actions=secondCharlestonActions();icon='⇄';
  }else if(winningClaim){
   title='Mahjong is available';description=`${G.tileName(s.discards.at(-1).tile.k)} completes your hand.`;
   actions=btn('Declare Mahjong','declare-discard','small');icon='✧';
@@ -140,6 +136,10 @@ function renderActions(){
   actions+=btn('Discard','discard','small',selected.size!==1);icon='↑';
  }
  $('#phase-title').textContent=title;$('#phase-description').textContent=description;$('#phase-description').hidden=!description;$('#actions').innerHTML=actions;
+ const callFilter=$('#call-filter-toggle');
+ callFilter.closest('label').hidden=!['claim','draw','discard'].includes(phase)||!hasJokersForCallFilter();
+ callFilter.checked=Boolean(s.onlyChosenHandCalls&&pinned);
+ callFilter.disabled=!pinned;
  const phaseIcon=$('#phase-icon'),preview=claims.length?s.discards.at(-1).tile:null;
  phaseIcon.classList.toggle('has-call-preview',Boolean(preview));
  if(preview)phaseIcon.innerHTML=`<span aria-hidden="true">${tile(preview,'mini call-preview-tile')}</span>`;
@@ -156,7 +156,6 @@ function difficultyStatus(){
 function showSettings(){
  const sections=[...new Set(G.CARD.map(c=>c.section))];
  const difficultyOptions=G.BOT_DIFFICULTIES.map(level=>`<option value="${level}" ${difficultyPreference===level?'selected':''}>${difficultyNames[level]}</option>`).join('');
- const promptOptions=callPromptOptions.map(({value,label})=>`<option value="${value}" ${callPrompt.value===value?'selected':''}>${label}</option>`).join('');
  const installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
  const installHelp=installed?'':`<details class="install-app">
   <summary>Install app</summary>
@@ -170,7 +169,6 @@ function showSettings(){
   <div class="settings-fields">
    <label>Discard order<select name="discard-order"><option value="time" ${discardOrder==='time'?'selected':''}>Order of play</option><option value="suit" ${discardOrder==='suit'?'selected':''}>Suit and number</option></select></label>
    <label>Recommended section<select id="section-filter">${['All sections',...sections].map(x=>`<option ${section===x?'selected':''}>${x}</option>`).join('')}</select></label>
-   <label>Call prompts<select name="call-prompts">${promptOptions}</select></label>
    <label class="settings-check"><input name="sound-toggle" type="checkbox" ${sound?'checked':''}>Sound</label>
   </div>
   <div class="modal-actions">${btn('Done','close')}${btn('Scores','scores','outline')}</div>`);
@@ -321,7 +319,7 @@ function render(){
  const received=prepareTable(s);if(received!==null)receivedIds=new Set(received);
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
- claims=prepareDiscardClaims(s,callPrompt.value==='all'?null:plan?.target,callPrompt.maxTilesAway);
+ claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
  winningClaim=claims.find(option=>option.win);
  swaps=G.exchanges(s,0).flatMap(option=>s.exposed[option.owner][option.group].tiles
   .filter(tile=>tile.k==='J').map(tile=>({...option,joker:tile.id})));
@@ -347,9 +345,12 @@ function render(){
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
-  const start=$('#actions [data-action="second"]');
-  start.scrollIntoView({block:'nearest',inline:'nearest'});
-  start.focus({preventScroll:true});
+  if(!touchRack())showSecondCharlestonChoice();
+  else{
+   const start=$('#actions [data-action="second"]');
+   start.scrollIntoView({block:'nearest',inline:'nearest'});
+   start.focus({preventScroll:true});
+  }
  }
 }
 function revealFreshTile(){
@@ -497,6 +498,10 @@ function selectRackTile(id){
   jokerTargetGroup=null;renderHandFocus(currentPlan());
  }
  if(winningClaim)return;
+ if(s.phase==='charlestonChoice'&&!touchRack()){
+  showSecondCharlestonChoice();
+  return;
+ }
  const passingTiles=['charleston','courtesy'].includes(s.phase);
  const discarding=s.phase==='discard'&&s.turn===0;
  if(!claims.length&&!passingTiles&&!discarding)return;
@@ -513,7 +518,7 @@ function selectRackTile(id){
  renderSelection();
 }
 function exposeSelectedTiles(){
- const options=discardClaims(s,callPrompt.value==='all'?null:targetFor(pinned,goalKey),callPrompt.maxTilesAway);
+ const options=discardClaims(s,callFilterTarget(targetFor(pinned,goalKey)));
  if(!options.length||options.some(option=>option.win))return;
  const option=exposureChoice(options,selected,s.hands[0],s.discards.at(-1).tile.k);
  if(!option)return;
@@ -570,7 +575,14 @@ document.addEventListener('click',async e=>{
  else if(a==='next-round'){advanceRound();}
  else if(a==='sort'){G.sortHand(s.hands[0]);delete s.rackOrder;render();}
  else if(a==='pass'){await runPass();}
- else if(a==='second'||a==='stop-charleston'){G.secondCharleston(s,a==='second');selected.clear();render();}
+ else if(a==='second'||a==='stop-charleston'){
+  const fromDialog=modal.open&&modal.dataset.view==='second-charleston';
+  if(fromDialog)modal.close();
+  G.secondCharleston(s,a==='second');
+  selected.clear();
+  render();
+  if(fromDialog)$('#rack [data-tile]:not(.joker)')?.focus();
+ }
  else if(a==='draw'){if(canDrawWall(s)){selected.clear();receivedIds.clear();drawFromWall(s);playSound();render();}}
  else if(a==='discard'){discardTile([...selected][0]);}
  else if(a==='pass-call'&&passDiscard(s)){selected.clear();render();}
@@ -590,11 +602,8 @@ document.addEventListener('change',e=>{
   }
   $('#difficulty-status').textContent=difficultyStatus();return;
  }
- if(e.target.name==='call-prompts'){
-  const option=callPromptOptions.find(({value})=>value===e.target.value);
-  if(!option)return;
-  callPrompt=option;
-  try{localStorage.setItem('parlor-call-prompts',option.value);}catch{}
+ if(e.target.id==='call-filter-toggle'){
+  s.onlyChosenHandCalls=e.target.checked;
   render();return;
  }
  if(e.target.name==='discard-order'){discardOrder=e.target.value;lastDiscardShown=null;try{localStorage.setItem('parlor-discard-order',discardOrder);}catch{}renderCenter();updateBoardSpace();return;}
