@@ -465,7 +465,16 @@ function roundReviewMarkup(round,action=''){
   const extra=extras.length?`<span class="review-extra"><span class="review-extra-label">Extra tiles</span><span class="winning-group">${faces(extras)}</span></span>`:'';
   return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
  });
- return `<div class="round-result"><div class="round-result-head"><h2>${title}</h2>${action}</div><div class="round-hands">${cards.join('')}</div></div>`;
+ const wall=round.wall;
+ const wallReview=Array.isArray(wall)?`
+  <section class="review-hand review-wall" aria-labelledby="review-wall-title">
+   <div class="review-hand-head">
+    <h3 id="review-wall-title">Tiles left in the wall</h3>
+    <span>${wall.length} ${wall.length===1?'tile':'tiles'}</span>
+   </div>
+   ${wall.length?`<div class="review-tiles">${faces([...wall].reverse())}</div>`:''}
+  </section>`:'';
+ return `<div class="round-result"><div class="round-result-head"><h2>${title}</h2>${action}</div><div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
 }
 function renderSelection(){
  document.querySelectorAll('#rack [data-tile]').forEach(t=>{

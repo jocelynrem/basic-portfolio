@@ -371,6 +371,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .review-winner{border-color:#a5bd73}
 .review-hand-head{display:flex;justify-content:space-between;gap:8px;font-size:14px}
 .review-hand-head span,.review-line{font-size:11px;color:#50664b}
+.review-wall{margin-top:10px;text-align:left}
+.review-wall h3{font-size:inherit;margin:0}
+.review-wall .review-tiles{margin-top:8px}
 .review-line{margin-top:3px}.review-notation{flex-wrap:wrap;margin:3px 0 6px}.review-notation .hand-group{font-size:16px}
 .review-note{margin:6px 0 0;font-size:11px;color:#50664b}
 .review-tiles{display:flex;flex-wrap:wrap;align-items:flex-end;gap:7px 9px}
