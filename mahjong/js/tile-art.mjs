@@ -1,11 +1,12 @@
 import {specialArt} from './special-art.mjs?v=audit-pass-1';
+import {mobileTileArt} from './mobile-tile-art.mjs';
 export const STYLES={
  modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
  minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
  botanical:{name:'Botanical',description:'Olive branches, pink blossom dots, and leafy letter winds.',bam:'#527b38',leaf:'#88a354',dot:'#b45c78',crak:'#bb5f6c',gold:'#d3a543'},
  deco:{name:'Art Deco',description:'Architectural bamboo, spoke-wheel dots, and compass winds.',bam:'#16684e',leaf:'#37936c',dot:'#214d7f',crak:'#bd4535',gold:'#c29936'},
  coastal:{name:'Coastal',description:'Glazed teal bamboo, cobalt rosettes, and nautical winds.',bam:'#078b8d',leaf:'#58b8b0',dot:'#164ba2',crak:'#cb6246',gold:'#e8b83f'},
- mobile:{name:'Mobile',description:'Bold suit marks and plain wind letters for small screens.',bam:'#285f46',dot:'#143d51',crak:'#a83e30',gold:'#b36a14'}
+ mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#166147',dot:'#154b75',crak:'#a83239'}
 };
 export const BOARDS={
  modern:{felt:'#285d60',edge:'#c6c4ae',ink:'#fbf4e3',muted:'#d0dbd0',accent:'#215360'},
@@ -17,21 +18,6 @@ export const BOARDS={
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];
-function mobileArt(k,p){
- if(k==='B1')return `<g data-mark="bam" data-bird-bam="true"><path d="M4 30L11 33L18 26V21A8 8 0 0 1 34 21V30Q33 43 20 43H14L4 36Z" fill="${p.bam}"/><path d="M33 20L39 23L33 26Z" fill="${p.gold}"/><circle cx="29" cy="20" r="1.8" fill="#fffdf4"/></g>`;
- if(k[0]==='B')return `<path data-mark="bam" d="M17 11H23V24Q27 16 35 16Q34 25 23 29V35H17V30Q6 28 5 19Q13 19 17 25ZM17 38H23V45H17Z" fill="${p.bam}"/>`;
- if(k[0]==='D')return `<circle data-mark="dot" cx="20" cy="28" r="16.5" fill="${p.dot}"/>`;
- if(k[0]==='C')return `<path data-mark="crak" d="M20 10L37 28L20 46L3 28Z" fill="${p.crak}"/>`;
- if(k==='F')return `<g><path d="M20 28V47" stroke="${p.bam}" stroke-width="5" stroke-linecap="round"/><path d="M7 16L15 21L20 12L25 21L33 16V24A13 13 0 0 1 7 24Z" fill="${p.crak}"/></g>`;
- if(k==='J')return `<g data-joker="true"><text x="20" y="45" text-anchor="middle" font-family="Arial,sans-serif" font-size="38" font-weight="700" fill="${p.dot}">J</text></g>`;
- if(k==='H')return `<g data-dragon="H"><rect x="8" y="10" width="24" height="36" rx="2" fill="none" stroke="${p.dot}" stroke-width="4"/></g>`;
- if(k==='R'||k==='G'){
-  const color=k==='R'?p.crak:p.bam;
-  return `<g data-dragon="${k}"><text x="20" y="16" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="${color}">${k}</text><path d="M8 46V33L15 28V21L22 25L27 20L29 27L37 33L31 39H23L17 46Z" fill="${color}"/><circle cx="26" cy="31" r="1.9" fill="#fffdf4"/></g>`;
- }
- if(['N','E','S','W'].includes(k))return `<g data-wind="${k}"><text x="20" y="41" text-anchor="middle" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="${p.dot}">${k}</text></g>`;
- return '';
-}
 function flower(style,p){
  if(style==='deco')return `<path d="M20 35L4 24Q-1 16 7 12L13 30L8 10Q9 4 16 6L19 28L17 5Q20 1 23 5L21 28L24 6Q31 4 32 10L27 30L33 12Q41 16 36 24Z" fill="${p.crak}" stroke="#e89870" stroke-width=".7"/><path d="M15 31Q20 27 25 31L20 40Z" fill="${p.gold}"/><path d="M20 54V38M19 49Q4 48 5 37Q15 37 19 49M21 48Q36 45 35 35Q25 36 21 48" stroke="${p.bam}" stroke-width="1.4" fill="${p.bam}"/>`;
  const color=style==='coastal'?'#efbd40':'#d68180';return `<path d="M20 53V32M20 46Q7 48 5 38Q15 34 20 46M21 48Q35 47 36 36Q26 35 21 48" fill="${p.bam}" stroke="${p.bam}" stroke-width="1.2"/>${[0,72,144,216,288].map(a=>`<ellipse cx="20" cy="14" rx="8.3" ry="12.5" transform="rotate(${a} 20 25)" fill="${color}" fill-opacity=".86" stroke="${style==='coastal'?'#e4a633':'#c66a70'}" stroke-width=".6"/>`).join('')}<circle cx="20" cy="25" r="4.5" fill="${p.gold}"/>${style==='coastal'?'<path d="M20 25L30 13M23 23L32 17" stroke="#b9553d" stroke-width="1.4"/><circle cx="30" cy="13" r="1.7" fill="#b9553d"/><circle cx="32" cy="17" r="1.5" fill="#b9553d"/>':''}`;
@@ -108,10 +94,7 @@ function minimalArt(k,p){
 }
 export function faceArt(k,requestedStyle='modern'){
  const style=validStyle(requestedStyle),p=STYLES[style],n=Number(k.slice(1));let art='';
- if(style==='mobile'){
-  const viewBox=/^[BCD]/.test(k)?'0 8 40 40':'0 0 40 56';
-  return `<svg class="tile-art" viewBox="${viewBox}" aria-hidden="true" focusable="false">${mobileArt(k,p)}</svg>`;
- }
+ if(style==='mobile')return mobileTileArt(k,p);
  const special=specialArt(k,style,p);if(special)return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${special}</svg>`;
  if(style==='modern')return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${modernArt(k,p)}</svg>`;
  if(style==='minimal')return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${minimalArt(k,p)}</svg>`;

@@ -570,11 +570,19 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
  .opponent-row :is(.west,.east) .exposure:has(.joker-swap.can-swap){row-gap:5px}
 }
 
+@font-face{
+ font-family:Ranchers;
+ src:url("./assets/Ranchers-Regular.woff2") format("woff2");
+ font-weight:400;
+ font-display:swap;
+}
 .tile[data-tile-style="mobile"]{color:#143d51;background:#fffdf4;border-color:#d4d8cb;border-bottom-color:#88a89c}
-.tile[data-tile-style="mobile"] .tile-number{background:transparent;font-weight:800}
+.tile svg.mobile-tile-art{
+ position:absolute;inset:0;width:100%;height:100%;margin:0;
+ overflow:hidden;pointer-events:none;font:400 16px Ranchers,sans-serif;
+}
 @media (max-width:760px), (orientation:landscape) and (min-width:500px) and (max-width:1050px) and (max-height:500px), (any-pointer:coarse){
  #rack .tile{height:44px}
- #rack .tile[data-tile-style="mobile"] .tile-number{font-size:var(--rack-number-size,16px)}
  #rack .tile:is(.bam,.crak,.dot) svg.tile-art{
   top:3px;left:var(--rack-number-space,16px);width:calc(100% - var(--rack-number-space,16px) - 2px);
   height:calc(100% - 6px);max-width:none;overflow:hidden;
@@ -633,7 +641,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 #modal .install-app p{margin:0 12px 10px;color:#4b5e51;line-height:1.5}
 .install-app p strong{display:block;color:var(--ink)}
 
-/* Rack-based suggestions use the same tile art as the table. */
+/* Color-coded hand notation stays readable at rack and phone widths. */
 .card-intro h2 {
   margin: 0;
   color: var(--ink);
@@ -668,58 +676,13 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   font-size: 12px;
 }
 
-.suggestion-tiles {
-  display: block;
-}
-
-.suggestion-tiles > span {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 7px;
-}
-
-.suggestion-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  white-space: nowrap;
-}
-
-.suggestion-group .tile.suggestion-tile {
-  width: 22px;
-  height: 29px;
-  min-width: 0;
-  border-width: 1px 1px 2px;
-}
-
-.suggestion-group .tile-number {
-  font-size: 8px;
-  top: 1px;
-  left: 1px;
-}
-
-.suggestion-group .tile.suggestion-tile svg.tile-art {
-  position: absolute;
-  inset: 9px 1px 1px;
-  width: calc(100% - 2px);
-  height: calc(100% - 10px);
-  margin: 0;
-}
-
-.suggestion-group .tile.suggestion-tile:is(.honor,.flower) svg.tile-art {
-  inset-block-start: 1px;
-  height: calc(100% - 2px);
-}
-
-.suggestion-count {
-  color: #345440;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.review-hand .suggestion-tiles {
-  margin: 4px 0 8px;
-}
+#hand-list.ranked-hands .hand-tiles { gap: 4px 10px; }
+#hand-list.ranked-hands .hand-tiles .hand-group { font-size: 20px; }
+.hand-group > .bam { color: #316546; }
+.hand-group > .crak { color: #9a3738; }
+.hand-group > .dot { color: #345b83; }
+.hand-group > .flower { color: #785020; }
+.hand-group > .honor { color: #395543; }
 
 .card-credit {
   margin-top: 16px;

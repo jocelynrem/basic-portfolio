@@ -1,5 +1,5 @@
-// Group tile slots for the chosen hand and round review without changing their indexes.
-function targetBlocks(target){
+// Group tile slots for hand displays without changing their indexes.
+export function targetBlocks(target){
  let index=0;
  const blocks=target.pattern.split(/\s+/).map(token=>{
   const runs=token.replace(/^[abc]/,'').match(/(.)\1*/g);

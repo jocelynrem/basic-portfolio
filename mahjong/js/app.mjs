@@ -3,7 +3,7 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=wind-sort-1';
 import {MAX_TILES_AWAY,recommendHands} from './recommendations.mjs';
-import {patternBlocks} from './hand-groups.mjs';
+import {patternBlocks,targetBlocks} from './hand-groups.mjs?v=hand-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
 import {practiceGame} from './learning.mjs?v=wind-sort-1';
@@ -11,7 +11,7 @@ import {tileAdvice} from './hints.mjs?v=wind-sort-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=mobile-solid-dots-1';
+import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=mobile-ranchers-1';
 let tileStyle='modern',hideConcealed=false,discardOrder='time',soundEnabled=false;try{tileStyle=validStyle(localStorage.getItem('parlor-tile-style'));hideConcealed=localStorage.getItem('parlor-hide-concealed')==='true';discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';soundEnabled=localStorage.getItem('parlor-sound')==='true';}catch{}
 try{if(localStorage.getItem('parlor-theme-version')!=='modern-garden-1'){tileStyle='modern';localStorage.setItem('parlor-tile-style',tileStyle);localStorage.setItem('parlor-theme-version','modern-garden-1');}}catch{}
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
@@ -47,10 +47,11 @@ const pos=[[50,88],[88,48],[50,9],[12,48]],passNames=['','right','across','left'
 const jokerLabel='<svg class="tile-joker-label" viewBox="0 0 36 10" aria-hidden="true" focusable="false"><text x="18" y="8.5" text-anchor="middle" textLength="32" lengthAdjust="spacingAndGlyphs">JOKER</text></svg>';
 function tile(t,size='',interactive=false,extra='',style=tileStyle){
  const k=typeof t==='string'?t:t.k,n=Number(k.slice(1)),cls=/^B/.test(k)?'bam':/^C/.test(k)?'crak':/^D/.test(k)?'dot':k==='J'?'joker':k==='F'?'flower':'honor';
- const corner=/^[BCD]/.test(k)?`<span class="tile-number">${n}</span>`:'',fresh=interactive&&(s.drawn===t.id||receivedIds.has(t.id)),freshLabel=fresh?(s.drawn===t.id?'Just drawn':'Just received'):'';
+ const corner=style!=='mobile'&&/^[BCD]/.test(k)?`<span class="tile-number">${n}</span>`:'',fresh=interactive&&(s.drawn===t.id||receivedIds.has(t.id)),freshLabel=fresh?(s.drawn===t.id?'Just drawn':'Just received'):'';
+ const jokerCaption=k==='J'&&style!=='mobile'?jokerLabel:'';
  const callClass=interactive&&claims.length&&!winningClaim?(k===s.discards.at(-1).tile.k||k==='J'?'claim-eligible':'claim-unavailable'):'';
  const attrs=interactive?`data-tile="${t.id}" aria-label="${G.tileName(k)}${freshLabel?' · '+freshLabel:''}" aria-pressed="${selected.has(t.id)}" aria-describedby="rack-arrange-help" aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight" ${passing||s.phase==='wallSetup'?'disabled':''}`:`role="img" aria-label="${G.tileName(k)}"`;
- return `<${interactive?'button':'span'} class="tile ${cls} ${size} ${extra} ${interactive&&selected.has(t.id)?'selected':''} ${callClass} ${interactive&&s.drawn===t.id?'drawn':''} ${interactive&&receivedIds.has(t.id)?'received':''} ${interactive&&matchingIds.has(t.id)?'hand-match':''} ${interactive&&usableJokerIds.has(t.id)?'joker-usable':''} ${interactive&&winningJokerIds.has(t.id)?'joker-winning':''}" data-tile-style="${style}" ${attrs} title="${freshLabel?freshLabel+' · ':''}${esc(interactive&&winningJokerIds.has(t.id)?'Joker can complete this hand — unassigned':interactive&&usableJokerIds.has(t.id)?'Joker can help this hand — unassigned':G.tileName(k))}">${fresh?'<span class="tile-new-mark" aria-hidden="true">NEW</span>':''}${k==='J'?jokerLabel:''}${corner}${faceArt(k,style)}</${interactive?'button':'span'}>`;
+ return `<${interactive?'button':'span'} class="tile ${cls} ${size} ${extra} ${interactive&&selected.has(t.id)?'selected':''} ${callClass} ${interactive&&s.drawn===t.id?'drawn':''} ${interactive&&receivedIds.has(t.id)?'received':''} ${interactive&&matchingIds.has(t.id)?'hand-match':''} ${interactive&&usableJokerIds.has(t.id)?'joker-usable':''} ${interactive&&winningJokerIds.has(t.id)?'joker-winning':''}" data-tile-style="${style}" ${attrs} title="${freshLabel?freshLabel+' · ':''}${esc(interactive&&winningJokerIds.has(t.id)?'Joker can complete this hand — unassigned':interactive&&usableJokerIds.has(t.id)?'Joker can help this hand — unassigned':G.tileName(k))}">${fresh?'<span class="tile-new-mark" aria-hidden="true">NEW</span>':''}${jokerCaption}${corner}${faceArt(k,style)}</${interactive?'button':'span'}>`;
 }
 function stylePreview(){return ['B1','B5','D3','C8','F','J','N','E','S','W','R','G','H'].map(k=>tile(k,'preview-tile')).join('');}
 function stylePicker(){return `<fieldset class="style-picker"><legend>Tile set</legend><div class="style-choices">${Object.entries(STYLES).map(([id,style])=>`<label><input type="radio" name="tile-style" value="${id}" ${id===tileStyle?'checked':''}><span>${style.name}</span></label>`).join('')}</div><div id="settings-style-preview" class="style-samples">${stylePreview()}</div></fieldset>`;}
@@ -228,12 +229,19 @@ function returnToGame(){
 function declareDiscard(){const option=discardClaims(s).find(o=>o.win);if(!option)return;G.claim(s,0,option);selected.clear();render();}
 function jokerPlacements(target){return s.jokerPlacements?.[target?.key]||{};}
 const targetLabel=target=>[target.name,target.variant].filter(Boolean).join(' · ');
-function targetTiles(target){
- const groups=target.groups.map(([key,count])=>
-  `<span class="suggestion-group">${tile(key,'suggestion-tile')}${count>1?`<span class="suggestion-count">×${count}</span>`:''}</span>`
- ).join('');
- const description=target.groups.map(([key,count])=>`${count} × ${G.tileName(key)}`).join(', ');
- return `<span class="suggestion-tiles" role="img" aria-label="${esc(description)}"><span aria-hidden="true">${groups}</span></span>`;
+const notationColors={B:'bam',C:'crak',D:'dot',F:'flower',G:'bam',R:'crak',H:'dot'};
+function targetNotation(target,extraClass=''){
+ const description=[];
+ const groups=targetBlocks(target).map(block=>{
+  const parts=block.map(({index,symbols})=>{
+   const [key,count]=target.groups[index];
+   description.push(`${count} × ${G.tileName(key)}`);
+   const color=notationColors[key[0]]??'honor';
+   return `<span class="${color}">${esc(symbols)}</span>`;
+  });
+  return `<span class="hand-group" aria-hidden="true">${parts.join('')}</span>`;
+ }).join('');
+ return `<span class="hand-tiles ${extraClass}" role="img" aria-label="${esc(description.join(', '))}">${groups}</span>`;
 }
 function renderHands(){
  if(s.phase==='matchEnded')return;
@@ -244,7 +252,7 @@ function renderHands(){
  const contents=rows.map(({target,away})=>{
   const chosen=goalKey===target.key;
   return `<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
-   <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetTiles(target)}</span>
+   <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values">${target.concealed?'<span class="concealed-badge">Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${away===0?'Ready':away+' away'}</strong></span></span>
   </button>`;
  }).join('')||`<p class="empty-recommendations">No hands within ${MAX_TILES_AWAY} tiles match your current filters.</p>`;
@@ -451,7 +459,7 @@ function roundReviewMarkup(round,action=''){
  const cards=reviews.map(({player,target,missing,groups,extras})=>{
   const won=player===round.winner;
   const distance=won?'Mahjong':missing===null?'No eligible line':`${missing} ${missing===1?'tile':'tiles'} away`;
-  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' pt':''}${target.concealed?' · Concealed':''}</div>${targetTiles(target)}`:'';
+  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' pt':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
   const matched=groups.map(group=>`<span class="winning-group ${group.exposed?'winning-exposed':''}">${faces(group.tiles)}</span>`).join('');
   const extra=extras.length?`<span class="review-extra"><span class="review-extra-label">Extra tiles</span><span class="winning-group">${faces(extras)}</span></span>`:'';
   return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
