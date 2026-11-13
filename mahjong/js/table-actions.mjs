@@ -31,12 +31,11 @@ export function prepareDiscardClaims(s,target){
  return discardClaims(s,target);
 }
 export function passDiscard(s){
- if(s.phase!=='claim')return false;
  const options=discardClaims(s);
  if(!options.length||options.some(option=>option.win))return false;
- // An explicit pass closes this call even if the player draws next.
+ // Close the call in both the claim window and the player's draw step.
  s.discards.at(-1).passedByPlayer=true;
- G.resolveDiscard(s,true);
+ if(s.phase==='claim')G.resolveDiscard(s,true);
  return true;
 }
 export function canDrawWall(s,claims=discardClaims(s)){

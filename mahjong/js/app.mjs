@@ -1,7 +1,7 @@
 import * as G from './engine.mjs?v=wind-sort-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=action-call-filter-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=cancel-exposure-1';
 import {recommendHands} from './recommendations.mjs?v=all-lines-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -35,7 +35,7 @@ let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Erro
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
 const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
-const callFilterTarget=target=>s.onlyChosenHandCalls&&hasJokersForCallFilter()?target:null;
+const callFilterTarget=target=>s.onlyChosenHandCalls?target:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
 let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match-2026'));}catch{}
 s.jokerPlacements||={};
@@ -166,9 +166,10 @@ function renderActions(){
  }
  $('#phase-title').textContent=title;$('#phase-description').textContent=description;$('#phase-description').hidden=!description;$('#actions').innerHTML=actions;
  const callFilter=$('#call-filter-toggle');
- callFilter.closest('label').hidden=pendingCallId!==null||!['claim','draw','discard'].includes(phase)||!hasJokersForCallFilter();
- callFilter.checked=Boolean(s.onlyChosenHandCalls&&pinned);
- callFilter.disabled=!pinned;
+ const filterEnabled=Boolean(s.onlyChosenHandCalls);
+ callFilter.closest('label').hidden=!['claim','draw','discard'].includes(phase)||(!filterEnabled&&!hasJokersForCallFilter());
+ callFilter.checked=filterEnabled;
+ callFilter.disabled=!filterEnabled&&(!pinned||pendingCallId!==null);
  const phaseIcon=$('#phase-icon'),preview=claims.length&&pendingCallId===null?s.discards.at(-1).tile:null;
  phaseIcon.classList.toggle('has-call-preview',Boolean(preview));
  if(preview)phaseIcon.innerHTML=`<span aria-hidden="true">${tile(preview,'mini call-preview-tile')}</span>`;
@@ -529,10 +530,11 @@ function beginCall(){
 }
 function cancelCall(){
  if(pendingCallId===null)return;
+ if(pendingCallId===s.discards.at(-1)?.tile.id)passDiscard(s);
  pendingCallId=null;
  selected.clear();
  render();
- $('#actions [data-action="begin-call"]')?.focus({preventScroll:true});
+ $('#actions [data-action="draw"]')?.focus({preventScroll:true});
 }
 function selectRackTile(id){
  if(passing||(mobileArrange&&touchRack()))return;
