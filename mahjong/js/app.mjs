@@ -12,12 +12,22 @@ import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
 import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=wind-letter-size-1';
-let tileStyle='modern',hideConcealed=false,discardOrder='time',soundEnabled=false;try{tileStyle=validStyle(localStorage.getItem('parlor-tile-style'));hideConcealed=localStorage.getItem('parlor-hide-concealed')==='true';discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';soundEnabled=localStorage.getItem('parlor-sound')==='true';}catch{}
-try{if(localStorage.getItem('parlor-theme-version')!=='modern-garden-1'){tileStyle='modern';localStorage.setItem('parlor-tile-style',tileStyle);localStorage.setItem('parlor-theme-version','modern-garden-1');}}catch{}
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
 const touchRack=()=>innerWidth<=760||landscapeLayout.matches||coarsePointer.matches;
+const tileStylePreferenceKey='parlor-tile-style-choice';
+let tileStyle=touchRack()?'mobile':'modern',hideConcealed=false,discardOrder='time',soundEnabled=false;
+try{
+ const chosenStyle=localStorage.getItem(tileStylePreferenceKey);
+ const legacyStyle=localStorage.getItem('parlor-tile-style');
+ // Earlier releases saved Modern Garden automatically, even without a choice.
+ const storedStyle=chosenStyle??(legacyStyle==='modern'?null:legacyStyle);
+ if(Object.hasOwn(STYLES,storedStyle))tileStyle=storedStyle;
+ hideConcealed=localStorage.getItem('parlor-hide-concealed')==='true';
+ discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';
+ soundEnabled=localStorage.getItem('parlor-sound')==='true';
+}catch{}
 const difficultyNames={easy:'Easy',standard:'Standard',hard:'Hard'};
 const difficultyNotes={easy:'Bots play exposed hands.',standard:'Bots play all card lines, including concealed hands.',hard:'Bots play all card lines and use visible tiles to judge which hands are within reach.'};
 let difficultyPreference='easy';try{difficultyPreference=G.normalizeDifficulty(localStorage.getItem('parlor-difficulty'));}catch{}
@@ -46,7 +56,7 @@ function tile(t,size='',interactive=false,extra='',style=tileStyle){
 }
 function stylePreview(){return ['B1','B5','D3','C8','F','J','N','E','S','W','R','G','H'].map(k=>tile(k,'preview-tile')).join('');}
 function stylePicker(){return `<fieldset class="style-picker"><legend>Tile set</legend><div class="style-choices">${Object.entries(STYLES).map(([id,style])=>`<label><input type="radio" name="tile-style" value="${id}" ${id===tileStyle?'checked':''}><span>${style.name}</span></label>`).join('')}</div><div id="settings-style-preview" class="style-samples">${stylePreview()}</div></fieldset>`;}
-function applyTileStyle(style){tileStyle=validStyle(style);try{localStorage.setItem('parlor-tile-style',tileStyle);}catch{}render();if($('#settings-style-preview'))$('#settings-style-preview').innerHTML=stylePreview();}
+function applyTileStyle(style){tileStyle=validStyle(style);try{localStorage.setItem(tileStylePreferenceKey,tileStyle);}catch{}render();if($('#settings-style-preview'))$('#settings-style-preview').innerHTML=stylePreview();}
 function playSound(){if(!sound)return;try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(760,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(380,ctx.currentTime+.09);gain.gain.setValueAtTime(.06,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);o.connect(gain).connect(ctx.destination);o.start();o.stop(ctx.currentTime+.16);o.onended=()=>ctx.close();}catch{}}
 function save(){try{localStorage.setItem('parlor-hand-picker-open',String(pickerOpen));}catch{}s.receivedIds=[...receivedIds];s.goalHandId=pinned;s.goalTargetKey=goalKey;try{localStorage.setItem(STORE,JSON.stringify(s));if(!s.practiceSession)localStorage.setItem('parlor-match-2026',JSON.stringify({scores:s.scores,scoreHistory:s.scoreHistory,dealer:s.dealer,handNumber:s.handNumber}));}catch{}}
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4800);}
