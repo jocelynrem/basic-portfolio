@@ -1,7 +1,7 @@
-import * as G from './engine.mjs?v=wind-sort-1';
+import * as G from './engine.mjs?v=opponent-moves-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=wind-sort-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=cancel-exposure-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=opponent-moves-1';
 import {recommendHands} from './recommendations.mjs?v=available-hands-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -41,6 +41,20 @@ let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match
 s.jokerPlacements||={};
 s.dealer??=0;s.handNumber??=savedMatch?.handNumber||1;s.scores??=savedMatch?.scores||[0,0,0,0];s.scoreHistory??=savedMatch?.scoreHistory||[];
 const modal=$('#modal');
+const opponentMoveNotice=$('#opponent-move');
+const opponentMoveQueue=[];
+let opponentMoveTimer=null;
+function showNextOpponentMove(){
+ if(opponentMoveTimer!==null)return;
+ const move=opponentMoveQueue.shift();
+ if(!move){opponentMoveNotice.textContent='';return;}
+ const name=G.NAMES[move.player],tile=G.tileName(move.key);
+ opponentMoveNotice.textContent=move.kind==='call'?`${name} called ${tile}.`:`${name} swapped ${tile} for a joker.`;
+ opponentMoveTimer=setTimeout(()=>{
+  opponentMoveTimer=null;
+  showNextOpponentMove();
+ },3600);
+}
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(label,action,cls='',disabled=false)=>`<button class="button ${cls}" data-action="${action}" ${disabled?'disabled':''}>${label}</button>`;
 const secondCharlestonActions=()=>btn('Start second Charleston','second')+btn('Skip to courtesy pass','stop-charleston','outline');
@@ -244,6 +258,10 @@ function showDiscards(){
  modal.dataset.view='discards';
 }
 function useGame(game){
+ clearTimeout(opponentMoveTimer);
+ opponentMoveTimer=null;
+ opponentMoveQueue.length=0;
+ opponentMoveNotice.textContent='';
  cancelPass();s=game;s.jokerPlacements||={};selected.clear();pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null;goalKey=s.goalTargetKey||null;
  pendingCallId=null;jokerTargetGroup=null;mobileArrange=false;swapMessage='';receivedIds=new Set(s.receivedIds||[]);lastDiscardShown=null;
  modal.close();render();
@@ -353,6 +371,8 @@ function render(){
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
+ opponentMoveQueue.push(...G.takeOpponentMoves(s));
+ showNextOpponentMove();
  winningClaim=claims.find(option=>option.win);
  if(pendingCallId!==null&&(!claims.length||winningClaim||pendingCallId!==s.discards.at(-1)?.tile.id)){
   pendingCallId=null;

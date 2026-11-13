@@ -1,6 +1,19 @@
 import {CARD,TARGETS} from './card.mjs';
 export {CARD,TARGETS};
 export const NAMES=['You','Mabel','Rose','June'];
+const opponentMoves=new WeakMap();
+function recordOpponentMove(game,player,kind,key){
+ if(player===0)return;
+ const move={player,kind,key};
+ const pending=opponentMoves.get(game);
+ if(pending)pending.push(move);
+ else opponentMoves.set(game,[move]);
+}
+export function takeOpponentMoves(game){
+ const moves=opponentMoves.get(game)??[];
+ opponentMoves.delete(game);
+ return moves;
+}
 export const SUITS=['B','C','D'];
 export const BOT_DIFFICULTIES=['easy','standard','hard'];
 export function normalizeDifficulty(value){return BOT_DIFFICULTIES.includes(value)?value:'easy';}
@@ -132,7 +145,25 @@ export function courtesy(s,n){if(s.phase!=='courtesyChoice')return;s.courtesyCou
 export function draw(s){if(s.phase!=='draw')throw Error('You cannot draw right now.');if(!s.wall.length){s.phase='ended';log(s,'Wall game. All tiles have been drawn.');return;}if(s.wallSegments&&s.wallSegments[s.wallIndex].remaining===0){s.wallIndex++;s.phase='wallPush';log(s,`${NAMES[s.wallSegments[s.wallIndex].owner]} must curtsy the next wall.`);return;}let t=s.wall.pop();if(s.wallSegments)s.wallSegments[s.wallIndex].remaining--;s.hands[s.turn].push(t);s.drawn=t.id;s.phase='discard';log(s,`${NAMES[s.turn]} ${s.turn===0?'drew '+tileName(t.k):'drew a tile'}.`);}
 export function declare(s,p=s.turn){const target=winning(s.hands[p],s.exposed[p],botExposedOnly(s,p));if(!target)return false;s.phase='ended';s.winner=p;s.winningHand=target.name;s.winningTargetKey=target.key;s.winType||='self-draw';log(s,`${NAMES[p]} called Mahjong! ${target.name}.`);return true;}
 export function claimOptions(s,p){let d=s.discards.at(-1);if(!d||d.claimed||d.player===p||d.tile.k==='J')return [];const h=s.hands[p],exp=s.exposed[p],options=[];if(winning([...h,d.tile],exp,botExposedOnly(s,p)))options.push({win:true,label:'Mahjong',ids:[]});let seen=new Set();for(const t of TARGETS){if(t.concealed)continue;const gs=compatible(t,exp);if(!gs)continue;for(const[k,n]of gs){if(k!==d.tile.k||n<3)continue;let natural=h.filter(x=>x.k===k).slice(0,n-1),wild=h.filter(x=>x.k==='J').slice(0,n-1-natural.length),used=[...natural,...wild];let key=k+n;if(used.length===n-1&&!seen.has(key)){options.push({k,n,ids:used.map(x=>x.id),label:`${({3:'Pung',4:'Kong',5:'Quint',6:'Sextet'})[n]} of ${tileName(k)}`});seen.add(key);}}}return options;}
-export function claim(s,p,option){let d=s.discards.at(-1);d.claimed=true;s.turn=p;s.drawn=null;if(option.win){s.winType='discard';s.winningDiscarder=d.player;s.hands[p].push(d.tile);declare(s,p);return;}let tiles=s.hands[p].filter(t=>option.ids.includes(t.id));s.hands[p]=s.hands[p].filter(t=>!option.ids.includes(t.id));s.exposed[p].push({k:option.k,tiles:[...tiles,d.tile]});s.phase='discard';log(s,`${NAMES[p]} called ${option.label.toLowerCase()}.`);}
+export function claim(s,p,option){
+ const discard=s.discards.at(-1);
+ discard.claimed=true;
+ s.turn=p;
+ s.drawn=null;
+ if(option.win){
+  s.winType='discard';
+  s.winningDiscarder=discard.player;
+  s.hands[p].push(discard.tile);
+  declare(s,p);
+  return;
+ }
+ const tiles=s.hands[p].filter(tile=>option.ids.includes(tile.id));
+ s.hands[p]=s.hands[p].filter(tile=>!option.ids.includes(tile.id));
+ s.exposed[p].push({k:option.k,tiles:[...tiles,discard.tile]});
+ s.phase='discard';
+ log(s,`${NAMES[p]} called ${option.label.toLowerCase()}.`);
+ recordOpponentMove(s,p,'call',discard.tile.k);
+}
 // A useful exposure can commit to a close alternative, even when a flexible
 // unexposed rack has the same tile count. Prefer the strongest call, conserve
 // jokers on ties. Exposures only fit lines that permit them.
@@ -160,7 +191,18 @@ export function resolveDiscard(s,humanPassed=false){let d=s.discards.at(-1),orde
 }
 export function discard(s,id){if(s.phase!=='discard')throw Error('Wait for the discard step.');let i=s.hands[s.turn].findIndex(t=>t.id===id);if(i<0)throw Error('Choose a tile on your rack.');let tile=s.hands[s.turn].splice(i,1)[0];s.discards.push({tile,player:s.turn,claimed:false});s.turns++;log(s,`${NAMES[s.turn]} discarded ${tileName(tile.k)}.`);s.drawn=null;resolveDiscard(s);}
 export function exchanges(s,p=s.turn){if(s.phase!=='discard'||s.turn!==p)return [];let out=[];for(let owner=0;owner<4;owner++)s.exposed[owner].forEach((e,group)=>{const j=e.tiles.find(t=>t.k==='J'),natural=s.hands[p].find(t=>t.k===e.k);if(j&&natural)out.push({owner,group,joker:j.id,natural:natural.id,k:e.k});});return out;}
-export function exchange(s,option){const valid=exchanges(s).find(x=>x.owner===option.owner&&x.group===option.group&&s.exposed[x.owner][x.group].tiles.some(t=>t.id===option.joker&&t.k==='J'));if(!valid)return false;const p=s.turn,e=s.exposed[valid.owner][valid.group],hi=s.hands[p].findIndex(t=>t.id===valid.natural),ji=e.tiles.findIndex(t=>t.id===option.joker);[s.hands[p][hi],e.tiles[ji]]=[e.tiles[ji],s.hands[p][hi]];log(s,`${NAMES[p]} exchanged ${tileName(valid.k)} for a joker.`);return true;}
+export function exchange(s,option){
+ const valid=exchanges(s).find(x=>x.owner===option.owner&&x.group===option.group&&s.exposed[x.owner][x.group].tiles.some(t=>t.id===option.joker&&t.k==='J'));
+ if(!valid)return false;
+ const player=s.turn,hand=s.hands[player];
+ const exposed=s.exposed[valid.owner][valid.group].tiles;
+ const naturalIndex=hand.findIndex(tile=>tile.id===valid.natural);
+ const jokerIndex=exposed.findIndex(tile=>tile.id===option.joker);
+ [hand[naturalIndex],exposed[jokerIndex]]=[exposed[jokerIndex],hand[naturalIndex]];
+ log(s,`${NAMES[player]} exchanged ${tileName(valid.k)} for a joker.`);
+ recordOpponentMove(s,player,'swap',valid.k);
+ return true;
+}
 function usefulExchange(s,p){
  const options=exchanges(s,p);
  if(!options.length||botExposedOnly(s,p))return options[0];
