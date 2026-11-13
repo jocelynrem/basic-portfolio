@@ -6,10 +6,11 @@ export function recommendHands(hand,exposed,{section='All sections',hideConceale
  for(const target of TARGETS){
   if((hideConcealed&&target.concealed)||(section!=='All sections'&&target.section!==section))continue;
   const progress=evaluate(hand,exposed,target);
-  const away=progress.matched<0?Infinity:progress.missing;
+  if(progress.matched<0)continue;
+  const away=progress.missing;
   const previous=lines.get(target.id);
   if(previous&&previous.away<away)continue;
-  const matched=Number.isFinite(away)?matchHandTiles(hand,exposed,target,jokerPlacements[target.key]??{}).matched:-1;
+  const matched=matchHandTiles(hand,exposed,target,jokerPlacements[target.key]??{}).matched;
   if(!previous||away<previous.away||matched>previous.matched||
      (matched===previous.matched&&target.key===chosenKey)){
    lines.set(target.id,{target,away,matched});
