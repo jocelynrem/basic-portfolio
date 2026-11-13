@@ -33,8 +33,8 @@ const difficultyNotes={easy:'Bots play exposed hands.',standard:'Bots play all c
 let difficultyPreference='easy';try{difficultyPreference=G.normalizeDifficulty(localStorage.getItem('parlor-difficulty'));}catch{}
 let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Error();}catch{s=null;}s||=newMatch(difficultyPreference);normalizeMatch(s);
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
-let claims=[],winningClaim=null,swaps=[],swapMessage='';
-const hasJokersForCallFilter=()=>s.hands[0].filter(tile=>tile.k==='J').length>=2;
+let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
+const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
 const callFilterTarget=target=>s.onlyChosenHandCalls&&hasJokersForCallFilter()?target:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
 let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match-2026'));}catch{}
@@ -50,7 +50,7 @@ function tile(t,size='',interactive=false,extra='',style=tileStyle){
  const k=typeof t==='string'?t:t.k,n=Number(k.slice(1)),cls=/^B/.test(k)?'bam':/^C/.test(k)?'crak':/^D/.test(k)?'dot':k==='J'?'joker':k==='F'?'flower':'honor';
  const corner=style!=='mobile'&&/^[BCD]/.test(k)?`<span class="tile-number">${n}</span>`:'',fresh=interactive&&(s.drawn===t.id||receivedIds.has(t.id)),freshLabel=fresh?(s.drawn===t.id?'Just drawn':'Just received'):'';
  const jokerCaption=k==='J'&&style!=='mobile'?jokerLabel:'';
- const callClass=interactive&&claims.length&&!winningClaim?(k===s.discards.at(-1).tile.k||k==='J'?'claim-eligible':'claim-unavailable'):'';
+ const callClass=interactive&&claims.length&&!winningClaim?(k===s.discards.at(-1).tile.k||k==='J'?'claim-eligible':pendingCallId!==null?'claim-unavailable':''):'';
  const attrs=interactive?`data-tile="${t.id}" aria-label="${G.tileName(k)}${freshLabel?' · '+freshLabel:''}" aria-pressed="${selected.has(t.id)}" aria-describedby="rack-arrange-help" aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight" ${passing||s.phase==='wallSetup'?'disabled':''}`:`role="img" aria-label="${G.tileName(k)}"`;
  return `<${interactive?'button':'span'} class="tile ${cls} ${size} ${extra} ${interactive&&selected.has(t.id)?'selected':''} ${callClass} ${interactive&&s.drawn===t.id?'drawn':''} ${interactive&&receivedIds.has(t.id)?'received':''} ${interactive&&matchingIds.has(t.id)?'hand-match':''} ${interactive&&usableJokerIds.has(t.id)?'joker-usable':''} ${interactive&&winningJokerIds.has(t.id)?'joker-winning':''}" data-tile-style="${style}" ${attrs} title="${freshLabel?freshLabel+' · ':''}${esc(interactive&&winningJokerIds.has(t.id)?'Joker can complete this hand — unassigned':interactive&&usableJokerIds.has(t.id)?'Joker can help this hand — unassigned':G.tileName(k))}">${fresh?'<span class="tile-new-mark" aria-hidden="true">NEW</span>':''}${jokerCaption}${corner}${faceArt(k,style)}</${interactive?'button':'span'}>`;
 }
@@ -77,6 +77,16 @@ function exposedMarkup(p,size='tiny',splitAt=0){
  }).join('')}</div>`);
  if(!splitAt)return groups.join('');
  return [groups.slice(0,splitAt),groups.slice(splitAt)].map(column=>`<div class="side-column">${column.join('')}</div>`).join('');
+}
+function renderYourExposures(){
+ let preview='';
+ if(pendingCallId!==null){
+  const discard=s.discards.at(-1).tile;
+  const picked=s.hands[0].filter(item=>selected.has(item.id));
+  const faces=[discard,...picked].map(item=>`<span class="exposed-tile-slot">${tile(item,'mini')}</span>`).join('');
+  preview=`<div class="exposure pending-exposure" role="group" aria-label="Pending exposure">${faces}</div>`;
+ }
+ $('#your-exposures').innerHTML=exposedMarkup(0,'mini')+preview;
 }
 function renderSeat(p){
  const seat=$('#seat'+p),across=p===2;
@@ -105,9 +115,10 @@ function renderCenter(){if(s.phase==='matchEnded'){renderMatchEnd();return;}cons
  const discards=displayDiscards(s.discards,discardOrder).map(({discard:d,index:i})=>{
   const latest=i===s.discards.length-1,needed=neededDiscardKeys.has(d.tile.k),name=G.tileName(d.tile.k),player=G.NAMES[d.player];
   const face=tile(d.tile,latest?'mini latest-discard':'mini');
-  const label=winningClaim?`Declare Mahjong with ${name} from ${player}`:`Choose rack tiles to call ${name} from ${player}`;
-  const content=latest&&claims.length?`<button class="discard-pickup" data-action="${winningClaim?'declare-discard':'discard-option'}" aria-label="${esc(label)}" title="${esc(label)}">${face}</button>`:face;
-  return `<span class="discard-wrapper ${d.claimed?'claimed':''} ${latest?'latest-discard-wrapper':''} ${needed?'needed-discard':''}" title="${player} discarded ${name}${d.claimed?' · claimed':''}${needed?' · Needed for your chosen hand':''}">${content}</span>`;
+  const staging=latest&&pendingCallId===d.tile.id;
+  const label=winningClaim?`Declare Mahjong with ${name} from ${player}`:`Call ${name} from ${player}`;
+  const content=latest&&claims.length&&!staging?`<button class="discard-pickup" data-action="${winningClaim?'declare-discard':'begin-call'}" aria-label="${esc(label)}" title="${esc(label)}">${face}</button>`:face;
+  return `<span class="discard-wrapper ${d.claimed?'claimed':''} ${latest?'latest-discard-wrapper':''} ${needed?'needed-discard':''} ${staging?'staged-discard':''}" title="${player} discarded ${name}${d.claimed?' · claimed':''}${needed?' · Needed for your chosen hand':''}">${content}</span>`;
  }).join('');
  el.innerHTML=`<div class="discards" id="discards" aria-label="Discard pool">${discards}</div>`;
  $('#discards').scrollTop=poolScroll;
@@ -125,13 +136,21 @@ function renderActions(){
   title='Mahjong is available';description=`${G.tileName(s.discards.at(-1).tile.k)} completes your hand.`;
   actions=btn('Declare Mahjong','declare-discard','small');icon='✧';
  }else if(claims.length){
-  const key=s.discards.at(-1).tile.k,option=exposureChoice(claims,selected,s.hands[0],key);
-  const counts=claims.map(({n})=>n-1).sort((a,b)=>a-b);
-  const nextCount=counts.find(count=>count>selected.size);
-  title=`Call ${G.tileName(key)}`;
-  description=option?`${selected.size} selected`:selected.size?`${selected.size} of ${nextCount} selected`:`Tap ${counts.join(' or ')} matching tiles or jokers.`;
-  actions=phase==='draw'&&isYou?btn('Draw a tile','draw','outline small'):btn('Pass','pass-call','outline small');
-  actions+=btn(option?`Expose ${option.label.split(' ')[0].toLowerCase()}`:'Expose','claim-confirm','outline small',!option);icon='!';
+  const key=s.discards.at(-1).tile.k;
+  if(pendingCallId===null){
+   title=`Call ${G.tileName(key)}?`;
+   actions=btn('Call','begin-call','outline small')+
+    (phase==='draw'&&isYou?btn('Draw a tile','draw','outline small'):btn('Pass','pass-call','outline small'));
+  }else{
+   const option=exposureChoice(claims,selected,s.hands[0],key);
+   const counts=claims.map(({n})=>n-1).sort((a,b)=>a-b);
+   const remaining=counts.find(count=>count>selected.size)-selected.size;
+   title='Build exposure';
+   description=option?'Ready to expose.':selected.size?`Add ${remaining} more ${remaining===1?'tile':'tiles'}.`:`Add ${counts.join(' or ')} matching tiles or jokers.`;
+   actions=btn(option?`Expose ${option.label.split(' ')[0].toLowerCase()}`:'Expose','claim-confirm','outline small',!option)+
+    btn('Cancel','cancel-call','outline small');
+  }
+  icon='!';
  }else if(phase==='ended'){
   title=s.winner===null?'Wall game':s.winner===0?'Mahjong!':`${G.NAMES[s.winner]} wins`;
   description='';actions=btn(s.practiceSession?'Practice again':'Next round',s.practiceSession?'practice-again':'next-round');icon='✧';
@@ -147,10 +166,10 @@ function renderActions(){
  }
  $('#phase-title').textContent=title;$('#phase-description').textContent=description;$('#phase-description').hidden=!description;$('#actions').innerHTML=actions;
  const callFilter=$('#call-filter-toggle');
- callFilter.closest('label').hidden=!['claim','draw','discard'].includes(phase)||!hasJokersForCallFilter();
+ callFilter.closest('label').hidden=pendingCallId!==null||!['claim','draw','discard'].includes(phase)||!hasJokersForCallFilter();
  callFilter.checked=Boolean(s.onlyChosenHandCalls&&pinned);
  callFilter.disabled=!pinned;
- const phaseIcon=$('#phase-icon'),preview=claims.length?s.discards.at(-1).tile:null;
+ const phaseIcon=$('#phase-icon'),preview=claims.length&&pendingCallId===null?s.discards.at(-1).tile:null;
  phaseIcon.classList.toggle('has-call-preview',Boolean(preview));
  if(preview)phaseIcon.innerHTML=`<span aria-hidden="true">${tile(preview,'mini call-preview-tile')}</span>`;
  else phaseIcon.textContent=icon;
@@ -221,7 +240,7 @@ function showDiscards(){
 }
 function useGame(game){
  cancelPass();s=game;s.jokerPlacements||={};selected.clear();pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null;goalKey=s.goalTargetKey||null;
- jokerTargetGroup=null;mobileArrange=false;swapMessage='';receivedIds=new Set(s.receivedIds||[]);lastDiscardShown=null;
+ pendingCallId=null;jokerTargetGroup=null;mobileArrange=false;swapMessage='';receivedIds=new Set(s.receivedIds||[]);lastDiscardShown=null;
  modal.close();render();
 }
 function beginHand(){regularReturn=null;try{localStorage.removeItem('parlor-regular-game');}catch{}useGame(newMatch(difficultyPreference));}
@@ -331,6 +350,10 @@ function render(){
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
  winningClaim=claims.find(option=>option.win);
+ if(pendingCallId!==null&&(!claims.length||winningClaim||pendingCallId!==s.discards.at(-1)?.tile.id)){
+  pendingCallId=null;
+  selected.clear();
+ }
  swaps=G.exchanges(s,0).flatMap(option=>s.exposed[option.owner][option.group].tiles
   .filter(tile=>tile.k==='J').map(tile=>({...option,joker:tile.id})));
  if(choosingCall&&selected.size&&!claims.some(({n})=>n>selected.size))selected.clear();
@@ -351,7 +374,7 @@ function render(){
  neededDiscardKeys=signals.needed;[1,2,3].forEach(renderSeat);
  $('#rack').style.setProperty('--tiles',s.hands[0].length);
  $('#rack').innerHTML=s.hands[0].map(t=>tile(t,'',true)).join('');
- $('#your-exposures').innerHTML=exposedMarkup(0,'mini');$('#rack-count').textContent=s.phase==='ended'?'':`${s.wall.length} left to draw`;
+ renderYourExposures();$('#rack-count').textContent=s.phase==='ended'?'':`${s.wall.length} left to draw`;
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
@@ -492,13 +515,30 @@ function renderSelection(){
   const active=selected.has(Number(t.dataset.tile));
   t.classList.toggle('selected',active);t.setAttribute('aria-pressed',String(active));
  });
+ if(pendingCallId!==null)renderYourExposures();
  renderActions();
+}
+function beginCall(){
+ if(!claims.length||winningClaim||pendingCallId!==null)return false;
+ pendingCallId=s.discards.at(-1).tile.id;
+ selected.clear();
+ jokerTargetGroup=null;
+ mobileArrange=false;
+ render();
+ return pendingCallId!==null;
+}
+function cancelCall(){
+ if(pendingCallId===null)return;
+ pendingCallId=null;
+ selected.clear();
+ render();
+ $('#actions [data-action="begin-call"]')?.focus({preventScroll:true});
 }
 function selectRackTile(id){
  if(passing||(mobileArrange&&touchRack()))return;
  const item=s.hands[0].find(tile=>tile.id===id);
  if(!item)return;
- if(jokerTargetGroup!==null){
+ if(jokerTargetGroup!==null&&pendingCallId===null){
   const target=targetFor(pinned,goalKey);
   if(item.k==='J'&&target){
    const placed=placeJoker(s.hands[0],s.exposed[0],target,jokerPlacements(target),id,jokerTargetGroup);
@@ -516,7 +556,13 @@ function selectRackTile(id){
  const discarding=s.phase==='discard'&&s.turn===0;
  if(!claims.length&&!passingTiles&&!discarding)return;
  if(passingTiles&&item.k==='J'){toast('Jokers are never passed in the Charleston.');return;}
- if(claims.length&&item.k!==s.discards.at(-1).tile.k&&item.k!=='J'){toast('Choose a matching tile or joker.');return;}
+ if(claims.length){
+  if(item.k!==s.discards.at(-1).tile.k&&item.k!=='J'){toast('Choose a matching tile or joker.');return;}
+  if(pendingCallId===null){
+   if(!beginCall())return;
+   $('#rack [data-tile="'+id+'"]')?.focus({preventScroll:true});
+  }
+ }
  swapMessage='';
  if(selected.has(id))selected.delete(id);
  else{
@@ -528,11 +574,12 @@ function selectRackTile(id){
  renderSelection();
 }
 function exposeSelectedTiles(){
+ if(pendingCallId===null||pendingCallId!==s.discards.at(-1)?.tile.id)return;
  const options=discardClaims(s,callFilterTarget(targetFor(pinned,goalKey)));
  if(!options.length||options.some(option=>option.win))return;
  const option=exposureChoice(options,selected,s.hands[0],s.discards.at(-1).tile.k);
  if(!option)return;
- G.claim(s,0,{...option,ids:[...selected]});selected.clear();playSound();render();
+ G.claim(s,0,{...option,ids:[...selected]});pendingCallId=null;selected.clear();playSound();render();
 }
 function swapExposedJoker(id){
  const swap=swaps.find(({joker})=>joker===id);
@@ -550,7 +597,11 @@ function swapExposedJoker(id){
 function arrangeTile(id,insertion){if(passing||s.phase==='wallSetup')return;if(moveRackTile(s.hands[0],id,insertion)){s.rackOrder=s.hands[0].map(t=>t.id);render();$('#rack [data-tile="'+id+'"]').focus({preventScroll:true});}}
 function discardTile(id){if(passing||s.turn!==0||s.phase!=='discard'||!s.hands[0].some(t=>t.id===id))return;G.discard(s,id);selected.clear();playSound();render();}
 installRackArrangement({rack:$('#rack'),canArrange:e=>!passing&&!['wallSetup','ended','matchEnded'].includes(s.phase)&&(e?.pointerType!=='touch'||mobileArrange),onMove:arrangeTile,onPause:()=>clearTimeout(botTimer),onResume:scheduleBot});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&jokerTargetGroup!==null&&!(modal.open&&modal.dataset.view==='discards')){jokerTargetGroup=null;render();}});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Escape')return;
+ if(pendingCallId!==null&&!modal.open){cancelCall();return;}
+ if(jokerTargetGroup!==null&&!(modal.open&&modal.dataset.view==='discards')){jokerTargetGroup=null;render();}
+});
 document.addEventListener('dblclick',e=>{const t=e.target.closest('#rack [data-tile]');if(!t||(mobileArrange&&touchRack()))return;e.preventDefault();try{discardTile(Number(t.dataset.tile));}catch(error){toast(error.message);}});
 document.addEventListener('click',async e=>{
  const t=e.target.closest('#rack [data-tile]');
@@ -596,7 +647,8 @@ document.addEventListener('click',async e=>{
  else if(a==='draw'){if(canDrawWall(s)){selected.clear();receivedIds.clear();drawFromWall(s);playSound();render();}}
  else if(a==='discard'){discardTile([...selected][0]);}
  else if(a==='pass-call'&&passDiscard(s)){selected.clear();render();}
- else if(a==='discard-option'){($('#rack .claim-eligible.selected')||$('#rack .claim-eligible'))?.focus();}
+ else if(a==='begin-call'){if(beginCall())$('#rack .claim-eligible')?.focus();}
+ else if(a==='cancel-call'){cancelCall();}
  else if(a==='claim-confirm'){exposeSelectedTiles();}
  else if(a==='mahjong'){if(G.declare(s,0)){render();}else toast('Your rack does not yet match a complete 2026 hand.');}
  else if(a.startsWith('exchange-joker-')){swapExposedJoker(Number(a.slice(15)));}
