@@ -18,7 +18,9 @@ const coarsePointer=matchMedia('(any-pointer: coarse)');
 const touchRack=()=>innerWidth<=760||landscapeLayout.matches||coarsePointer.matches;
 const tileStylePreferenceKey='parlor-tile-style-choice';
 const legalCallsPreferenceKey='parlor-legal-calls-only';
+const targetHandDisplayKey='parlor-target-hand-display';
 let legalCallsOnly=false;
+let targetHandDisplay='tiles';
 let tileStyle=touchRack()?'mobile':'modern',hideConcealed=false,discardOrder='time',soundEnabled=false;
 try{
  const chosenStyle=localStorage.getItem(tileStylePreferenceKey);
@@ -30,6 +32,7 @@ try{
  discardOrder=localStorage.getItem('parlor-discard-order')==='suit'?'suit':'time';
  soundEnabled=localStorage.getItem('parlor-sound')==='true';
  legalCallsOnly=localStorage.getItem(legalCallsPreferenceKey)==='true';
+ targetHandDisplay=localStorage.getItem(targetHandDisplayKey)==='line'?'line':'tiles';
 }catch{}
 const difficultyNames={easy:'Easy',standard:'Standard',hard:'Hard'};
 const difficultyNotes={easy:'Bots play exposed hands.',standard:'Bots play all card lines, including concealed hands.',hard:'Bots play all card lines and use visible tiles to judge which hands are within reach.'};
@@ -222,6 +225,7 @@ function showSettings(){
   </div>
   ${stylePicker()}
   <div class="settings-fields">
+   <label>Target hand display<select name="target-hand-display"><option value="tiles" ${targetHandDisplay==='tiles'?'selected':''}>Tile preview</option><option value="line" ${targetHandDisplay==='line'?'selected':''}>Pin card line</option></select></label>
    <label>Discard order<select name="discard-order"><option value="time" ${discardOrder==='time'?'selected':''}>Order of play</option><option value="suit" ${discardOrder==='suit'?'selected':''}>Suit and number</option></select></label>
    <label>Recommended section<select id="section-filter">${['All sections',...sections].map(x=>`<option ${section===x?'selected':''}>${x}</option>`).join('')}</select></label>
    <label class="settings-check"><input name="sound-toggle" type="checkbox" ${sound?'checked':''}>Sound</label>
@@ -330,26 +334,40 @@ function targetNotation(target,extraClass=''){
  return `<span class="hand-tiles ${extraClass}" role="img" aria-label="${esc(description.join(', '))}">${groups}</span>`;
 }
 function renderHands(){
- if(s.phase==='matchEnded')return;
- $('.side-panel').hidden=!pickerOpen;
- if(!pickerOpen)return;
- const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
+ if(s.phase==='ended'||s.phase==='matchEnded')return;
  const dead=G.isDeadHand(s);
- const rows=dead?[]:recommendHands(s.hands[0],s.exposed[0],{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements});
+ const pinnedLine=targetHandDisplay==='line'&&!dead?targetFor(pinned,goalKey):null;
+ const panel=$('#hands-panel');
+ $('.side-panel').hidden=!pickerOpen&&!pinnedLine;
+ if(!pickerOpen&&!pinnedLine){panel.replaceChildren();return;}
+ const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
+ const hand=s.hands[0],exposed=s.exposed[0];
+ const rows=pickerOpen&&!dead?recommendHands(hand,exposed,{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements}):[];
+ if(pinnedLine){
+  const index=rows.findIndex(({target})=>target.id===pinnedLine.id);
+  if(index>=0)rows.unshift(rows.splice(index,1)[0]);
+  else{
+   const {matched,missing}=G.evaluate(hand,exposed,pinnedLine);
+   rows.unshift({target:pinnedLine,away:matched<0?-1:missing});
+  }
+ }
  const contents=rows.map(({target,away,variationCount})=>{
   const chosen=goalKey===target.key;
-  const distance=away===0?'Ready':away+' away';
+  const pin=target.id===pinnedLine?.id;
+  const distance=away<0?'':away===0?'Ready':away+' away';
   const tied=variationCount>1?`<span class="suggestion-variations">${variationCount} equally close</span>`:'';
-  return `<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
-   <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${tied}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
+  return `<button class="hand-card ${chosen?'chosen':''}${pin?' pinned-line':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
+   <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${tied}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
   </button>`;
- }).join('')||`<p class="empty-recommendations">${dead?'No matching lines.':'No hands match your current filters.'}</p>`;
- $('#hands-panel').innerHTML=`<div class="card-intro">
+ }).join('');
+ const filters=pickerOpen?`<div class="card-intro">
   <span class="card-year">2026</span>
   <label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>
   <button class="text-button picker-close" data-action="toggle-hands" aria-label="Close hand picker">×</button>
- </div><div id="hand-list" class="ordered-hands ranked-hands">${contents}</div>`;
+ </div>`:'';
+ const empty='<p class="empty-recommendations">'+(dead?'No matching lines.':'No hands match your current filters.')+'</p>';
+ panel.innerHTML=`${filters}<div id="hand-list" class="ordered-hands ranked-hands">${contents||empty}</div>`;
  if(filterFocused)$('#hands-panel [name="hide-concealed"]')?.focus({preventScroll:true});
 }
 function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??G.best(s.hands[0],s.exposed[0],id)?.target:null;}
@@ -424,6 +442,11 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
   return;
  }
  const {target}=plan;el.dataset.handId=target.id;el.dataset.targetKey=target.key;
+ if(targetHandDisplay==='line'){
+  el.classList.add('empty-hand');
+  el.innerHTML=`<div class="hand-picker-empty goal-actions-inline">${picker}<button class="text-button" data-action="clear-goal">Clear target</button></div>`;
+  return;
+ }
  const hasJoker=s.hands[0].some(t=>t.k==='J');
  const renderGroup=g=>`<span class="goal-group ${g.exposed?'goal-exposed':''} ${jokerTargetGroup===g.index?'joker-destination':''}">${g.tiles.map(actual=>{
   const canPlace=!actual&&!g.exposed&&g.n>=3&&hasJoker,canFree=actual?.k==='J'&&!g.exposed,tag=canPlace||canFree?'button':'span';
@@ -452,7 +475,9 @@ function chooseHand(id,key){
  goalKey=target.key;
  jokerTargetGroup=null;
  render();
- $('#hand-list .hand-card.chosen')?.focus({preventScroll:true});
+ const chosen=$('#hand-list .hand-card.chosen');
+ if(targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
+ chosen?.focus({preventScroll:true});
 }
 function clearHand(){pinned=null;goalKey=null;jokerTargetGroup=null;render();}
 function showFinishedTable(phase,content){
@@ -833,6 +858,12 @@ document.addEventListener('change',e=>{
   $('#difficulty-status').textContent=difficultyStatus();return;
  }
  if(e.target.name==='discard-order'){discardOrder=e.target.value;lastDiscardShown=null;try{localStorage.setItem('parlor-discard-order',discardOrder);}catch{}renderCenter();updateBoardSpace();return;}
+ if(e.target.name==='target-hand-display'){
+  targetHandDisplay=e.target.value==='line'?'line':'tiles';jokerTargetGroup=null;
+  try{localStorage.setItem(targetHandDisplayKey,targetHandDisplay);}catch{}
+  if(s.phase!=='ended'&&s.phase!=='matchEnded'){renderHandFocus(currentPlan());renderHands();}
+  return;
+ }
  if(e.target.name==='sound-toggle'){sound=e.target.checked;try{localStorage.setItem('parlor-sound',String(sound));}catch{}playSound();return;}
  if(e.target.name==='hide-concealed'){hideConcealed=e.target.checked;try{localStorage.setItem('parlor-hide-concealed',String(hideConcealed));}catch{}renderHands();return;}
  if(e.target.name==='tile-style'){applyTileStyle(e.target.value);return;}

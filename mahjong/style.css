@@ -746,6 +746,20 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   padding: 8px;
 }
 
+#hand-list .hand-card.pinned-line {
+  grid-column: 1 / -1;
+  border: 2px solid #658252;
+  border-radius: 5px;
+  background: #e8efdc;
+  margin: 4px 0;
+}
+
+.target-line-label {
+  color: #37532f;
+  font-size: 11px;
+  font-weight: 650;
+}
+
 #hand-list .hand-patterns {
   flex-direction: column;
   align-items: flex-start;
@@ -768,6 +782,11 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .hand-group > .dot { color: #345b83; }
 .hand-group > .flower { color: #785020; }
 .hand-group > .honor { color: #395543; }
+
+.goal-actions-inline .text-button { font-size: 11px; }
+@media (max-width:760px), (orientation:landscape) and (min-width:500px) and (max-width:1050px) and (max-height:500px), (any-pointer:coarse) {
+  .goal-actions-inline .text-button { min-width: 44px; min-height: 44px; }
+}
 
 .card-credit {
   margin-top: 16px;
