@@ -571,6 +571,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .joker-choices{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .settings-fields.difficulty-setting{grid-template-columns:1fr;gap:4px;margin:0 0 16px}
 #modal .difficulty-setting p{margin:0;font-size:11px;line-height:1.45;color:#50664b}
+.call-rules-setting{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:12px}
+.call-rules-setting .settings-check{display:flex;align-items:center;gap:7px;cursor:pointer}
+.call-rules-setting .icon-button{flex:none;width:30px;height:30px;font-weight:700}
 #modal .joker-choices .button{width:100%;min-height:44px;white-space:normal;text-align:left;justify-content:flex-start}
 .call-filter{
  display:inline-flex;align-items:center;justify-content:center;inline-size:9.5em;min-height:26px;padding:3px 7px;

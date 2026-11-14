@@ -1,4 +1,4 @@
-import * as G from './engine.mjs?v=opponent-moves-1';
+import * as G from './engine.mjs?v=manual-calls-1';
 
 export function discardClaims(s,target=null){
  if(s.phase!=='claim'&&!(s.phase==='draw'&&s.turn===0))return [];
@@ -26,7 +26,7 @@ export function discardClaims(s,target=null){
 }
 export function prepareDiscardClaims(s,target){
  const options=discardClaims(s,target);
- if(!target||s.phase!=='claim'||options.length)return options;
+ if(s.phase!=='claim'||options.length)return options;
  G.resolveDiscard(s,true);
  return discardClaims(s,target);
 }
@@ -39,10 +39,10 @@ export function passDiscard(s){
  return true;
 }
 export function canDrawWall(s,claims=discardClaims(s)){
- if(claims.some(option=>option.win))return false;
+ if(G.isDeadHand(s)||claims.some(option=>option.win))return false;
  if(s.turn===0&&s.phase==='draw')return true;
  const last=s.discards.at(-1);
- return Boolean(s.phase==='claim'&&last&&!last.claimed&&(last.player+1)%4===0);
+ return Boolean(s.phase==='claim'&&last&&!last.claimed&&G.nextActivePlayer(s,last.player)===0);
 }
 export function canPickDiscard(s){
  return discardClaims(s).length>0;

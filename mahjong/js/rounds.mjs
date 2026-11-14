@@ -1,4 +1,4 @@
-import * as G from './engine.mjs?v=wind-sort-1';
+import * as G from './engine.mjs?v=manual-calls-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {patternBlocks} from './hand-groups.mjs';
 export function winningLayout(s,preferredKey=null){
@@ -38,6 +38,11 @@ export function reviewRoundHands(round){
  const winnerLayout=winningLayout(round);
  return round.hands.map((hand,player)=>{
   const exposed=round.exposed[player];
+  if(G.isDeadHand(round,player)){
+   const extras=[...hand];
+   G.sortHand(extras);
+   return {player,target:null,missing:null,groups:exposed.map(group=>({tiles:group.tiles,exposed:true})),extras};
+  }
   const allTiles=[...hand,...exposed.flatMap(group=>group.tiles)];
   let layout=player===round.winner?winnerLayout:null;
   if(!layout){

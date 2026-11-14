@@ -1,4 +1,4 @@
-import {evaluate,tileName,claimOptions,winning,visibleTileCounts} from './engine.mjs?v=wind-sort-1';
+import {evaluate,tileName,claimOptions,winning,visibleTileCounts} from './engine.mjs?v=manual-calls-1';
 export {visibleTileCounts};
 export function blockedPairs(s,target){
  const visible=visibleTileCounts(s),required={},owned={};

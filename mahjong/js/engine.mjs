@@ -18,6 +18,11 @@ export const SUITS=['B','C','D'];
 export const BOT_DIFFICULTIES=['easy','standard','hard'];
 export function normalizeDifficulty(value){return BOT_DIFFICULTIES.includes(value)?value:'easy';}
 export function botExposedOnly(s,p){return p!==0&&normalizeDifficulty(s.difficulty)==='easy';}
+export function isDeadHand(s,player=0){return s.deadHand?.player===player;}
+export function nextActivePlayer(s,player){
+ const next=(player+1)%NAMES.length;
+ return isDeadHand(s,next)?(next+1)%NAMES.length:next;
+}
 export function tileName(k){if(k==='B1')return 'Bird Bam';return /^[BCD]/.test(k)?`${k.slice(1)} ${{B:'Bam',C:'Crak',D:'Dot'}[k[0]]}`:({E:'East',S:'South',W:'West',N:'North',R:'Red dragon',G:'Green dragon',H:'White dragon',F:'Flower',J:'Joker'}[k]||k);}
 export function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 export function deck(){let ks=[];for(const s of SUITS)for(let n=1;n<=9;n++)for(let j=0;j<4;j++)ks.push(s+n);for(const k of ['E','S','W','N','R','G','H'])for(let i=0;i<4;i++)ks.push(k);for(let i=0;i<8;i++)ks.push('F','J');return shuffle(ks.map((k,id)=>({k,id})));}
@@ -142,26 +147,81 @@ export function finishReview(s){if(s.phase==='passReview'){s.phase=s.resumePhase
 export function secondCharleston(s,yes){if(s.phase!=='charlestonChoice')return;if(yes){s.passRound=2;s.phase='charleston';log(s,'Second Charleston: pass three tiles left.');}else{s.phase='courtesyChoice';log(s,'Optional second Charleston skipped.');}}
 export function prepareCourtesy(s){if(s.phase!=='courtesyChoice')return;s.courtesyCount=0;s.otherCourtesyCount=3;s.phase='courtesy';}
 export function courtesy(s,n){if(s.phase!=='courtesyChoice')return;s.courtesyCount=n;s.otherCourtesyCount=3;s.phase='courtesy';if(!n)pass(s,[]);}
-export function draw(s){if(s.phase!=='draw')throw Error('You cannot draw right now.');if(!s.wall.length){s.phase='ended';log(s,'Wall game. All tiles have been drawn.');return;}if(s.wallSegments&&s.wallSegments[s.wallIndex].remaining===0){s.wallIndex++;s.phase='wallPush';log(s,`${NAMES[s.wallSegments[s.wallIndex].owner]} must curtsy the next wall.`);return;}let t=s.wall.pop();if(s.wallSegments)s.wallSegments[s.wallIndex].remaining--;s.hands[s.turn].push(t);s.drawn=t.id;s.phase='discard';log(s,`${NAMES[s.turn]} ${s.turn===0?'drew '+tileName(t.k):'drew a tile'}.`);}
-export function declare(s,p=s.turn){const target=winning(s.hands[p],s.exposed[p],botExposedOnly(s,p));if(!target)return false;s.phase='ended';s.winner=p;s.winningHand=target.name;s.winningTargetKey=target.key;s.winType||='self-draw';log(s,`${NAMES[p]} called Mahjong! ${target.name}.`);return true;}
-export function claimOptions(s,p){let d=s.discards.at(-1);if(!d||d.claimed||d.player===p||d.tile.k==='J')return [];const h=s.hands[p],exp=s.exposed[p],options=[];if(winning([...h,d.tile],exp,botExposedOnly(s,p)))options.push({win:true,label:'Mahjong',ids:[]});let seen=new Set();for(const t of TARGETS){if(t.concealed)continue;const gs=compatible(t,exp);if(!gs)continue;for(const[k,n]of gs){if(k!==d.tile.k||n<3)continue;let natural=h.filter(x=>x.k===k).slice(0,n-1),wild=h.filter(x=>x.k==='J').slice(0,n-1-natural.length),used=[...natural,...wild];let key=k+n;if(used.length===n-1&&!seen.has(key)){options.push({k,n,ids:used.map(x=>x.id),label:`${({3:'Pung',4:'Kong',5:'Quint',6:'Sextet'})[n]} of ${tileName(k)}`});seen.add(key);}}}return options;}
+export function draw(s){if(s.phase!=='draw'||isDeadHand(s,s.turn))throw Error('You cannot draw right now.');if(!s.wall.length){s.phase='ended';log(s,'Wall game. All tiles have been drawn.');return;}if(s.wallSegments&&s.wallSegments[s.wallIndex].remaining===0){s.wallIndex++;s.phase='wallPush';log(s,`${NAMES[s.wallSegments[s.wallIndex].owner]} must curtsy the next wall.`);return;}let t=s.wall.pop();if(s.wallSegments)s.wallSegments[s.wallIndex].remaining--;s.hands[s.turn].push(t);s.drawn=t.id;s.phase='discard';log(s,`${NAMES[s.turn]} ${s.turn===0?'drew '+tileName(t.k):'drew a tile'}.`);}
+export function declare(s,p=s.turn){if(isDeadHand(s,p))return false;const target=winning(s.hands[p],s.exposed[p],botExposedOnly(s,p));if(!target)return false;s.phase='ended';s.winner=p;s.winningHand=target.name;s.winningTargetKey=target.key;s.winType||='self-draw';log(s,`${NAMES[p]} called Mahjong! ${target.name}.`);return true;}
+const exposureNames={3:'Pung',4:'Kong',5:'Quint',6:'Sextet'};
+export function claimOptions(s,player){
+ const discard=s.discards.at(-1);
+ if(!discard||discard.claimed||discard.player===player||discard.tile.k==='J'||isDeadHand(s,player))return [];
+ const hand=s.hands[player],exposed=s.exposed[player],options=[],key=discard.tile.k;
+ if(winning([...hand,discard.tile],exposed,botExposedOnly(s,player)))options.push({win:true,label:'Mahjong',ids:[]});
+ const naturals=hand.filter(tile=>tile.k===key),jokers=hand.filter(tile=>tile.k==='J');
+ const maxSize=Math.min(6,naturals.length+jokers.length+1);
+ if(maxSize<3)return options;
+
+ const matchingSizes=new Set();
+ for(const target of TARGETS){
+  if(target.concealed)continue;
+  for(const [tile,size] of compatible(target,exposed)??[]){
+   if(tile===key&&size>=3&&size<=maxSize)matchingSizes.add(size);
+  }
+ }
+ const addExposure=(size,dead=false)=>{
+  const natural=naturals.slice(0,size-1);
+  const wild=jokers.slice(0,size-1-natural.length);
+  const option={k:key,n:size,ids:[...natural,...wild].map(tile=>tile.id),label:`${exposureNames[size]} of ${tileName(key)}`};
+  if(dead)option.dead=true;
+  options.push(option);
+ };
+ for(const size of matchingSizes)addExposure(size);
+ if(player===0&&s.allowDeadHands!==false){
+  for(let size=3;size<=maxSize;size++){
+   if(!matchingSizes.has(size))addExposure(size,true);
+  }
+ }
+ return options;
+}
 export function claim(s,p,option){
  const discard=s.discards.at(-1);
+ if(!discard||discard.claimed||discard.player===p||discard.tile.k==='J'||isDeadHand(s,p))return;
+ if(p===0&&discard.passedByPlayer)return;
+
+ const hand=s.hands[p],priorExposures=s.exposed[p];
+ if(option.win){
+  if(!winning([...hand,discard.tile],priorExposures,botExposedOnly(s,p)))return;
+ }else if(option.k!==discard.tile.k||!Object.hasOwn(exposureNames,option.n)||option.ids?.length!==option.n-1){
+  return;
+ }
+ const picked=new Set(option.ids);
+ const tiles=hand.filter(tile=>picked.has(tile.id));
+ const exposure={k:option.k,tiles:[...tiles,discard.tile]};
+ if(!option.win&&(tiles.length!==option.n-1||tiles.some(tile=>tile.k!==discard.tile.k&&tile.k!=='J')))return;
+ const matchesCard=option.win||TARGETS.some(target=>compatible(target,[...priorExposures,exposure]));
+ if(!matchesCard&&(p!==0||s.allowDeadHands===false))return;
+
  discard.claimed=true;
  s.turn=p;
  s.drawn=null;
  if(option.win){
   s.winType='discard';
   s.winningDiscarder=discard.player;
-  s.hands[p].push(discard.tile);
+  hand.push(discard.tile);
   declare(s,p);
   return;
  }
- const tiles=s.hands[p].filter(tile=>option.ids.includes(tile.id));
- s.hands[p]=s.hands[p].filter(tile=>!option.ids.includes(tile.id));
- s.exposed[p].push({k:option.k,tiles:[...tiles,discard.tile]});
- s.phase='discard';
  log(s,`${NAMES[p]} called ${option.label.toLowerCase()}.`);
+ if(!matchesCard){
+  const caller=nextActivePlayer(s,p);
+  hand.push(discard.tile);
+  s.deadHand={player:p,caller,key:discard.tile.k,size:exposure.tiles.length};
+  s.phase='draw';
+  s.turn=caller;
+  log(s,`${NAMES[caller]} declared your hand dead because the new exposure fits no card line.`);
+  return;
+ }
+ s.hands[p]=hand.filter(tile=>!picked.has(tile.id));
+ priorExposures.push(exposure);
+ s.phase='discard';
  recordOpponentMove(s,p,'call',discard.tile.k);
 }
 // A useful exposure can commit to a close alternative, even when a flexible
@@ -187,10 +247,10 @@ export function botClaimOption(s,p,options=claimOptions(s,p)){
 export function resolveDiscard(s,humanPassed=false){let d=s.discards.at(-1),order=[1,2,3].map(i=>(d.player+i)%4);let options=order.map(p=>({p,options:claimOptions(s,p)}));const firstWin=options.find(x=>x.options.some(o=>o.win));if(firstWin){if(firstWin.p===0&&!humanPassed){s.phase='claim';return;}if(firstWin.p!==0){claim(s,firstWin.p,firstWin.options.find(o=>o.win));return;}}
  if(d.player!==0&&!humanPassed&&claimOptions(s,0).length){s.phase='claim';return;}
  for(const {p,options:os}of options){if(p===0)continue;const good=botClaimOption(s,p,os);if(good){claim(s,p,good);return;}}
- s.turn=(d.player+1)%4;s.phase='draw';s.drawn=null;
+ s.turn=nextActivePlayer(s,d.player);s.phase='draw';s.drawn=null;
 }
-export function discard(s,id){if(s.phase!=='discard')throw Error('Wait for the discard step.');let i=s.hands[s.turn].findIndex(t=>t.id===id);if(i<0)throw Error('Choose a tile on your rack.');let tile=s.hands[s.turn].splice(i,1)[0];s.discards.push({tile,player:s.turn,claimed:false});s.turns++;log(s,`${NAMES[s.turn]} discarded ${tileName(tile.k)}.`);s.drawn=null;resolveDiscard(s);}
-export function exchanges(s,p=s.turn){if(s.phase!=='discard'||s.turn!==p)return [];let out=[];for(let owner=0;owner<4;owner++)s.exposed[owner].forEach((e,group)=>{const j=e.tiles.find(t=>t.k==='J'),natural=s.hands[p].find(t=>t.k===e.k);if(j&&natural)out.push({owner,group,joker:j.id,natural:natural.id,k:e.k});});return out;}
+export function discard(s,id){if(s.phase!=='discard'||isDeadHand(s,s.turn))throw Error('Wait for the discard step.');let i=s.hands[s.turn].findIndex(t=>t.id===id);if(i<0)throw Error('Choose a tile on your rack.');let tile=s.hands[s.turn].splice(i,1)[0];s.discards.push({tile,player:s.turn,claimed:false});s.turns++;log(s,`${NAMES[s.turn]} discarded ${tileName(tile.k)}.`);s.drawn=null;resolveDiscard(s);}
+export function exchanges(s,p=s.turn){if(s.phase!=='discard'||s.turn!==p||isDeadHand(s,p))return [];let out=[];for(let owner=0;owner<4;owner++)s.exposed[owner].forEach((e,group)=>{const j=e.tiles.find(t=>t.k==='J'),natural=s.hands[p].find(t=>t.k===e.k);if(j&&natural)out.push({owner,group,joker:j.id,natural:natural.id,k:e.k});});return out;}
 export function exchange(s,option){
  const valid=exchanges(s).find(x=>x.owner===option.owner&&x.group===option.group&&s.exposed[x.owner][x.group].tiles.some(t=>t.id===option.joker&&t.k==='J'));
  if(!valid)return false;
