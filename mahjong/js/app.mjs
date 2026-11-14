@@ -1,13 +1,13 @@
-import * as G from './engine.mjs?v=tournament-score-1';
+import * as G from './engine.mjs?v=win-source-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=pinned-line-calls-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=win-source-1';
 import {recommendHands} from './recommendations.mjs?v=compact-preview-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
 import {practiceGame} from './learning.mjs?v=wind-sort-1';
-import {tileAdvice} from './hints.mjs?v=manual-calls-1';
+import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
@@ -270,6 +270,11 @@ function showLearn(){
  show('Learn',`<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn(s.practiceSession?'Practice again':'Guided practice','practice-again','outline')}${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn('Back to game','return-game')}</div>`:''}`);modal.dataset.view='learn';
 }
 const formatScore=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
+function winSourceText(winType,discarder){
+ if(winType==='discard')return G.NAMES[discarder]?`${G.NAMES[discarder]} discarded the winning tile`:'Won on a discard';
+ if(winType==='self-draw')return 'Self-picked';
+ return winType==='heavenly'?'Winning hand from the deal':'Completed on the winner’s turn';
+}
 function wallScoreText(result){
  if(result?.mode!=='tournament')return '';
  return result.deltas.some(points=>points<0)?'+10 per active player · −10 for the dead hand':'+10 per player';
@@ -281,9 +286,10 @@ function showScores(){
  if(last?.winner===null)result=['Wall game',wallScoreText(last)].filter(Boolean).join(' · ');
  else if(last){
   const winner=last.winner===0?'You won':`${G.NAMES[last.winner]} won`;
-  const source=last.winType==='discard'?'Won on a discard':last.winType==='self-draw'?(tournament?'+10 self-pick':'Self-picked'):last.winType==='heavenly'?'Heavenly hand':'';
+  const source=winSourceText(last.winType,last.discarder);
+  const selfPickBonus=tournament&&last.winType==='self-draw'?'+10 self-pick bonus':'';
   const bonus=last.jokerless?(tournament?'+20 jokerless':'Jokerless bonus'):'';
-  result=`${winner} ${last.hand}. ${[`${last.base} card points`,source,bonus].filter(Boolean).join(' · ')}`;
+  result=`${winner} ${last.hand}. ${source}. ${[`${last.base} card points`,selfPickBonus,bonus].filter(Boolean).join(' · ')}`;
  }
  const rules=tournament?`<details class="card-credit"><summary>Tournament scoring rules</summary><p>A win earns the card value, plus 10 for a self-pick and 20 for a jokerless hand. Singles and Pairs are exempt from the jokerless bonus. East’s dealt winning hand earns the card value and any jokerless bonus.</p><p>If you discard the winning tile, you lose 10 points when the winner has 0–1 exposures, 20 with 2, or 25 with 3 or more. An active player earns 10 for a wall game. A dead hand scores −10.</p><p><a href="https://mahjongg.org/wp-content/uploads/2023/06/STANDARDIZED-NATIONAL-MAH-JONGG-TOURNAMENT-RULES-1.pdf" target="_blank" rel="noopener">Tournament rules, section 13 ↗</a></p></details>`:
   `<p class="score-note">This saved match uses standard point payments. New matches use tournament scoring.</p><p class="score-note"><a href="https://faqs.nmjlonline.com/forums/printthread.php?tid=93" target="_blank" rel="noopener">NMJL point payments ↗</a></p>`;
@@ -628,6 +634,8 @@ function beforeFirstPass(game){return game.phase==='charleston'&&game.passRound=
 function roundReviewMarkup(round,action=''){
  const winner=round.winner;
  const title=winner==null?'Wall game':winner===0?'You won this round':G.NAMES[winner]+' wins this round';
+ const winType=round.scoreResult?.winType===undefined?round.winType:round.scoreResult.winType;
+ const source=winner==null?'':winSourceText(winType,round.scoreResult?.discarder??round.winningDiscarder);
  const hands=reviewRoundHands(round);
  const reviews=winner==null?hands:[hands[winner],...hands.filter(hand=>hand.player!==winner)];
  const faces=tiles=>tiles.map(item=>tile(item,'result-tile')).join('');
@@ -649,7 +657,7 @@ function roundReviewMarkup(round,action=''){
    </div>
    ${wall.length?`<div class="review-tiles">${faces([...wall].reverse())}</div>`:''}
   </section>`:'';
- return `<div class="round-result"><div class="round-result-head"><h2>${title}</h2>${action}</div><div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
+ return `<div class="round-result"><div class="round-result-head"><div><h2>${title}</h2>${source?`<p class="round-win-source">${esc(source)}</p>`:''}</div>${action}</div><div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
 }
 function renderSelection(){
  document.querySelectorAll('#rack [data-tile]').forEach(t=>{

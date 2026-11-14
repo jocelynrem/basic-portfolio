@@ -23,7 +23,7 @@ export function nextActivePlayer(s,player){
  const next=(player+1)%NAMES.length;
  return isDeadHand(s,next)?(next+1)%NAMES.length:next;
 }
-export function tileName(k){if(k==='B1')return 'Bird Bam';return /^[BCD]/.test(k)?`${k.slice(1)} ${{B:'Bam',C:'Crak',D:'Dot'}[k[0]]}`:({E:'East',S:'South',W:'West',N:'North',R:'Red dragon',G:'Green dragon',H:'White dragon',F:'Flower',J:'Joker'}[k]||k);}
+export function tileName(k){return /^[BCD]/.test(k)?`${k.slice(1)} ${{B:'Bam',C:'Crak',D:'Dot'}[k[0]]}`:({E:'East',S:'South',W:'West',N:'North',R:'Red dragon',G:'Green dragon',H:'White dragon',F:'Flower',J:'Joker'}[k]||k);}
 export function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 export function deck(){let ks=[];for(const s of SUITS)for(let n=1;n<=9;n++)for(let j=0;j<4;j++)ks.push(s+n);for(const k of ['E','S','W','N','R','G','H'])for(let i=0;i<4;i++)ks.push(k);for(let i=0;i<8;i++)ks.push('F','J');return shuffle(ks.map((k,id)=>({k,id})));}
 export function log(s,text){s.log.unshift(text);s.log=s.log.slice(0,45);}

@@ -1,4 +1,4 @@
-import * as G from './engine.mjs?v=tournament-score-1';
+import * as G from './engine.mjs?v=win-source-1';
 
 export function lineVariations(lineId,exposed){
  return G.TARGETS.filter(target=>target.id===lineId&&G.compatible(target,exposed));
