@@ -1,4 +1,4 @@
-import * as G from './engine.mjs?v=manual-calls-1';
+import * as G from './engine.mjs?v=tournament-score-1';
 
 export function discardClaims(s,target=null){
  if(s.phase!=='claim'&&!(s.phase==='draw'&&s.turn===0))return [];

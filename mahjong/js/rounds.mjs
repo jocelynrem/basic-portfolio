@@ -1,4 +1,4 @@
-import * as G from './engine.mjs?v=manual-calls-1';
+import * as G from './engine.mjs?v=tournament-score-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {patternBlocks} from './hand-groups.mjs';
 export function winningLayout(s,preferredKey=null){
@@ -12,19 +12,46 @@ export function winningLayout(s,preferredKey=null){
  if(match.matched!==14)match=matchHandTiles(s.hands[p],s.exposed[p],target);
  return {target,...match};
 }
+// Finish previously scored matches under the rules they started with.
+export function scoringMode(s){
+ const last=s.scoreHistory?.at(-1);
+ return last&&last.mode!=='tournament'?'payments':'tournament';
+}
 export function finalizeRound(s,preferredKey=null){
  if(s.phase!=='ended')return null;
  const layout=winningLayout(s,preferredKey);
  if(layout){s.winningTargetKey=layout.target.key;s.winningHand=layout.target.name;}
  if(s.scoreRecorded)return layout;
  s.scores=Array.isArray(s.scores)?s.scores:[0,0,0,0];
- const deltas=[0,0,0,0];let base=0,value=0,jokerless=false;
- if(layout){
-  base=layout.target.points;jokerless=layout.target.section!=='Singles and Pairs'&&![...s.hands[s.winner],...s.exposed[s.winner].flatMap(e=>e.tiles)].some(t=>t.k==='J');value=base*(jokerless?2:1);
-  for(let p=0;p<4;p++)if(p!==s.winner){const payment=value*(s.winType==='discard'?(p===s.winningDiscarder?2:1):2);deltas[p]-=payment;deltas[s.winner]+=payment;}
+ const mode=scoringMode(s),deltas=[0,0,0,0];
+ const base=layout?.target.points??0;
+ const jokerless=!!layout&&layout.target.section!=='Singles and Pairs'&&
+  !s.hands[s.winner].some(t=>t.k==='J')&&!s.exposed[s.winner].some(group=>group.tiles.some(t=>t.k==='J'));
+ const discardWin=!!layout&&s.winType==='discard';
+ const eastOpening=!!layout&&s.turns===0&&s.winner===s.dealer;
+ const selfPicked=!!layout&&!discardWin&&(mode==='payments'||
+  (s.winType!=='heavenly'&&(s.drawn!=null||s.jokerSelfPick===true||eastOpening)));
+ let value=0;
+ if(mode==='tournament'){
+  if(layout){
+   value=base+(selfPicked?10:0)+(jokerless?20:0);
+   deltas[s.winner]=value;
+   if(discardWin)deltas[s.winningDiscarder]=-[10,10,20,25][Math.min(s.exposed[s.winner].length,3)];
+  }else{
+   deltas.fill(10);
+  }
+  if(s.deadHand)deltas[s.deadHand.player]=-10;
+ }else if(layout){
+  value=base*(jokerless?2:1);
+  for(let p=0;p<4;p++)if(p!==s.winner){
+   const payment=value*(discardWin&&p!==s.winningDiscarder?1:2);
+   deltas[p]-=payment;
+   deltas[s.winner]+=payment;
+  }
  }
  s.scores=s.scores.map((score,p)=>score+deltas[p]);s.scoreRecorded=true;
- s.scoreResult={handNumber:s.handNumber||1,winner:s.winner,hand:layout?.target.name||'Wall game',base,value,jokerless,winType:s.winType||'self-draw',discarder:s.winningDiscarder,deltas};
+ const winType=discardWin?'discard':selfPicked?'self-draw':s.winType==='heavenly'?'heavenly':null;
+ s.scoreResult={mode,handNumber:s.handNumber||1,winner:s.winner,hand:layout?.target.name||'Wall game',base,value,jokerless,winType,discarder:s.winningDiscarder,deltas};
  s.scoreHistory=[...(s.scoreHistory||[]),s.scoreResult].slice(-30);return layout;
 }
 export function winningDisplayGroups(layout){

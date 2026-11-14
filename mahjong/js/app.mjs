@@ -1,7 +1,7 @@
-import * as G from './engine.mjs?v=manual-calls-1';
+import * as G from './engine.mjs?v=tournament-score-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
-import {finalizeRound,reviewRoundHands} from './rounds.mjs?v=manual-calls-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=manual-calls-1';
+import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=tournament-score-1';
 import {recommendHands} from './recommendations.mjs?v=available-hands-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -148,6 +148,7 @@ function renderActions(){
   title=phase==='courtesy'?'Courtesy pass':`Pass ${s.passRound===1?s.passStep+1:s.passStep+4} · ${passNames[dir]}`;
   description=phase==='courtesy'?'Choose 0–3 tiles to exchange across.':blind?`${3-selected.size} incoming tiles will pass unseen.`:`Choose 3 tiles for ${G.NAMES[dir]}.`;
   actions=btn(passing?'Passing…':phase==='courtesy'?`Pass ${need} tile${need===1?'':'s'}`:blind&&selected.size<3?`Pass · ${3-selected.size} blind`:`Pass · ${selected.size}/3`,'pass','',passing||(phase!=='courtesy'&&!blind&&selected.size!==3));
+  if(!passing&&s.dealer===0&&beforeFirstPass(s)&&G.winning(s.hands[0]))actions=btn('Declare Mahjong','mahjong','small')+actions;
  }else if(phase==='charlestonChoice'){
   title='Second Charleston?';actions=secondCharlestonActions();icon='⇄';
  }else if(winningClaim){
@@ -172,7 +173,8 @@ function renderActions(){
   icon='!';
  }else if(phase==='ended'){
   title=s.winner===null?'Wall game':s.winner===0?'Mahjong!':`${G.NAMES[s.winner]} wins`;
-  description='';actions=btn(s.practiceSession?'Practice again':'Next round',s.practiceSession?'practice-again':'next-round');icon='✧';
+  description=s.winner===null?wallScoreText(s.scoreResult):'';
+  actions=btn(s.practiceSession?'Practice again':'Next round',s.practiceSession?'practice-again':'next-round');icon='✧';
  }else if(dead){
   title='Dead hand';
   description=`${G.NAMES[s.deadHand.caller]} called your hand dead. The other players finish the round.`;
@@ -271,7 +273,26 @@ function showLearn(){
  if(advice.blocked.length)body=`<div class="hint-warning">${advice.blocked.map(b=>`<p>You still need ${b.need} ${esc(G.tileName(b.k))}, but only ${b.unseen} ${b.unseen===1?'copy is':'copies are'} unseen. Jokers cannot fill that single or pair.</p>`).join('')}${btn('Change hand','learn-hands','outline small')}</div>`+body;
  show('Learn',`<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn(s.practiceSession?'Practice again':'Guided practice','practice-again','outline')}${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn('Back to game','return-game')}</div>`:''}`);modal.dataset.view='learn';
 }
-function showScores(){const fmt=n=>n>0?'+'+n:String(n),last=s.scoreHistory?.at(-1);show('Scores',`<table class="scores-table"><thead><tr><th>Player</th><th>Last hand</th><th>Total</th></tr></thead><tbody>${G.NAMES.map((name,p)=>`<tr><td>${name}</td><td>${fmt(last?.deltas[p]||0)}</td><td><strong>${fmt(s.scores[p]||0)}</strong></td></tr>`).join('')}</tbody></table>${last?`<p>${last.winner===null?'Wall game':G.NAMES[last.winner]+' won '+esc(last.hand)+'. '+last.base+' card points'+(last.jokerless?' · Jokerless bonus':'')+(last.winType==='discard'?' · Won on a discard':' · Self-picked')}.</p>`:''}<p class="score-note">Standard point payments. Scores save on this browser. East rotates every hand.</p><p class="score-note"><a href="https://faqs.nmjlonline.com/forums/printthread.php?tid=93" target="_blank" rel="noopener">NMJL scoring reference ↗</a></p><div class="modal-actions">${btn('Done','close')}</div>`);}
+const formatScore=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
+function wallScoreText(result){
+ if(result?.mode!=='tournament')return '';
+ return result.deltas.some(points=>points<0)?'+10 per active player · −10 for the dead hand':'+10 per player';
+}
+function showScores(){
+ const last=s.scoreHistory?.at(-1),tournament=scoringMode(s)==='tournament';
+ const rows=G.NAMES.map((name,p)=>`<tr><td>${name}</td><td>${formatScore(last?.deltas[p]||0)}</td><td><strong>${formatScore(s.scores[p]||0)}</strong></td></tr>`).join('');
+ let result='';
+ if(last?.winner===null)result=['Wall game',wallScoreText(last)].filter(Boolean).join(' · ');
+ else if(last){
+  const winner=last.winner===0?'You won':`${G.NAMES[last.winner]} won`;
+  const source=last.winType==='discard'?'Won on a discard':last.winType==='self-draw'?(tournament?'+10 self-pick':'Self-picked'):last.winType==='heavenly'?'Heavenly hand':'';
+  const bonus=last.jokerless?(tournament?'+20 jokerless':'Jokerless bonus'):'';
+  result=`${winner} ${last.hand}. ${[`${last.base} card points`,source,bonus].filter(Boolean).join(' · ')}`;
+ }
+ const rules=tournament?`<details class="card-credit"><summary>Tournament scoring rules</summary><p>A win earns the card value, plus 10 for a self-pick and 20 for a jokerless hand. Singles and Pairs are exempt from the jokerless bonus. East’s dealt winning hand earns the card value and any jokerless bonus.</p><p>If you discard the winning tile, you lose 10 points when the winner has 0–1 exposures, 20 with 2, or 25 with 3 or more. An active player earns 10 for a wall game. A dead hand scores −10.</p><p><a href="https://mahjongg.org/wp-content/uploads/2023/06/STANDARDIZED-NATIONAL-MAH-JONGG-TOURNAMENT-RULES-1.pdf" target="_blank" rel="noopener">Tournament rules, section 13 ↗</a></p></details>`:
+  `<p class="score-note">This saved match uses standard point payments. New matches use tournament scoring.</p><p class="score-note"><a href="https://faqs.nmjlonline.com/forums/printthread.php?tid=93" target="_blank" rel="noopener">NMJL point payments ↗</a></p>`;
+ show('Scores',`<table class="scores-table"><thead><tr><th>Player</th><th>Last hand</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>${result?`<p>${esc(result)}</p>`:''}${rules}<div class="modal-actions">${btn('Done','close')}</div>`);
+}
 function showDiscards(){
  const items=displayDiscards(s.discards,'suit').map(({discard})=>{
   const needed=neededDiscardKeys.has(discard.tile.k);
@@ -397,6 +418,7 @@ function render(){
  normalizeMatch(s);
  s.allowDeadHands=!legalCallsOnly;
  const received=prepareTable(s);if(received!==null)receivedIds=new Set(received);
+ if(s.dealer!==0&&beforeFirstPass(s))G.declare(s,s.dealer);
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
@@ -545,19 +567,24 @@ async function runPass(){
  }catch(e){toast(e.message);}
  activePass=null;passing=false;layer.remove();render();
 }
+function beforeFirstPass(game){return game.phase==='charleston'&&game.passRound===1&&game.passStep===0&&scoringMode(game)==='tournament';}
 function roundReviewMarkup(round,action=''){
- if(round.winner===null||round.winner===undefined)return '<div class="round-result-head"><h2>Wall game</h2></div>';
+ if(round.winner===null||round.winner===undefined){
+  const points=wallScoreText(round.scoreResult);
+  return `<div class="round-result-head"><h2>Wall game</h2>${points?`<span>${points}</span>`:''}</div>`;
+ }
  const title=round.winner===0?'You won this round':G.NAMES[round.winner]+' wins this round';
  const hands=reviewRoundHands(round);
  const reviews=[hands[round.winner],...hands.filter(hand=>hand.player!==round.winner)];
  const faces=tiles=>tiles.map(item=>tile(item,'result-tile')).join('');
  const cards=reviews.map(({player,target,missing,groups,extras})=>{
   const won=player===round.winner;
+  const score=round.scoreResult?.mode==='tournament'?round.scoreResult.deltas[player]:0;
   const distance=won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':missing===null?'No eligible line':`${missing} ${missing===1?'tile':'tiles'} away`;
-  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' pt':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
+  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
   const matched=groups.map(group=>`<span class="winning-group ${group.exposed?'winning-exposed':''}">${faces(group.tiles)}</span>`).join('');
   const extra=extras.length?`<span class="review-extra"><span class="review-extra-label">Extra tiles</span><span class="winning-group">${faces(extras)}</span></span>`:'';
-  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
+  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}${score?' · '+formatScore(score):''}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
  });
  const wall=round.wall;
  const wallReview=Array.isArray(wall)?`

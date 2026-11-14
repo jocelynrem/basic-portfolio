@@ -148,7 +148,15 @@ export function secondCharleston(s,yes){if(s.phase!=='charlestonChoice')return;i
 export function prepareCourtesy(s){if(s.phase!=='courtesyChoice')return;s.courtesyCount=0;s.otherCourtesyCount=3;s.phase='courtesy';}
 export function courtesy(s,n){if(s.phase!=='courtesyChoice')return;s.courtesyCount=n;s.otherCourtesyCount=3;s.phase='courtesy';if(!n)pass(s,[]);}
 export function draw(s){if(s.phase!=='draw'||isDeadHand(s,s.turn))throw Error('You cannot draw right now.');if(!s.wall.length){s.phase='ended';log(s,'Wall game. All tiles have been drawn.');return;}if(s.wallSegments&&s.wallSegments[s.wallIndex].remaining===0){s.wallIndex++;s.phase='wallPush';log(s,`${NAMES[s.wallSegments[s.wallIndex].owner]} must curtsy the next wall.`);return;}let t=s.wall.pop();if(s.wallSegments)s.wallSegments[s.wallIndex].remaining--;s.hands[s.turn].push(t);s.drawn=t.id;s.phase='discard';log(s,`${NAMES[s.turn]} ${s.turn===0?'drew '+tileName(t.k):'drew a tile'}.`);}
-export function declare(s,p=s.turn){if(isDeadHand(s,p))return false;const target=winning(s.hands[p],s.exposed[p],botExposedOnly(s,p));if(!target)return false;s.phase='ended';s.winner=p;s.winningHand=target.name;s.winningTargetKey=target.key;s.winType||='self-draw';log(s,`${NAMES[p]} called Mahjong! ${target.name}.`);return true;}
+export function declare(s,p=s.turn){
+ if(isDeadHand(s,p))return false;
+ const target=winning(s.hands[p],s.exposed[p],botExposedOnly(s,p));
+ if(!target)return false;
+ s.winType||=s.phase==='charleston'?'heavenly':'self-draw';
+ s.phase='ended';s.winner=p;s.winningHand=target.name;s.winningTargetKey=target.key;
+ log(s,`${NAMES[p]} called Mahjong! ${target.name}.`);
+ return true;
+}
 const exposureNames={3:'Pung',4:'Kong',5:'Quint',6:'Sextet'};
 export function claimOptions(s,player){
  const discard=s.discards.at(-1);
@@ -249,7 +257,7 @@ export function resolveDiscard(s,humanPassed=false){let d=s.discards.at(-1),orde
  for(const {p,options:os}of options){if(p===0)continue;const good=botClaimOption(s,p,os);if(good){claim(s,p,good);return;}}
  s.turn=nextActivePlayer(s,d.player);s.phase='draw';s.drawn=null;
 }
-export function discard(s,id){if(s.phase!=='discard'||isDeadHand(s,s.turn))throw Error('Wait for the discard step.');let i=s.hands[s.turn].findIndex(t=>t.id===id);if(i<0)throw Error('Choose a tile on your rack.');let tile=s.hands[s.turn].splice(i,1)[0];s.discards.push({tile,player:s.turn,claimed:false});s.turns++;log(s,`${NAMES[s.turn]} discarded ${tileName(tile.k)}.`);s.drawn=null;resolveDiscard(s);}
+export function discard(s,id){if(s.phase!=='discard'||isDeadHand(s,s.turn))throw Error('Wait for the discard step.');let i=s.hands[s.turn].findIndex(t=>t.id===id);if(i<0)throw Error('Choose a tile on your rack.');let tile=s.hands[s.turn].splice(i,1)[0];s.discards.push({tile,player:s.turn,claimed:false});s.turns++;log(s,`${NAMES[s.turn]} discarded ${tileName(tile.k)}.`);s.drawn=null;delete s.jokerSelfPick;resolveDiscard(s);}
 export function exchanges(s,p=s.turn){if(s.phase!=='discard'||s.turn!==p||isDeadHand(s,p))return [];let out=[];for(let owner=0;owner<4;owner++)s.exposed[owner].forEach((e,group)=>{const j=e.tiles.find(t=>t.k==='J'),natural=s.hands[p].find(t=>t.k===e.k);if(j&&natural)out.push({owner,group,joker:j.id,natural:natural.id,k:e.k});});return out;}
 export function exchange(s,option){
  const valid=exchanges(s).find(x=>x.owner===option.owner&&x.group===option.group&&s.exposed[x.owner][x.group].tiles.some(t=>t.id===option.joker&&t.k==='J'));
@@ -258,7 +266,10 @@ export function exchange(s,option){
  const exposed=s.exposed[valid.owner][valid.group].tiles;
  const naturalIndex=hand.findIndex(tile=>tile.id===valid.natural);
  const jokerIndex=exposed.findIndex(tile=>tile.id===option.joker);
+ const canComplete=valid.owner!==player&&s.drawn==null&&
+  !winning(hand,s.exposed[player],botExposedOnly(s,player));
  [hand[naturalIndex],exposed[jokerIndex]]=[exposed[jokerIndex],hand[naturalIndex]];
+ if(canComplete||s.jokerSelfPick)s.jokerSelfPick=!!winning(hand,s.exposed[player],botExposedOnly(s,player));
  log(s,`${NAMES[player]} exchanged ${tileName(valid.k)} for a joker.`);
  recordOpponentMove(s,player,'swap',valid.k);
  return true;
