@@ -423,7 +423,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  const position=variations.findIndex(({key})=>key===target.key)+1;
  const previewLabel=`Preview ${position} of ${variations.length}`;
  const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
- $('.goal-heading').innerHTML=`<span class="goal-state">Target hand</span><strong>${esc(targetLabel(target))}</strong>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</span>${previewButton}`;
+ $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</strong>${previewButton}`;
  $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
