@@ -122,12 +122,8 @@ function renderSeat(p){
  seat.innerHTML=`<div class="seat-identity"><div class="avatar">${G.NAMES[p][0]}</div><div class="seat-name">${G.NAMES[p]}<small>${G.windFor(p,s.dealer).toUpperCase()}${p===s.dealer?' · DEALER':''}</small></div></div><div class="bot-exposed" ${exposureLabel}>${exposedMarkup(p,'opponent-tile',splitAt)}</div>`;
 }
 function arrowDiagram(dir){const paths=Array.from({length:4},(_,i)=>{const a=pos[i],b=pos[(i+dir)%4],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),offset=dir===2?(i%2?2:-2):0;return `<path d="M${a[0]+dx/l*13+offset} ${a[1]+dy/l*13}L${b[0]-dx/l*13+offset} ${b[1]-dy/l*13}" stroke="${i===0?'#f4ce87':'#9ab9a0'}" stroke-width="${i===0?2:1}" marker-end="url(#arrow${i===0?'gold':'green'})" fill="none" opacity="${i===0?1:.5}"/>`;}).join('');return `<svg class="pass-diagram" viewBox="0 0 100 100" aria-label="Everyone passes ${passNames[dir]}. You send to ${G.NAMES[dir]} and receive from ${G.NAMES[(4-dir)%4]}."><defs><marker id="arrowgold" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="#f4ce87"/></marker><marker id="arrowgreen" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="#9ab9a0"/></marker></defs>${paths}${pos.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="10" fill="${i===0?'#f1ebd4':'#3b6c5b'}" stroke="#c3d0ac" stroke-width=".5"/><text x="${x}" y="${y+1}" dominant-baseline="middle" text-anchor="middle" font-size="${i===0?5.5:5}" fill="${i===0?'#315d4c':'#e3e8cc'}" font-family="sans-serif">${G.NAMES[i]}</text>`).join('')}</svg>`;}
-function renderCenter(){if(s.phase==='matchEnded'){renderMatchEnd();return;}const el=$('#table-center');el.classList.remove('claim-center');el.classList.remove('charleston-center');
+function renderCenter(){if(s.phase==='ended'||s.phase==='matchEnded')return;const el=$('#table-center');el.classList.remove('claim-center');el.classList.remove('charleston-center');
  if(['charleston','courtesy','charlestonChoice','courtesyChoice'].includes(s.phase)){el.innerHTML='';return;}
- if(s.phase==='ended'){
-  if(s.winner===null)el.innerHTML='<div class="winner-name">Wall game</div>';
-  return;
- }
  const oldPool=$('#discards'),poolScroll=oldPool?.scrollTop||0;
  const discards=displayDiscards(s.discards,discardOrder).map(({discard:d,index:i})=>{
   const latest=i===s.discards.length-1,needed=neededDiscardKeys.has(d.tile.k),name=G.tileName(d.tile.k),player=G.NAMES[d.player];
@@ -171,10 +167,6 @@ function renderActions(){
     btn('Cancel','cancel-call','outline small');
   }
   icon='!';
- }else if(phase==='ended'){
-  title=s.winner===null?'Wall game':s.winner===0?'Mahjong!':`${G.NAMES[s.winner]} wins`;
-  description=s.winner===null?wallScoreText(s.scoreResult):'';
-  actions=btn(s.practiceSession?'Practice again':'Next round',s.practiceSession?'practice-again':'next-round');icon='✧';
  }else if(dead){
   title='Dead hand';
   description=`${G.NAMES[s.deadHand.caller]} called your hand dead. The other players finish the round.`;
@@ -516,7 +508,7 @@ function render(){
  document.documentElement.dataset.tileStyle=tileStyle;for(const[key,value]of Object.entries(BOARDS[tileStyle]))document.documentElement.style.setProperty('--board-'+key,value);
  if(s.phase==='matchEnded'){renderMatchEnd();save();clearTimeout(botTimer);return;}
  const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?'← Back to game':'<span>＋</span> New game';
- if(s.phase==='ended'&&s.winner!==null){
+ if(s.phase==='ended'){
   const next=s.practiceSession?btn('Practice again','practice-again'):btn('Next round','next-round');
   showFinishedTable('ended',roundReviewMarkup(s,next));save();clearTimeout(botTimer);return;
  }
@@ -526,7 +518,7 @@ function render(){
  neededDiscardKeys=signals.needed;[1,2,3].forEach(renderSeat);
  $('#rack').style.setProperty('--tiles',s.hands[0].length);
  $('#rack').innerHTML=s.hands[0].map(t=>tile(t,'',!G.isDeadHand(s))).join('');
- renderYourExposures();$('#rack-count').textContent=s.phase==='ended'?'':`${s.wall.length} left to draw`;
+ renderYourExposures();$('#rack-count').textContent=`${s.wall.length} left to draw`;
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan,variations);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
@@ -643,16 +635,13 @@ async function runPass(){
 }
 function beforeFirstPass(game){return game.phase==='charleston'&&game.passRound===1&&game.passStep===0&&scoringMode(game)==='tournament';}
 function roundReviewMarkup(round,action=''){
- if(round.winner===null||round.winner===undefined){
-  const points=wallScoreText(round.scoreResult);
-  return `<div class="round-result-head"><h2>Wall game</h2>${points?`<span>${points}</span>`:''}</div>`;
- }
- const title=round.winner===0?'You won this round':G.NAMES[round.winner]+' wins this round';
+ const winner=round.winner;
+ const title=winner==null?'Wall game':winner===0?'You won this round':G.NAMES[winner]+' wins this round';
  const hands=reviewRoundHands(round);
- const reviews=[hands[round.winner],...hands.filter(hand=>hand.player!==round.winner)];
+ const reviews=winner==null?hands:[hands[winner],...hands.filter(hand=>hand.player!==winner)];
  const faces=tiles=>tiles.map(item=>tile(item,'result-tile')).join('');
  const cards=reviews.map(({player,target,missing,groups,extras})=>{
-  const won=player===round.winner;
+  const won=player===winner;
   const score=round.scoreResult?.mode==='tournament'?round.scoreResult.deltas[player]:0;
   const distance=won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':missing===null?'No eligible line':`${missing} ${missing===1?'tile':'tiles'} away`;
   const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
@@ -661,7 +650,7 @@ function roundReviewMarkup(round,action=''){
   return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}${score?' · '+formatScore(score):''}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
  });
  const wall=round.wall;
- const wallReview=Array.isArray(wall)?`
+ const wallReview=winner!=null&&Array.isArray(wall)?`
   <section class="review-hand review-wall" aria-labelledby="review-wall-title">
    <div class="review-hand-head">
     <h3 id="review-wall-title">Tiles left in the wall</h3>
