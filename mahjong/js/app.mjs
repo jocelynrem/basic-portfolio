@@ -44,18 +44,18 @@ let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match
 s.jokerPlacements||={};
 s.dealer??=0;s.handNumber??=savedMatch?.handNumber||1;s.scores??=savedMatch?.scores||[0,0,0,0];s.scoreHistory??=savedMatch?.scoreHistory||[];
 const modal=$('#modal');
-const opponentMoveNotice=$('#opponent-move');
-const opponentMoveQueue=[];
-let opponentMoveTimer=null;
-function showNextOpponentMove(){
- if(opponentMoveTimer!==null)return;
- const move=opponentMoveQueue.shift();
- if(!move){opponentMoveNotice.textContent='';return;}
- const name=G.NAMES[move.player],tile=G.tileName(move.key);
- opponentMoveNotice.textContent=move.kind==='call'?`${name} called ${tile}.`:`${name} swapped ${tile} for a joker.`;
- opponentMoveTimer=setTimeout(()=>{
-  opponentMoveTimer=null;
-  showNextOpponentMove();
+const tableNotice=$('#opponent-move');
+const tableNoticeQueue=[];
+let tableNoticeTimer=null;
+function showNextTableNotice(){
+ if(tableNoticeTimer!==null)return;
+ const notice=tableNoticeQueue.shift();
+ tableNotice.classList.toggle('is-play-start',notice?.kind==='play-start');
+ tableNotice.textContent=notice?.message??'';
+ if(!notice)return;
+ tableNoticeTimer=setTimeout(()=>{
+  tableNoticeTimer=null;
+  showNextTableNotice();
  },3600);
 }
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -281,10 +281,10 @@ function showDiscards(){
  modal.dataset.view='discards';
 }
 function useGame(game){
- clearTimeout(opponentMoveTimer);
- opponentMoveTimer=null;
- opponentMoveQueue.length=0;
- opponentMoveNotice.textContent='';
+ clearTimeout(tableNoticeTimer);
+ tableNoticeTimer=null;
+ tableNoticeQueue.length=0;
+ showNextTableNotice();
  cancelPass();s=game;s.jokerPlacements||={};selected.clear();pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null;goalKey=s.goalTargetKey||null;
  pendingCallId=null;jokerTargetGroup=null;mobileArrange=false;swapMessage='';receivedIds=new Set(s.receivedIds||[]);lastDiscardShown=null;
  modal.close();render();
@@ -400,8 +400,11 @@ function render(){
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
- opponentMoveQueue.push(...G.takeOpponentMoves(s));
- showNextOpponentMove();
+ for(const {kind,player,key} of G.takeOpponentMoves(s)){
+  const name=G.NAMES[player],tile=G.tileName(key);
+  tableNoticeQueue.push({message:kind==='call'?`${name} called ${tile}.`:`${name} swapped ${tile} for a joker.`});
+ }
+ showNextTableNotice();
  winningClaim=claims.find(option=>option.win);
  if(pendingCallId!==null&&(!claims.length||winningClaim||pendingCallId!==s.discards.at(-1)?.tile.id)){
   pendingCallId=null;
@@ -525,17 +528,21 @@ function cancelPass(){
 }
 async function runPass(){
  if(passing||!['charleston','courtesy'].includes(s.phase))return;
- const game=s,ids=[...selected];
- if(game.phase==='courtesy')game.courtesyCount=ids.length;
+ const game=s,ids=[...selected],isCourtesy=game.phase==='courtesy';
+ if(isCourtesy)game.courtesyCount=ids.length;
  receivedIds.clear();passing=true;
  const run={game,ids,cancelled:false,layer:null};activePass=run;render();
- const dir=game.phase==='courtesy'?2:(game.passRound===1?[1,2,3]:[3,2,1])[game.passStep],layer=document.createElement('div');
+ const dir=isCourtesy?2:(game.passRound===1?[1,2,3]:[3,2,1])[game.passStep],layer=document.createElement('div');
  run.layer=layer;layer.className='tile-flight-layer';layer.setAttribute('aria-hidden','true');
  const board=$('#table').getBoundingClientRect(),positions=[$('#rack'),$('#seat1'),$('#seat2'),$('#seat3')].map(el=>{const r=el.getBoundingClientRect();return [(r.left+r.width/2-board.left)/board.width*100,(r.top+r.height/2-board.top)/board.height*100];});
- layer.innerHTML=positions.map(([x,y],i)=>{const b=positions[(i+dir)%4];return `<div class="flying-packet" style="--sx:${x}%;--sy:${y}%;--ex:${b[0]}%;--ey:${b[1]}%">${'<i class="tile-back"></i>'.repeat(game.phase==='courtesy'?(i%2===0?game.courtesyCount:game.otherCourtesyCount):3)}</div>`;}).join('');
+ layer.innerHTML=positions.map(([x,y],i)=>{const b=positions[(i+dir)%4];return `<div class="flying-packet" style="--sx:${x}%;--sy:${y}%;--ex:${b[0]}%;--ey:${b[1]}%">${'<i class="tile-back"></i>'.repeat(isCourtesy?(i%2===0?game.courtesyCount:game.otherCourtesyCount):3)}</div>`;}).join('');
  $('#table').append(layer);await new Promise(r=>setTimeout(r,1000));
  if(run.cancelled||activePass!==run||s!==game)return;
- try{G.pass(game,ids);selected.clear();playSound();}catch(e){toast(e.message);}
+ try{
+  G.pass(game,ids);
+  if(isCourtesy)tableNoticeQueue.push({kind:'play-start',message:'Passing complete. Play begins.'});
+  selected.clear();playSound();
+ }catch(e){toast(e.message);}
  activePass=null;passing=false;layer.remove();render();
 }
 function roundReviewMarkup(round,action=''){
