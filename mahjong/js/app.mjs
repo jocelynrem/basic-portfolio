@@ -435,10 +435,10 @@ function renderVariationPicker(variations,target){
  if(select.value!==target.key)select.value=target.key;
 }
 function handPickerButton(){
- return `<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide all lines':'See all lines'}</button>`;
+ return pickerOpen?'':'<button class="text-button" data-action="toggle-hands" aria-expanded="false" aria-controls="hands-panel">See all lines</button>';
 }
 function renderHandFocus(plan,variations=closestTargetVariations()){
- const el=$('#hand-focus');el.hidden=!!plan&&targetHandDisplay==='line';el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
+ const el=$('#hand-focus');el.hidden=plan?targetHandDisplay==='line':pickerOpen&&!G.isDeadHand(s);el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
  const picker=handPickerButton();
  if(!plan){
   delete el.dataset.handId;delete el.dataset.targetKey;
@@ -485,7 +485,7 @@ function clearHand(){
  pinned=null;goalKey=null;jokerTargetGroup=null;
  render();
  const row=line?$('#hand-list [data-hand="'+CSS.escape(line)+'"]'):null;
- (row??$('#hand-focus [data-action="toggle-hands"]'))?.focus({preventScroll:true});
+ (row??$('#hand-focus [data-action="toggle-hands"], .card-intro .picker-close'))?.focus({preventScroll:true});
 }
 function showFinishedTable(phase,content){
  const board=$('#table');
@@ -812,7 +812,8 @@ document.addEventListener('click',async e=>{
  else if(a==='toggle-hands'){
   pickerOpen=!pickerOpen;
   render();
-  $('#hand-list .goal-actions-inline [data-action="toggle-hands"], #hand-focus [data-action="toggle-hands"]')?.focus({preventScroll:true});
+  const control=pickerOpen?$('.card-intro .picker-close'):$('#hand-list .goal-actions-inline [data-action="toggle-hands"], #hand-focus [data-action="toggle-hands"]');
+  control?.focus();
  }
  else if(a==='close'||a==='play'){modal.close();modal.classList.remove('tile-style-modal');scheduleBot();}
  else if(a==='rules')rules();else if(a==='tiles')tileGuide();else if(a==='charleston-help')charlestonHelp();
