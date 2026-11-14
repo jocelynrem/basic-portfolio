@@ -1,8 +1,8 @@
 import * as G from './engine.mjs?v=tournament-score-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable} from './table-actions.mjs?v=tournament-score-1';
-import {recommendHands} from './recommendations.mjs?v=available-hands-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=target-variations-1';
+import {recommendHands} from './recommendations.mjs?v=target-variations-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -360,6 +360,16 @@ function renderHands(){
  if(filterFocused)$('#hands-panel [name="hide-concealed"]')?.focus({preventScroll:true});
 }
 function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??G.best(s.hands[0],s.exposed[0],id)?.target:null;}
+function refreshTargetPreview(){
+ if(!pinned||G.isDeadHand(s))return;
+ const hand=s.hands[0],exposed=s.exposed[0];
+ let closest=null,best=-1;
+ for(const variation of lineVariations(pinned,exposed)){
+  const {matched}=G.evaluate(hand,exposed,variation);
+  if(matched>best||(matched===best&&variation.key===goalKey)){closest=variation;best=matched;}
+ }
+ if(closest&&closest.key!==goalKey){goalKey=closest.key;jokerTargetGroup=null;}
+}
 function currentPlan(){const target=G.isDeadHand(s)?null:targetFor(pinned,goalKey);return target?{target,...matchHandTiles(s.hands[0],s.exposed[0],target,jokerPlacements(target))}:null;}
 function renderHandFocus(plan){
  const el=$('#hand-focus');el.hidden=false;el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
@@ -420,6 +430,7 @@ function render(){
  const received=prepareTable(s);if(received!==null)receivedIds=new Set(received);
  if(s.dealer!==0&&beforeFirstPass(s))G.declare(s,s.dealer);
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
+ refreshTargetPreview();
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
  for(const {kind,player,key} of G.takeOpponentMoves(s)){

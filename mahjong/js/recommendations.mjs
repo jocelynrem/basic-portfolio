@@ -11,8 +11,8 @@ export function recommendHands(hand,exposed,{section='All sections',hideConceale
   const previous=lines.get(target.id);
   if(previous&&previous.away<away)continue;
   const matched=matchHandTiles(hand,exposed,target,jokerPlacements[target.key]??{}).matched;
-  if(!previous||away<previous.away||matched>previous.matched||
-     (matched===previous.matched&&target.key===chosenKey)){
+  if(!previous||away<previous.away||target.key===chosenKey||
+     (previous.target.key!==chosenKey&&matched>previous.matched)){
    lines.set(target.id,{target,away,matched});
   }
  }
