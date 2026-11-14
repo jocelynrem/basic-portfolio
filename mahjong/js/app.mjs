@@ -2,7 +2,7 @@ import * as G from './engine.mjs?v=tournament-score-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=pinned-line-calls-1';
-import {recommendHands} from './recommendations.mjs?v=preview-options-1';
+import {recommendHands} from './recommendations.mjs?v=compact-preview-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -351,13 +351,12 @@ function renderHands(){
    rows.unshift({target:pinnedLine,away:matched<0?-1:missing});
   }
  }
- const contents=rows.map(({target,away,variationCount})=>{
+ const contents=rows.map(({target,away})=>{
   const chosen=goalKey===target.key;
   const pin=target.id===pinnedLine?.id;
   const distance=away<0?'':away===0?'Ready':away+' away';
-  const tied=variationCount>1?`<span class="suggestion-variations">${variationCount} equally close</span>`:'';
   const line=`<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
-   <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${tied}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
+   <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
   </button>`;
   return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline">${handPickerButton()}<button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
@@ -390,50 +389,6 @@ function currentPlan(){
  const hand=s.hands[0],exposed=s.exposed[0];
  return {target,...matchHandTiles(hand,exposed,target,jokerPlacements(target)),away:G.evaluate(hand,exposed,target).missing};
 }
-function handVariationLabel(target){
- const groups=target.groups.filter(([key])=>key!=='F');
- const numbers=new Set(groups.filter(([key])=>/^[BCD]/.test(key)).map(([key])=>key[1]));
- if(target.id==='like3'){
-  const pair=groups.find(([key,count])=>count===2&&/^[BCD]/.test(key));
-  const dragon=groups.find(([key])=>['G','R','H'].includes(key));
-  return `${pair[0][1]}s · ${G.tileName(pair[0])} pair · ${G.tileName(dragon[0])} pair`;
- }
- const tiles=groups.map(([key,count])=>`${count>1?count+'× ':''}${G.tileName(key)}`).join(', ');
- return [target.variant||(numbers.size===1?`${[...numbers][0]}s`:''),tiles].filter(Boolean).join(' · ');
-}
-function previewLabels(variations){
- const suitNames={B:'Bams',C:'Craks',D:'Dots'};
- const patterns=new Set(variations.map(target=>target.pattern));
- if(patterns.size===1){
-  const labels=variations.map(({groups})=>{
-   const keys=groups.map(([key])=>key);
-   const suits=new Set(keys.filter(key=>/^[BCD]/.test(key)).map(key=>suitNames[key[0]]));
-   if(suits.size!==1)return '';
-   const dragons=new Set(keys.filter(key=>['G','R','H'].includes(key)).map(G.tileName));
-   return [...suits,...dragons].join(' · ');
-  });
-  if(labels.every(Boolean)&&new Set(labels).size===labels.length)return labels;
- }
- return variations.map(handVariationLabel);
-}
-function renderVariationPicker(variations,target){
- const picker=$('#goal-variations');
- picker.hidden=variations.length<2;
- if(picker.hidden){picker.replaceChildren();return;}
- const count=`${variations.length} equally close`;
- let select=$('#goal-variation');
- if(!select){
-  picker.innerHTML='<label for="goal-variation"></label><select id="goal-variation"></select>';
-  select=$('#goal-variation');
- }
- const label=picker.querySelector('label');
- if(label.textContent!==count){label.textContent=count;select.setAttribute('aria-label',`Preview · ${count}`);}
- if(select.options.length!==variations.length||variations.some(({key},i)=>select.options[i].value!==key)){
-  const labels=previewLabels(variations);
-  select.replaceChildren(...variations.map(({key},i)=>new Option(labels[i],key)));
- }
- if(select.value!==target.key)select.value=target.key;
-}
 function handPickerButton(){
  return pickerOpen?'':'<button class="text-button" data-action="toggle-hands" aria-expanded="false" aria-controls="hands-panel">See all lines</button>';
 }
@@ -456,14 +411,18 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  }).join('')}</span>`;
  const pattern=patternBlocks(target).map(indexes=>`<span class="goal-block">${indexes.map(index=>renderGroup(plan.groups[index])).join('')}</span>`).join('');
  if(!$('.goal-header')){
-  el.innerHTML='<div class="goal-header"><div class="goal-heading"></div><div class="goal-actions"></div></div><div class="goal-variations" id="goal-variations" hidden></div><div class="goal-pattern"></div><div class="goal-footer" hidden></div>';
+  el.innerHTML='<div class="goal-header"><div class="goal-heading"></div><div class="goal-actions"></div></div><div class="goal-pattern"></div><div class="goal-footer" hidden></div>';
  }
- $('.goal-heading').innerHTML=`<span class="goal-state">Target hand</span><strong>${esc(targetLabel(target))}</strong>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</span>`;
+ const previewFocused=document.activeElement?.matches('#hand-focus [data-action="next-goal-preview"]');
+ const position=variations.findIndex(({key})=>key===target.key)+1;
+ const previewLabel=`Preview ${position} of ${variations.length}`;
+ const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
+ $('.goal-heading').innerHTML=`<span class="goal-state">Target hand</span><strong>${esc(targetLabel(target))}</strong>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</span>${previewButton}`;
  $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
- renderVariationPicker(variations,target);
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
  footer.innerHTML=footer.hidden?'':'<span class="joker-instruction">Click a joker on your rack · Esc cancels</span>';
+ if(previewFocused)(el.querySelector('[data-action="next-goal-preview"]')??el.querySelector('[data-action="clear-goal"]'))?.focus({preventScroll:true});
 }
 function chooseHand(id,key){
  if(targetHandDisplay==='line'&&id===pinned){clearHand();return;}
@@ -807,6 +766,14 @@ document.addEventListener('click',async e=>{
  else if(a==='scores'){showScores();}
  else if(a==='declare-discard'){declareDiscard();}
  else if(a==='clear-goal'){clearHand();}
+ else if(a==='next-goal-preview'){
+  const variations=closestTargetVariations();
+  if(variations.length>1){
+   const index=variations.findIndex(({key})=>key===goalKey);
+   goalKey=variations[(index+1)%variations.length].key;
+   render();
+  }
+ }
  else if(a.startsWith('goal-joker-group-')){jokerTargetGroup=jokerTargetGroup===Number(a.slice(17))?null:Number(a.slice(17));render();}
  else if(a.startsWith('free-goal-joker-')){const target=targetFor(pinned,goalKey);if(target)delete jokerPlacements(target)[Number(a.slice(16))];jokerTargetGroup=null;render();}
  else if(a==='toggle-hands'){
@@ -846,12 +813,6 @@ $('#call-filter-toggle').addEventListener('click',()=>{
  render();
 });
 document.addEventListener('change',e=>{
- if(e.target.id==='goal-variation'){
-  if(closestTargetVariations().some(({key})=>key===e.target.value)){
-   goalKey=e.target.value;jokerTargetGroup=null;render();
-  }
-  return;
- }
  if(e.target.id==='legal-calls-only'){
   legalCallsOnly=e.target.checked;
   try{localStorage.setItem(legalCallsPreferenceKey,String(legalCallsOnly));}catch{}
