@@ -10,11 +10,13 @@ export function recommendHands(hand,exposed,{section='All sections',hideConceale
   const away=progress.missing;
   const previous=lines.get(target.id);
   if(previous&&previous.away<away)continue;
+  const tied=previous?.away===away;
+  const variationCount=tied?previous.variationCount+1:1;
   const matched=matchHandTiles(hand,exposed,target,jokerPlacements[target.key]??{}).matched;
   if(!previous||away<previous.away||target.key===chosenKey||
      (previous.target.key!==chosenKey&&matched>previous.matched)){
-   lines.set(target.id,{target,away,matched});
-  }
+   lines.set(target.id,{target,away,matched,variationCount});
+  }else previous.variationCount=variationCount;
  }
  // TARGETS starts in card order. Equal distances keep their section and line order.
  return [...lines.values()].sort((a,b)=>a.away-b.away);

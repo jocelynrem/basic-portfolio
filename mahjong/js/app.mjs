@@ -2,7 +2,7 @@ import * as G from './engine.mjs?v=tournament-score-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=target-variations-1';
-import {recommendHands} from './recommendations.mjs?v=target-variations-1';
+import {recommendHands} from './recommendations.mjs?v=preview-options-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -344,11 +344,12 @@ function renderHands(){
  const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
  const dead=G.isDeadHand(s);
  const rows=dead?[]:recommendHands(s.hands[0],s.exposed[0],{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements});
- const contents=rows.map(({target,away})=>{
+ const contents=rows.map(({target,away,variationCount})=>{
   const chosen=goalKey===target.key;
   const distance=away===0?'Ready':away+' away';
+  const tied=variationCount>1?`<span class="suggestion-variations">${variationCount} equally close</span>`:'';
   return `<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
-   <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
+   <span class="hand-patterns"><span class="suggestion-label"><strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${tied}${chosen?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
   </button>`;
  }).join('')||`<p class="empty-recommendations">${dead?'No matching lines.':'No hands match your current filters.'}</p>`;
@@ -360,18 +361,53 @@ function renderHands(){
  if(filterFocused)$('#hands-panel [name="hide-concealed"]')?.focus({preventScroll:true});
 }
 function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??G.best(s.hands[0],s.exposed[0],id)?.target:null;}
-function refreshTargetPreview(){
- if(!pinned||G.isDeadHand(s))return;
+function closestTargetVariations(){
+ if(!pinned||G.isDeadHand(s))return [];
  const hand=s.hands[0],exposed=s.exposed[0];
- let closest=null,best=-1;
- for(const variation of lineVariations(pinned,exposed)){
-  const {matched}=G.evaluate(hand,exposed,variation);
-  if(matched>best||(matched===best&&variation.key===goalKey)){closest=variation;best=matched;}
+ const closest=[];
+ let best=Infinity;
+ for(const target of lineVariations(pinned,exposed)){
+  const {missing}=G.evaluate(hand,exposed,target);
+  if(missing<best){best=missing;closest.length=0;}
+  if(missing===best)closest.push(target);
  }
- if(closest&&closest.key!==goalKey){goalKey=closest.key;jokerTargetGroup=null;}
+ return closest;
 }
-function currentPlan(){const target=G.isDeadHand(s)?null:targetFor(pinned,goalKey);return target?{target,...matchHandTiles(s.hands[0],s.exposed[0],target,jokerPlacements(target))}:null;}
-function renderHandFocus(plan){
+function currentPlan(){
+ const target=G.isDeadHand(s)?null:targetFor(pinned,goalKey);
+ if(!target)return null;
+ const hand=s.hands[0],exposed=s.exposed[0];
+ return {target,...matchHandTiles(hand,exposed,target,jokerPlacements(target)),away:G.evaluate(hand,exposed,target).missing};
+}
+function handVariationLabel(target){
+ const groups=target.groups.filter(([key])=>key!=='F');
+ const numbers=new Set(groups.filter(([key])=>/^[BCD]/.test(key)).map(([key])=>key[1]));
+ if(target.id==='like3'){
+  const pair=groups.find(([key,count])=>count===2&&/^[BCD]/.test(key));
+  const dragon=groups.find(([key])=>['G','R','H'].includes(key));
+  return `${pair[0][1]}s · ${G.tileName(pair[0])} pair · ${G.tileName(dragon[0])} pair`;
+ }
+ const tiles=groups.map(([key,count])=>`${count>1?count+'× ':''}${G.tileName(key)}`).join(', ');
+ return [target.variant||(numbers.size===1?`${[...numbers][0]}s`:''),tiles].filter(Boolean).join(' · ');
+}
+function renderVariationPicker(variations,target){
+ const picker=$('#goal-variations');
+ picker.hidden=variations.length<2;
+ if(picker.hidden){picker.replaceChildren();return;}
+ const count=`${variations.length} equally close`;
+ let select=$('#goal-variation');
+ if(!select){
+  picker.innerHTML='<label for="goal-variation"></label><select id="goal-variation"></select>';
+  select=$('#goal-variation');
+ }
+ const label=picker.querySelector('label');
+ if(label.textContent!==count){label.textContent=count;select.setAttribute('aria-label',`Preview · ${count}`);}
+ if(select.options.length!==variations.length||variations.some(({key},i)=>select.options[i].value!==key)){
+  select.replaceChildren(...variations.map(choice=>new Option(handVariationLabel(choice),choice.key)));
+ }
+ if(select.value!==target.key)select.value=target.key;
+}
+function renderHandFocus(plan,variations=closestTargetVariations()){
  const el=$('#hand-focus');el.hidden=false;el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
  const picker=`<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide all lines':'See all lines'}</button>`;
  if(!plan){
@@ -388,7 +424,15 @@ function renderHandFocus(plan){
   return `<${tag} class="goal-slot ${canPlace||canFree?'goal-slot-action':''}" ${action} title="${title}">${tile(g.k,'goal-tile',false,actual?'goal-have':'goal-missing')}${actual?.k==='J'?'<span class="goal-joker">J</span>':''}</${tag}>`;
  }).join('')}</span>`;
  const pattern=patternBlocks(target).map(indexes=>`<span class="goal-block">${indexes.map(index=>renderGroup(plan.groups[index])).join('')}</span>`).join('');
- el.innerHTML=`<div class="goal-header"><div class="goal-heading"><span class="goal-state">Target hand</span><strong>${esc(targetLabel(target))}</strong>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="goal-count">${plan.compatible?(G.evaluate(s.hands[0],s.exposed[0],target).missing===0?'Ready for Mahjong':G.evaluate(s.hands[0],s.exposed[0],target).missing+' away'):'Conflicts with your exposures'}</span></div><div class="goal-actions">${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span></div></div><div class="goal-pattern">${pattern}</div>${jokerTargetGroup!==null?'<div class="goal-footer"><span class="joker-instruction">Click a joker on your rack · Esc cancels</span></div>':''}`;
+ if(!$('.goal-header')){
+  el.innerHTML='<div class="goal-header"><div class="goal-heading"></div><div class="goal-actions"></div></div><div class="goal-variations" id="goal-variations" hidden></div><div class="goal-pattern"></div><div class="goal-footer" hidden></div>';
+ }
+ $('.goal-heading').innerHTML=`<span class="goal-state">Target hand</span><strong>${esc(targetLabel(target))}</strong>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</span>`;
+ $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
+ renderVariationPicker(variations,target);
+ $('.goal-pattern').innerHTML=pattern;
+ const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
+ footer.innerHTML=footer.hidden?'':'<span class="joker-instruction">Click a joker on your rack · Esc cancels</span>';
 }
 function chooseHand(id,key){
  const target=targetFor(id,key);
@@ -430,7 +474,10 @@ function render(){
  const received=prepareTable(s);if(received!==null)receivedIds=new Set(received);
  if(s.dealer!==0&&beforeFirstPass(s))G.declare(s,s.dealer);
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
- refreshTargetPreview();
+ const variations=closestTargetVariations();
+ if(variations.length&&!variations.some(({key})=>key===goalKey)){
+  goalKey=variations[0].key;jokerTargetGroup=null;
+ }
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
  claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
  for(const {kind,player,key} of G.takeOpponentMoves(s)){
@@ -465,7 +512,7 @@ function render(){
  $('#rack').innerHTML=s.hands[0].map(t=>tile(t,'',!G.isDeadHand(s))).join('');
  renderYourExposures();$('#rack-count').textContent=s.phase==='ended'?'':`${s.wall.length} left to draw`;
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
- renderTableTools();renderCenter();renderActions();renderHandFocus(plan);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
+ renderTableTools();renderCenter();renderActions();renderHandFocus(plan,variations);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
   if(!touchRack())showSecondCharlestonChoice();
   else{
@@ -761,6 +808,12 @@ $('#call-filter-toggle').addEventListener('click',()=>{
  render();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='goal-variation'){
+  if(closestTargetVariations().some(({key})=>key===e.target.value)){
+   goalKey=e.target.value;jokerTargetGroup=null;render();
+  }
+  return;
+ }
  if(e.target.id==='legal-calls-only'){
   legalCallsOnly=e.target.checked;
   try{localStorage.setItem(legalCallsPreferenceKey,String(legalCallsOnly));}catch{}
