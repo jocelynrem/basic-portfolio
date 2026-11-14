@@ -390,6 +390,21 @@ function handVariationLabel(target){
  const tiles=groups.map(([key,count])=>`${count>1?count+'× ':''}${G.tileName(key)}`).join(', ');
  return [target.variant||(numbers.size===1?`${[...numbers][0]}s`:''),tiles].filter(Boolean).join(' · ');
 }
+function previewLabels(variations){
+ const suitNames={B:'Bams',C:'Craks',D:'Dots'};
+ const patterns=new Set(variations.map(target=>target.pattern));
+ if(patterns.size===1){
+  const labels=variations.map(({groups})=>{
+   const keys=groups.map(([key])=>key);
+   const suits=new Set(keys.filter(key=>/^[BCD]/.test(key)).map(key=>suitNames[key[0]]));
+   if(suits.size!==1)return '';
+   const dragons=new Set(keys.filter(key=>['G','R','H'].includes(key)).map(G.tileName));
+   return [...suits,...dragons].join(' · ');
+  });
+  if(labels.every(Boolean)&&new Set(labels).size===labels.length)return labels;
+ }
+ return variations.map(handVariationLabel);
+}
 function renderVariationPicker(variations,target){
  const picker=$('#goal-variations');
  picker.hidden=variations.length<2;
@@ -403,7 +418,8 @@ function renderVariationPicker(variations,target){
  const label=picker.querySelector('label');
  if(label.textContent!==count){label.textContent=count;select.setAttribute('aria-label',`Preview · ${count}`);}
  if(select.options.length!==variations.length||variations.some(({key},i)=>select.options[i].value!==key)){
-  select.replaceChildren(...variations.map(choice=>new Option(handVariationLabel(choice),choice.key)));
+  const labels=previewLabels(variations);
+  select.replaceChildren(...variations.map(({key},i)=>new Option(labels[i],key)));
  }
  if(select.value!==target.key)select.value=target.key;
 }
