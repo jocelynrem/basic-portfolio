@@ -466,6 +466,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  footer.innerHTML=footer.hidden?'':'<span class="joker-instruction">Click a joker on your rack · Esc cancels</span>';
 }
 function chooseHand(id,key){
+ if(targetHandDisplay==='line'&&id===pinned){clearHand();return;}
  const target=targetFor(id,key);
  if(!target||!matchHandTiles(s.hands[0],s.exposed[0],target,jokerPlacements(target)).compatible){
   toast('This hand conflicts with your exposed tiles.');
@@ -479,7 +480,13 @@ function chooseHand(id,key){
  if(targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
  chosen?.focus({preventScroll:true});
 }
-function clearHand(){pinned=null;goalKey=null;jokerTargetGroup=null;render();$('#hand-focus [data-action="toggle-hands"]')?.focus({preventScroll:true});}
+function clearHand(){
+ const line=targetHandDisplay==='line'&&pickerOpen?pinned:null;
+ pinned=null;goalKey=null;jokerTargetGroup=null;
+ render();
+ const row=line?$('#hand-list [data-hand="'+CSS.escape(line)+'"]'):null;
+ (row??$('#hand-focus [data-action="toggle-hands"]'))?.focus({preventScroll:true});
+}
 function showFinishedTable(phase,content){
  const board=$('#table');
  const enteringResult=!board.classList.contains('match-complete');
