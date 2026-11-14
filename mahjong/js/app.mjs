@@ -515,7 +515,7 @@ function render(){
  neededDiscardKeys=signals.needed;[1,2,3].forEach(renderSeat);
  $('#rack').style.setProperty('--tiles',s.hands[0].length);
  $('#rack').innerHTML=s.hands[0].map(t=>tile(t,'',!G.isDeadHand(s))).join('');
- renderYourExposures();$('#rack-count').textContent=`${s.wall.length} left to draw`;
+ renderYourExposures();$('#rack-count').innerHTML=`<strong>${s.wall.length}</strong> left in wall`;
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan,variations);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
