@@ -356,10 +356,11 @@ function renderHands(){
   const pin=target.id===pinnedLine?.id;
   const distance=away<0?'':away===0?'Ready':away+' away';
   const tied=variationCount>1?`<span class="suggestion-variations">${variationCount} equally close</span>`:'';
-  return `<button class="hand-card ${chosen?'chosen':''}${pin?' pinned-line':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
+  const line=`<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
    <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${tied}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
   </button>`;
+  return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline">${handPickerButton()}<button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
  }).join('');
  const filters=pickerOpen?`<div class="card-intro">
   <span class="card-year">2026</span>
@@ -433,20 +434,19 @@ function renderVariationPicker(variations,target){
  }
  if(select.value!==target.key)select.value=target.key;
 }
+function handPickerButton(){
+ return `<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide all lines':'See all lines'}</button>`;
+}
 function renderHandFocus(plan,variations=closestTargetVariations()){
- const el=$('#hand-focus');el.hidden=false;el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
- const picker=`<button class="text-button" data-action="toggle-hands" aria-expanded="${pickerOpen}" aria-controls="hands-panel">${pickerOpen?'Hide all lines':'See all lines'}</button>`;
+ const el=$('#hand-focus');el.hidden=!!plan&&targetHandDisplay==='line';el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
+ const picker=handPickerButton();
  if(!plan){
   delete el.dataset.handId;delete el.dataset.targetKey;
   el.innerHTML=`<div class="hand-picker-empty">${G.isDeadHand(s)?'<span>No matching lines</span>':''}${picker}</div>`;
   return;
  }
  const {target}=plan;el.dataset.handId=target.id;el.dataset.targetKey=target.key;
- if(targetHandDisplay==='line'){
-  el.classList.add('empty-hand');
-  el.innerHTML=`<div class="hand-picker-empty goal-actions-inline">${picker}<button class="text-button" data-action="clear-goal">Clear target</button></div>`;
-  return;
- }
+ if(el.hidden){el.replaceChildren();return;}
  const hasJoker=s.hands[0].some(t=>t.k==='J');
  const renderGroup=g=>`<span class="goal-group ${g.exposed?'goal-exposed':''} ${jokerTargetGroup===g.index?'joker-destination':''}">${g.tiles.map(actual=>{
   const canPlace=!actual&&!g.exposed&&g.n>=3&&hasJoker,canFree=actual?.k==='J'&&!g.exposed,tag=canPlace||canFree?'button':'span';
@@ -479,7 +479,7 @@ function chooseHand(id,key){
  if(targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
  chosen?.focus({preventScroll:true});
 }
-function clearHand(){pinned=null;goalKey=null;jokerTargetGroup=null;render();}
+function clearHand(){pinned=null;goalKey=null;jokerTargetGroup=null;render();$('#hand-focus [data-action="toggle-hands"]')?.focus({preventScroll:true});}
 function showFinishedTable(phase,content){
  const board=$('#table');
  const enteringResult=!board.classList.contains('match-complete');
@@ -805,7 +805,7 @@ document.addEventListener('click',async e=>{
  else if(a==='toggle-hands'){
   pickerOpen=!pickerOpen;
   render();
-  $('#hand-focus [data-action="toggle-hands"]')?.focus({preventScroll:true});
+  $('#hand-list .goal-actions-inline [data-action="toggle-hands"], #hand-focus [data-action="toggle-hands"]')?.focus({preventScroll:true});
  }
  else if(a==='close'||a==='play'){modal.close();modal.classList.remove('tile-style-modal');scheduleBot();}
  else if(a==='rules')rules();else if(a==='tiles')tileGuide();else if(a==='charleston-help')charlestonHelp();
