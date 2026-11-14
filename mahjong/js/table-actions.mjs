@@ -4,14 +4,13 @@ export function lineVariations(lineId,exposed){
  return G.TARGETS.filter(target=>target.id===lineId&&G.compatible(target,exposed));
 }
 
-export function discardClaims(s,target=null){
+export function discardClaims(s,lineId=null){
  if(s.phase!=='claim'&&!(s.phase==='draw'&&s.turn===0))return [];
  if(s.discards.at(-1)?.passedByPlayer)return [];
  const options=G.claimOptions(s,0);
- if(!target||!options.length)return options;
+ if(!lineId||!options.length)return options;
  const hand=s.hands[0],exposed=s.exposed[0],discard=s.discards.at(-1).tile;
- if(target.concealed)return options.filter(option=>option.win);
- const variations=lineVariations(target.id,exposed).map(variation=>({
+ const variations=lineVariations(lineId,exposed).filter(variation=>!variation.concealed).map(variation=>({
   target:variation,groups:G.compatible(variation,exposed),baseline:G.evaluate(hand,exposed,variation).matched
  }));
  const naturals=hand.filter(tile=>tile.k===discard.k),jokers=hand.filter(tile=>tile.k==='J');
@@ -30,11 +29,11 @@ export function discardClaims(s,target=null){
   return false;
  });
 }
-export function prepareDiscardClaims(s,target){
- const options=discardClaims(s,target);
+export function prepareDiscardClaims(s,lineId){
+ const options=discardClaims(s,lineId);
  if(s.phase!=='claim'||options.length)return options;
  G.resolveDiscard(s,true);
- return discardClaims(s,target);
+ return discardClaims(s,lineId);
 }
 export function passDiscard(s){
  const options=discardClaims(s);

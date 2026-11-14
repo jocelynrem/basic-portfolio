@@ -1,7 +1,7 @@
 import * as G from './engine.mjs?v=tournament-score-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=target-variations-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=pinned-line-calls-1';
 import {recommendHands} from './recommendations.mjs?v=preview-options-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -41,7 +41,7 @@ let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Erro
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
 const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
-const callFilterTarget=target=>s.onlyChosenHandCalls?target:null;
+const callFilterLine=()=>s.onlyChosenHandCalls?pinned:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
 let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match-2026'));}catch{}
 s.jokerPlacements||={};
@@ -187,7 +187,7 @@ function renderActions(){
  $('#phase-title').textContent=title;$('#phase-description').textContent=description;$('#phase-description').hidden=!description;$('#actions').innerHTML=actions;
  const callFilter=$('#call-filter-toggle');
  const filterEnabled=Boolean(s.onlyChosenHandCalls);
- callFilter.hidden=dead||!['claim','draw','discard'].includes(phase)||(!filterEnabled&&!hasJokersForCallFilter());
+ callFilter.hidden=dead||!['claim','draw','discard'].includes(phase)||(!pinned&&!filterEnabled&&!hasJokersForCallFilter());
  const callMode=filterEnabled?'target':'all';
  if(callFilter.dataset.mode!==callMode){
   callFilter.dataset.mode=callMode;
@@ -519,7 +519,7 @@ function render(){
   goalKey=variations[0].key;jokerTargetGroup=null;
  }
  const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
- claims=prepareDiscardClaims(s,callFilterTarget(plan?.target));
+ claims=prepareDiscardClaims(s,callFilterLine());
  for(const {kind,player,key} of G.takeOpponentMoves(s)){
   const name=G.NAMES[player],tile=G.tileName(key);
   tableNoticeQueue.push({message:kind==='call'?`${name} called ${tile}.`:`${name} swapped ${tile} for a joker.`});
@@ -758,7 +758,7 @@ function selectRackTile(id){
 }
 function exposeSelectedTiles(){
  if(pendingCallId===null||pendingCallId!==s.discards.at(-1)?.tile.id)return;
- const options=discardClaims(s,callFilterTarget(targetFor(pinned,goalKey)));
+ const options=discardClaims(s,callFilterLine());
  if(!options.length||options.some(option=>option.win))return;
  const option=exposureChoice(options,selected,s.hands[0],s.discards.at(-1).tile.k);
  if(!option)return;
