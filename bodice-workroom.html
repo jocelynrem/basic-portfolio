@@ -1,0 +1,1536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Measure, draft, and print a made-to-measure bodice block.">
+  <meta name="theme-color" content="#f4f9e9">
+  <title>Bodice Workroom</title>
+  <link rel="stylesheet" href="./assets/portfolio-return.css?v=3">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root{color-scheme:light;--space-indigo:#2d3047;--seaweed:#419d78;--cherry-rose:#a4243b;--tuscan-sun:#e9c46a;--ivory:#f4f9e9;--paper:var(--ivory);--white:#fffef8;--ink:var(--space-indigo);--muted:#50576a;--green:#2c7659;--dark:var(--space-indigo);--line:#d8dfd4;--wash:#e6efe1;--orange:var(--cherry-rose);--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif;--radius:16px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans)}
+a{color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--cherry-rose);outline-offset:3px}
+[hidden]{display:none!important}
+svg{display:block}
+.symbol-bank{position:absolute;width:0;height:0;overflow:hidden}
+.brand svg,.button svg,.guide-icon svg,.prep svg,.preview-footer svg,.blueprint-label svg,.help-button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{width:min(1184px,calc(100% - 88px));margin-inline:auto}
+.mast{border-bottom:1px solid var(--line)}
+.mast-inner{height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;font-size:17px;font-weight:700;letter-spacing:-.035em;white-space:nowrap}
+.brand-mark{width:34px;height:34px;background:var(--dark);color:var(--ivory);display:grid;place-items:center;border-radius:8px}
+.brand-mark svg{width:23px;height:23px;stroke-width:1.4}
+.mast nav{display:flex;gap:30px;color:#4d5447;font-size:13px;font-weight:600}
+.mast nav a{text-decoration:none}
+.mast nav a:hover,.reading a:hover{text-decoration:underline;text-underline-offset:4px}
+.hero{display:grid;grid-template-columns:1fr .97fr;gap:44px;align-items:center;padding:42px 0 46px;border-bottom:1px solid var(--line)}
+.eyebrow{display:flex;gap:10px;align-items:center;color:var(--orange);margin:0 0 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em}
+.eyebrow span{height:3px;width:3px;border-radius:50%;background:currentColor}
+h1,h2,h3,p{margin:0}
+h1,h2,.preview h3,.guide-card h3{font-family:var(--serif);font-weight:400}
+h1{font-size:clamp(63px,7.2vw,105px);line-height:.87;letter-spacing:-.036em}
+h1 em{display:block;color:var(--green);font-weight:400}
+.intro{color:var(--muted);font-size:16px;max-width:425px;margin:22px 0 25px;line-height:1.6}
+.hero-actions,.form-actions{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 17px;border:1px solid transparent;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;white-space:nowrap}
+.primary{color:var(--white);background:var(--dark);border-color:var(--dark)}
+.primary:hover{background:#454a68}
+.primary:disabled{background:#e4e7dc;border-color:#e4e7dc;color:#666c5e;cursor:default}
+.quiet{color:var(--dark);background:transparent;border-color:var(--line)}
+.quiet:hover{background:var(--wash)}
+.hero-art{display:flex;flex-direction:column;justify-content:space-between;min-width:0;height:360px;border-radius:var(--radius);position:relative;overflow:hidden;background-color:var(--space-indigo);color:var(--ivory);--grid:rgba(244,249,233,.08);--gridbig:rgba(244,249,233,.11);padding:20px 23px 17px}
+.drafting-paper{background-image:linear-gradient(to right,var(--gridbig) 1px,transparent 1px),linear-gradient(to bottom,var(--gridbig) 1px,transparent 1px),linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);background-size:80px 80px,80px 80px,16px 16px,16px 16px;background-position:center center}
+.blueprint-label,.blueprint-legend{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;font-weight:700;letter-spacing:.135em;text-transform:uppercase}
+.blueprint-label{padding:0 0 10px;border-bottom:1px solid #eaefd65c}
+.blueprint-legend{justify-content:flex-start;color:var(--ivory);gap:23px;border-top:1px solid #eaefd65c;padding-top:11px}
+.blueprint-legend span{display:flex;align-items:center;gap:8px}
+.blueprint-legend i{width:21px;border-top:1px solid var(--ivory)}
+.blueprint-legend span:nth-child(2) i{border-color:var(--tuscan-sun)}
+.hero-pattern{flex:1;min-height:0;display:grid;place-items:center}
+.hero-pattern svg{width:100%;height:100%;max-width:438px;max-height:265px}
+.workspace,.print-guide{padding-top:42px;scroll-margin-top:15px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:19px}
+.section-heading h2{font-size:clamp(40px,4.3vw,59px);line-height:.98;letter-spacing:-.023em}
+.section-heading p{color:var(--muted);margin-top:8px}
+.prep{position:relative;margin-bottom:2px}
+summary{cursor:pointer;font-weight:700;color:var(--dark)}
+.prep summary{display:flex;align-items:center;justify-content:center;gap:7px;list-style:none;font-size:13px;white-space:nowrap;padding:9px 12px;border:1px solid var(--line);border-radius:8px}
+.prep summary::-webkit-details-marker{display:none}
+.prep[open] summary,.prep summary:hover{background:var(--wash)}
+.prep > div{width:min(370px,90vw);position:absolute;right:0;z-index:3;top:46px;background:var(--white);box-shadow:0 9px 25px #2631231e;border:1px solid var(--line);border-radius:12px;padding:13px 17px}
+.prep p{font-size:13px;margin:5px 0 9px}
+.prep ol{margin:5px 0 9px;padding-left:20px;font-size:13px;color:var(--muted)}
+.prep li+li{margin-top:4px}
+.work-grid{display:grid;grid-template-columns:1.06fr 1fr;gap:18px;align-items:start}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--white)}
+.form-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 20px 13px}
+.measure-progress{font-size:12px;color:var(--muted);font-weight:700}
+.segments{display:flex;background:#f1f2e9;border:1px solid #e5e7dc;border-radius:8px;padding:3px;gap:1px;flex:none}
+.segments button{border:1px solid transparent;border-radius:6px;background:transparent;color:#58604f;padding:5px 11px;font-size:12px;font-weight:700;min-height:29px;white-space:nowrap}
+.segments button[aria-pressed=true]{background:var(--white);color:var(--dark);border-color:#e1e4d9;box-shadow:0 1px 2px #3341320d}
+.step-tabs{display:grid;grid-template-columns:1.11fr .91fr 1.04fr;background:#f7f8f2;padding:0 17px;border-block:1px solid #e5e7dd;gap:4px}
+.step-tabs button{margin-bottom:-1px;border:0;border-bottom:2px solid transparent;background:transparent;color:#626a5b;font-size:13px;line-height:1.23;text-align:center;font-weight:600;padding:13px 3px}
+.step-tabs button[aria-selected=true]{border-color:var(--seaweed);color:var(--dark);font-weight:700}
+.step-tabs button.has-error{color:#913f28}
+.form-content{padding:15px 20px 15px}
+.group-intro{font-size:13px;color:var(--muted);margin:0 0 5px}
+.field-row{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:9px 0;border-bottom:1px solid #e9eae0}
+.field-label{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;min-width:0}
+.help-button{display:grid;place-items:center;flex:none;width:29px;height:32px;border:0;border-radius:50%;padding:0;color:#61735f;background:transparent}
+.help-button svg{width:18px;height:18px}
+.help-button:hover,.help-button[aria-expanded=true]{background:var(--wash);color:var(--dark)}
+.input-wrap{display:flex;width:113px;border:1px solid #daddd1;border-radius:8px;background:#fbfbf6;align-items:center;color:#5b6558;padding-right:10px}
+.input-wrap:focus-within{border-color:var(--green);box-shadow:0 0 0 2px #dbe6d6}
+.input-wrap input{width:100%;min-width:0;border:0;background:transparent;outline:none;padding:7px 8px 7px 10px;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.input-wrap input:focus-visible{outline:none}
+.input-wrap .unit{font-size:11px;font-weight:700}
+.input-wrap:has([aria-invalid=true]){border-color:var(--cherry-rose)}
+.field-help{grid-column:1/-1;display:grid;grid-template-columns:125px 1fr;align-items:center;gap:12px;background:#f0f2e9;padding:8px 10px;border-radius:9px;color:#454e42;font-size:13px}
+.field-help svg{width:100%;height:90px}
+.field-help p{line-height:1.5}
+.ease{margin-top:12px;font-size:13px;border-bottom:1px solid #e9eae0;padding-bottom:9px}
+.ease summary{line-height:2}
+.ease summary span{font-weight:500;color:var(--muted);margin-left:8px}
+.ease > p{margin:6px 0;color:var(--muted)}
+.ease .fields .field-row:last-child{border-bottom:0}
+.form-actions{margin-top:14px;gap:6px}
+.form-actions .button{padding-inline:12px}
+.next{margin-left:auto}
+.clear-button{border-color:transparent}
+.privacy{font-size:11px;color:#626555;margin-top:10px}
+.draft-storage{margin-top:3px}
+.form-error{color:var(--cherry-rose);background:#faedf1;border:1px solid #eecfd7;border-radius:8px;padding:9px 10px;margin-top:10px;font-size:13px}
+.preview{position:sticky;top:14px;overflow:hidden;min-width:0;scroll-margin-top:14px}
+.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 17px}
+.preview h3{font-size:32px;line-height:.98}
+.preview-head p{font-size:12px;color:#50586b;margin-top:5px}
+.preview-figure{--grid:#419d781a;--gridbig:#419d7835;background-color:#e8f1e5;margin:0 13px 0;border:1px solid #dce2d2;border-radius:10px}
+.preview-figure > div{display:grid;place-items:center;height:290px;padding:10px 8px}
+.preview-figure svg{width:100%;height:100%}
+.preview-warnings{font-size:12px;margin:10px 14px 0;padding:8px 11px;background:#f9f1d7;color:#634819;border-radius:8px}
+.preview-warnings p + p{margin-top:5px}
+.draft-math{font-size:12px;padding:8px 17px;border-bottom:1px solid #eef0e8}
+.draft-math table{border-collapse:collapse;width:100%;margin-top:6px}
+.draft-math th,.draft-math td{border-bottom:1px solid #ecefe5;padding:5px 4px;text-align:left}
+.draft-math p{margin:6px 0;color:var(--muted)}
+.preview-footer{padding:11px 15px;display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.preview-footer > div{display:flex;align-items:center;gap:6px;color:#50586b;font-size:12px;font-weight:700}
+.download-error{width:100%;color:var(--cherry-rose);font-size:12px}
+.print-guide{margin-bottom:44px}
+.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.guide-card{padding:17px 19px 18px}
+.guide-icon{color:var(--green);background:var(--wash);border-radius:8px;padding:8px;display:inline-block}
+.guide-card h3{font-size:29px;line-height:1;margin:8px 0}
+.guide-card p,.fitting li,.reading{font-size:14px;color:var(--muted)}
+.fitting{margin-top:14px;padding:13px 17px}
+.fitting ol{padding-left:22px;margin:11px 0 5px}
+.fitting li{padding-left:5px;margin-bottom:8px}
+.reading{margin:13px 3px}
+.reading ul{margin:6px 0}
+.footer{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;border-top:1px solid var(--line);padding:19px 0 24px;color:var(--muted);font-size:12px}
+.footer span:first-child{font-weight:700;color:var(--dark)}
+@media(max-width:1000px){.wrap{width:calc(100% - 52px)}.hero{gap:28px}.hero-art{height:335px}.work-grid{gap:13px}.form-top,.form-content{padding-inline:15px}}
+@media(max-width:740px){.wrap{width:calc(100% - 34px)}.mast-inner{height:59px}.mast nav{gap:12px}.mast nav a{font-size:12px}.hero{grid-template-columns:1fr;gap:24px;padding:30px 0}.intro{margin:18px 0 16px}.hero-art{height:310px}.section-heading{align-items:start}.workspace,.print-guide{padding-top:28px}.work-grid{grid-template-columns:1fr}.preview{position:static}.guide-grid{grid-template-columns:1fr;gap:8px}.guide-card{padding:13px 16px}.print-guide{margin-bottom:26px}}
+@media(max-width:430px){.brand{font-size:15px;gap:6px}.brand-mark{width:29px;height:29px}.mast nav{gap:10px}.mast nav a{font-size:11px}.hero-art{height:275px;padding:13px 15px}.section-heading{flex-direction:column;gap:8px}.prep > div{left:0;right:auto;width:calc(100vw - 34px)}.step-tabs{padding-inline:10px}.step-tabs button{font-size:12px}.field-help{grid-template-columns:88px 1fr}.field-label{font-size:13px}.input-wrap{width:95px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.field-help:not(:has(svg)){grid-template-columns:1fr;padding:9px 11px}
+.empty-preview{text-align:center;color:#2c7659;max-width:260px}
+.empty-preview > span{display:flex;justify-content:center;margin-bottom:10px}
+.empty-preview svg{width:28px;height:28px;fill:none;stroke:var(--seaweed);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.empty-preview p{font-weight:700;margin-bottom:3px}
+.empty-preview small{font-size:12px}
+
+.eyebrow span{background:var(--seaweed)}
+.guide-icon{box-shadow:inset 0 0 0 1px #419d783b}
+.guide-card:first-child .guide-icon{background:#f7edcc;border-color:var(--tuscan-sun);box-shadow:inset 0 0 0 1px #e9c46a85}
+
+.profiles{margin-bottom:14px}
+.profiles > summary{display:flex;align-items:center;gap:9px;min-height:48px;padding:10px 16px;list-style:none}
+.profiles > summary::-webkit-details-marker{display:none}
+.profiles > summary::after{content:"";border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;width:7px;height:7px;transform:rotate(45deg);margin-left:5px;margin-bottom:4px}
+.profiles[open] > summary::after{transform:rotate(225deg);margin-bottom:0}
+.profiles summary svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--green);stroke-width:1.65;stroke-linecap:round}
+.profiles-summary{margin-left:auto;max-width:52%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:12px;font-weight:500}
+.profiles-body{border-top:1px solid var(--line);padding:12px 16px 14px}
+.profiles-body > p{color:var(--muted);font-size:13px}
+.profiles-info summary{display:inline-flex;align-items:center;gap:6px;min-height:36px;border-radius:6px;padding:5px 8px;cursor:pointer;list-style:none;color:var(--green);font-size:13px;font-weight:700}
+.profiles-info summary::-webkit-details-marker{display:none}
+.profiles-info[open] summary,.profiles-info summary:hover{background:var(--wash)}
+.profiles-info p{max-width:64ch;margin:6px 0 8px;padding-left:8px;color:var(--muted);font-size:13px}
+.profiles-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-block:11px}
+.profiles-grid label{display:block;font-weight:700;font-size:13px;margin-bottom:4px}
+.profile-row,.profiles-actions{display:flex;align-items:center;gap:7px}
+.profile-row input,.profile-row select{min-width:0;flex:1 1 100px;color:var(--ink);background:#fbfbf6;border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:44px;font:inherit}
+.profile-row select:focus-visible{outline:3px solid var(--cherry-rose);outline-offset:2px}
+.profiles-actions{flex-wrap:wrap}
+.profiles-actions .button{min-height:34px;padding:5px 9px;font-size:12px}
+.profiles button:disabled{cursor:default;color:#666c70;background:#f0f2eb;border-color:var(--line)}
+.profile-remove{margin-top:6px;min-height:36px;padding:5px 9px;font-size:12px}
+.profile-remove:not(:disabled){color:var(--cherry-rose)}
+#profiles-status:not(:empty){margin-top:8px;color:var(--dark)}
+@media(max-width:820px){.profiles-grid{grid-template-columns:1fr;gap:9px}}
+@media(max-width:430px){.profiles > summary,.profiles-body{padding-inline:11px}.profile-row{flex-wrap:wrap}.profile-row .button{padding-inline:10px}.profile-row select,.profile-row input{flex-basis:100%}}
+</style>
+</head>
+<body>
+  <svg class="symbol-bank" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="logo" viewBox="0 0 32 32"><path d="M4.5 26.5v-18l6-3 4.2 5.6h2.6l4.2-5.6 6 3v18zM10 26.5l1.4-7.5 2.2 7.5m4.8 0 2.2-7.5 1.4 7.5M16 12v14.5"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h13m-5-5 5 5-5 5"/></symbol>
+    <symbol id="down" viewBox="0 0 24 24"><path d="M12 4v11m-4-4 4 4 4-4M5 16v4h14v-4"/></symbol>
+    <symbol id="chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.4a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1 1-1.1 1.7m0 2.5v.4"/></symbol>
+    <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5m0-8v.2"/></symbol>
+    <symbol id="guide" viewBox="0 0 24 24"><path d="M3 6.5C6.5 5 9 5.8 12 8c3-2.2 5.5-3 9-1.5v12c-3.5-1.5-6-.7-9 1.5-3-2.2-5.5-3-9-1.5zM12 8v12"/></symbol>
+    <symbol id="ruler" viewBox="0 0 24 24"><path d="m3 16 13-13 5 5L8 21zM7 12l2 2m1-5 2 2m1-5 2 2"/></symbol>
+    <symbol id="person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.3"/><path d="M5.5 20v-1.5a6.5 6.5 0 0 1 13 0V20"/></symbol>
+    <symbol id="paper" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zm8 0v5h4M9 13h6m-6 4h5"/></symbol>
+  </svg>
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a href="#top" class="brand" aria-label="Bodice Workroom home"><span class="brand-mark"><svg><use href="#logo"/></svg></span> Bodice Workroom</a>
+      <nav aria-label="Main navigation">
+        <a href="#measure">Measurements</a>
+        <a href="#print-guide">Print &amp; fit</a>
+      </nav>
+    </div>
+  </header>
+  <main id="top" class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Measure <span></span> Draft <span></span> Print</p>
+        <h1>Draft your own <em>bodice block.</em></h1>
+        <p class="intro">Take your measurements with the illustrated guide. Then download a full-size front and back pattern you can print and tape together at home.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#measure">Start measuring <svg><use href="#arrow"/></svg></a>
+          <button type="button" class="button quiet" id="hero-example">Try an example</button>
+        </div>
+      </div>
+      <div class="hero-art drafting-paper">
+        <div class="blueprint-label"><span>Pattern overview</span><svg><use href="#ruler"/></svg></div>
+        <div id="hero-pattern" class="hero-pattern"></div>
+        <div class="blueprint-legend"><span><i></i> Stitching line</span><span><i></i> Darts</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="measurement-title" id="measure" class="workspace">
+      <div class="section-heading">
+        <div>
+          <h2 id="measurement-title">Your measurements</h2>
+          <p>Use a soft tape and tie elastic around your natural waist.</p>
+        </div>
+        <details class="prep">
+          <summary><svg><use href="#guide"/></svg> Before you measure</summary>
+          <div>
+            <p>Wear the bra or undergarments you plan to wear with the finished garment. Stand naturally and use a mirror or ask someone to help.</p>
+            <p>Your natural waist is where your torso creases when you bend to the side. Keep the elastic there for all waist measurements.</p>
+            <p>Use three small marks on each side of your torso, where a shirt’s side seam would sit. Put bits of low-tack tape on a thin, close-fitting layer, or use a washable skin-safe marker on bare skin.</p>
+            <ol>
+              <li><strong>Underarm.</strong> Mark about one finger below the middle of the armpit crease, on your torso.</li>
+              <li><strong>Bust level.</strong> Below that point, mark where the level tape crosses your side when it wraps around the fullest part of your bust.</li>
+              <li><strong>Waist.</strong> Mark where that same imaginary side seam meets your waist elastic.</li>
+            </ol>
+            <p>Use the same left and right dots for the front and back arcs at each level. Keep the tape snug without pulling.</p>
+          </div>
+        </details>
+      </div>
+      <details class="card profiles" id="profiles">
+        <summary>
+          <svg aria-hidden="true"><use href="#person"/></svg>
+          <span>Saved measurements</span>
+          <span id="profiles-summary" class="profiles-summary"></span>
+        </summary>
+        <div class="profiles-body">
+          <details class="profiles-info">
+            <summary><svg aria-hidden="true"><use href="#info"/></svg> How profiles are saved</summary>
+            <p>Profile names and measurements are stored on this device in this browser. Clearing cookies and site data for this site deletes your saved profiles and autosaved draft. Use <strong>Export backup</strong> to keep a copy you can import later or move to another browser or device.</p>
+          </details>
+          <p id="profiles-storage" hidden></p>
+          <div class="profiles-grid">
+            <div>
+              <label for="profiles-person">Saved person</label>
+              <div class="profile-row">
+                <select id="profiles-person"><option value="">Choose a person</option></select>
+                <button class="button quiet" id="profiles-load" type="button" disabled>Load</button>
+                <button class="button quiet" id="profiles-new" type="button">New person</button>
+              </div>
+              <button class="button quiet profile-remove" id="profiles-remove" type="button" disabled>Delete selected profile</button>
+            </div>
+            <div>
+              <label for="profiles-name">Name for these measurements</label>
+              <div class="profile-row">
+                <input type="text" id="profiles-name" maxlength="60" autocomplete="off" placeholder="Name or nickname" required>
+                <button class="button primary" id="profiles-save" type="button">Save measurements</button>
+              </div>
+            </div>
+          </div>
+          <div class="profiles-actions">
+            <button class="button quiet" id="profiles-export" type="button" disabled>Export backup</button>
+            <button class="button quiet" id="profiles-import" type="button">Import backup</button>
+            <input type="file" id="profiles-file" accept=".json,application/json" hidden>
+          </div>
+          <p id="profiles-status" role="status"></p>
+        </div>
+      </details>
+      <div class="work-grid">
+        <div class="card measure-form" id="measure-form" role="form" aria-labelledby="measurement-title">
+          <div class="form-top">
+            <p id="progress" class="measure-progress" role="status">0 of 16 entered</p>
+            <div class="segments" aria-label="Measurement units" role="group">
+              <button type="button" data-unit="in" aria-pressed="true">Inches</button>
+              <button type="button" data-unit="cm" aria-pressed="false">cm</button>
+            </div>
+          </div>
+          <div class="step-tabs" role="tablist" aria-label="Measurement groups">
+            <button type="button" id="tab-round" role="tab" aria-controls="measure-panel" data-group="0" aria-selected="true">1. Around the body</button>
+            <button type="button" id="tab-length" role="tab" aria-controls="measure-panel" data-group="1" aria-selected="false" tabindex="-1">2. Lengths</button>
+            <button type="button" id="tab-width" role="tab" aria-controls="measure-panel" data-group="2" aria-selected="false" tabindex="-1">3. Widths &amp; bust</button>
+          </div>
+          <div class="form-content">
+            <div id="measure-panel" role="tabpanel" aria-labelledby="tab-round">
+              <p class="group-intro" id="group-intro"></p>
+              <div class="fields" id="fields"></div>
+            </div>
+            <details class="ease" id="fit-settings">
+              <summary>Fit settings <span id="ease-summary">Bust &amp; waist ease</span></summary>
+              <p>Ease is extra room added around the body. The defaults are for a close-fitting first draft in woven fabric. Enter the total amount around the body.</p>
+              <div class="fields" id="ease-fields"></div>
+            </details>
+            <p class="form-error" id="form-error" role="alert" hidden></p>
+            <div class="form-actions">
+              <button type="button" class="button quiet" id="form-example">Load example</button>
+              <button type="button" class="button quiet clear-button" id="clear">Clear</button>
+              <button class="button primary next" type="button" id="next">Next: Lengths <svg><use href="#arrow"/></svg></button>
+            </div>
+            <p class="privacy">Enter decimals or fractions like 14 1/2.</p>
+            <p class="privacy draft-storage" id="draft-storage"></p>
+          </div>
+        </div>
+
+        <aside class="card preview" id="preview" aria-labelledby="preview-title">
+          <div class="preview-head">
+            <div><h3 id="preview-title">Pattern preview</h3><p id="preview-status">Example draft</p></div>
+            <div class="segments preview-tabs" role="group" aria-label="Pattern view">
+              <button type="button" data-view="draft" aria-pressed="true">Draft</button>
+              <button type="button" data-view="tiles" aria-pressed="false">Page map</button>
+            </div>
+          </div>
+          <div class="preview-figure drafting-paper" id="preview-figure">
+            <div id="pattern"></div>
+          </div>
+          <div id="preview-warnings" class="preview-warnings" hidden></div>
+          <details class="draft-math" id="draft-math">
+            <summary>Draft dimensions</summary>
+            <div id="math-content"></div>
+          </details>
+          <div class="preview-footer">
+            <div><svg><use href="#paper"/></svg><span id="page-count">US Letter</span></div>
+            <button class="button primary" type="button" id="download"><svg><use href="#down"/></svg> <span>Example PDF</span></button>
+            <p class="download-error" id="download-status" role="status" hidden></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="print-guide" class="print-guide" aria-labelledby="guide-title">
+      <div class="section-heading"><div><h2 id="guide-title">From paper to a fitted block</h2><p>A sloper is a close-fitting template you can adapt into sewing patterns.</p></div></div>
+      <div class="guide-grid">
+        <article class="card guide-card">
+          <div class="guide-icon"><svg><use href="#ruler"/></svg></div>
+          <h3>Print at 100%</h3>
+          <p>Choose US Letter, single-sided, and <strong>Actual Size</strong>. Print the guide page first. Its test square should measure exactly 2 × 2 in (50.8 × 50.8 mm).</p>
+        </article>
+        <article class="card guide-card">
+          <div class="guide-icon"><svg><use href="#paper"/></svg></div>
+          <h3>Trim, match, and tape</h3>
+          <p>Follow the page map and cut out the gray frames. Butt matching codes together and tape from the back. Trace the front and back separately.</p>
+        </article>
+        <article class="card guide-card">
+          <div class="guide-icon"><svg><use href="#logo"/></svg></div>
+          <h3>Sew a test bodice</h3>
+          <p>Fold the paper darts and smooth the seams across them. Add seam allowance before cutting stable woven fabric such as muslin.</p>
+        </article>
+      </div>
+      <details class="card fitting">
+        <summary>Cutting, sewing, and fitting your test bodice</summary>
+        <ol>
+          <li><strong>Trace your pieces.</strong> Transfer the darts, bust line, grainline, and center lines. Cut one front on the fold and two mirrored backs for a center-back opening. Add seam allowance where you’ll sew or pin, including center back, shoulders, and side seams. Keep the center front on the fold.</li>
+          <li><strong>Sew and try it on.</strong> Baste the darts from the wide ends toward their points, then baste shoulders and side seams. Pin the center back along the stitching line, using a helper if possible. Try it on over the same undergarments you measured in.</li>
+          <li><strong>Check the fit.</strong> The waist line should sit at your waist, the shoulder seam should end at the shoulder joint, and the side seams should hang straight. Check comfort as you breathe and move your arms. If fabric pulls or gapes, mark the adjustment on the test bodice and transfer it back to your paper block.</li>
+          <li><strong>Keep the final block.</strong> Trace the adjusted stitching lines, check adjoining seams meet smoothly, and mark the date. Use it to develop patterns for woven garments.</li>
+        </ol>
+      </details>
+      <details class="reading">
+        <summary>Measurement and drafting references</summary>
+        <ul>
+          <li><a href="https://dresspatternmaking.com/videos/video-taking-measurements-to-draft-the-bodice-block">Taking bodice measurements · Dresspatternmaking</a></li>
+          <li><a href="https://inthefolds.com/blog/2016/2/22/how-to-draft-a-bodice-block">Drafting and testing a bodice block · In the Folds</a></li>
+          <li><a href="https://helensclosetpatterns.com/blogs/helens-closet/how-to-put-together-a-pdf-pattern">Printing and assembling a PDF sewing pattern · Helen’s Closet</a></li>
+        </ul>
+      </details>
+    </section>
+  </main>
+  <footer class="wrap footer">
+    <span>Bodice Workroom</span><span>Full-size pattern · US Letter</span>
+    <a class="portfolio-return" href="./">jocelynrem.com<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5M4 9h10a5 5 0 0 1 0 10h-3"/></svg></a>
+  </footer>
+<script>
+(() => {
+  const example = {
+    bustFront: 49, bustBack: 43, waistFront: 38, waistBack: 36,
+    neck: 37, frontLength: 44, backLength: 42, frontCenter: 35, backCenter: 40,
+    shoulder: 12.7, drop: 3.6, acrossFront: 33, acrossBack: 36.5,
+    side: 20.5, bustSpan: 19, apexWaist: 17.5,
+    bustEase: 4, waistEase: 2
+  };
+
+  const pt = (x, y) => [x, y];
+  const midpoint = (a, b) => a.map((v, i) => (v + b[i]) / 2);
+  const lerp = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  const move = (p) => ['M', ...p];
+  const line = (p) => ['L', ...p];
+  const cubic = (a, b, c) => ['C', ...a, ...b, ...c];
+  const poly = (...points) => [move(points[0]), ...points.slice(1).map(line)];
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+  function armhole(shoulder, underarm, across, front) {
+    const [sx, sy] = shoulder;
+    const [ux, uy] = underarm;
+    const height = uy - sy;
+    const guideY = sy + height * (front ? 0.52 : 0.55);
+    const guideX = Math.min(across, ux - 0.65);
+    return [
+      cubic(pt(sx - height * 0.15, sy + height * 0.21),
+        pt(guideX, guideY - height * 0.16), pt(guideX, guideY)),
+      cubic(pt(guideX, guideY + height * 0.31),
+        pt(ux - (ux - guideX) * 0.49, uy), underarm)
+    ];
+  }
+
+  function neckline(neckX, depth) {
+    return cubic(pt(neckX * 0.57, depth), pt(neckX, depth * 0.50), pt(neckX, 0));
+  }
+
+  function dart(a, tip, b) {
+    return { legs: poly(a, tip, b), fold: poly(tip, midpoint(a, b)) };
+  }
+
+  function draft(values) {
+    const errors = [];
+    const warnings = [];
+    const m = values;
+    for (const key of Object.keys(example)) {
+      const v = m[key];
+      const ease = key.endsWith('Ease');
+      if (!Number.isFinite(v) || v < (ease || key === 'drop' ? 0 : 0.35) || v > (ease ? 30 : 180)) {
+        errors.push({ keys: [key], text: ease ? 'Enter ease between 0 and 30 cm (about 12 in).'
+          : 'Enter a positive measurement up to 180 cm (about 71 in). For an arc, use side to side.' });
+      }
+    }
+    if (errors.length) return { errors };
+
+    const neckX = m.neck / 5 - 0.4;
+    if (neckX < 2.5 || neckX > 14)
+      errors.push({keys:['neck'], text:'Recheck the neck. Enter the full circumference at its base.'});
+    if (m.drop >= m.shoulder * 0.72)
+      errors.push({keys:['drop', 'shoulder'], text:'Shoulder drop is the small vertical change, while shoulder length follows the sloped seam.'});
+    for (const p of ['front', 'back']) {
+      const depth = m[p + 'Length'] - m[p + 'Center'];
+      if (depth < 0.25 || depth > (p === 'front' ? 21 : 12))
+        errors.push({keys:[p + 'Length', p + 'Center'], text:'Recheck the two ' + p + ' lengths. The high-shoulder measurement should be longer than the measurement at center neck.'});
+    }
+    if (m.apexWaist >= m.frontLength - m.drop - 4 || m.apexWaist < 4)
+      errors.push({keys:['apexWaist', 'frontLength'], text:'Measure from the bust point down to the waist elastic, using the same waist level as the front length.'});
+    if (errors.length) return { errors };
+
+    const pieces = [true, false].map((front) => {
+      const key = front ? 'front' : 'back';
+      const arc = front ? 'Front' : 'Back';
+      const length = m[key + 'Length'];
+      const bw = m['bust' + arc] / 2 + m.bustEase / 4;
+      const sewnWaist = m['waist' + arc] / 2 + m.waistEase / 4;
+      const suppression = bw - sewnWaist;
+      const taper = suppression < 0 ? suppression : Math.min(suppression * 0.54, 3.1);
+      const waistIntake = Math.max(0, suppression - taper);
+      const wx = sewnWaist + waistIntake;
+      const depth = length - m[key + 'Center'];
+      const across = m['across' + arc] / 2 + m.bustEase * 0.05;
+      const top = pt(neckX, 0);
+      const tipX = front ? m.bustSpan / 2 : across * 0.52;
+      const apexY = m.frontLength - m.apexWaist;
+      const dartRun = bw - tipX;
+      if (front && (tipX < 2.5 || dartRun < 4))
+        errors.push({keys:['bustSpan', 'bustFront'], text:'Recheck the bust-point distance and front bust arc. The bust point needs room before the side seam.'});
+      const lengthDifference = Math.max(0, m.frontLength - m.backLength);
+      const dartLimit = Math.max(0, Math.min(m.apexWaist * 0.5, dartRun * 0.58));
+      const bustIntake = front && lengthDifference >= 0.55 ? Math.min(lengthDifference, dartLimit) : 0;
+      if (front && lengthDifference > dartLimit + 0.5)
+        warnings.push('The front length suggests a large bust dart. Check bust room and waist balance in your test bodice.');
+      if (waistIntake > 6.5)
+        warnings.push('The ' + key + ' waist dart is wide. You can split its intake between two darts during fitting.');
+      const breakY = front ? apexY : clamp(length - m.apexWaist + bustIntake, length - m.side + 2.5, length - 3);
+      const sideUpper = pt(bw, breakY);
+      const sideLower = pt(bw, breakY + bustIntake);
+      const waistSide = pt(wx, length);
+      const lowerLength = Math.hypot(taper, length - sideLower[1]);
+      const underarm = pt(bw, breakY - (m.side - lowerLength));
+
+      const shoulderIntake = front ? 0 : Math.min(1, m.shoulder * 0.08);
+      const baseShoulderX = Math.sqrt(m.shoulder ** 2 - m.drop ** 2);
+      const shoulderDir = pt(baseShoulderX / m.shoulder, m.drop / m.shoulder);
+      const shoulder = top.map((v, i) => v + shoulderDir[i] * (m.shoulder + shoulderIntake));
+      if (underarm[1] < Math.max(depth + 2, shoulder[1] + 5) || m.side - lowerLength < 0.55) {
+        errors.push({keys:['side', key + 'Length', ...(front ? ['apexWaist'] : [])],
+          text:'The ' + key + ' underarm and bust line are too close or overlap. Recheck side length and the vertical measurements.'});
+      }
+      if (across >= bw || across <= neckX + 1.5 || shoulder[0] > bw + 3) {
+        errors.push({keys:['across' + arc, 'bust' + arc, 'shoulder'],
+          text:'The ' + key + ' shoulder, across-body width, and bust arc do not leave a usable armhole. Recheck those measurements.'});
+      }
+      if (wx < 5 || (waistIntake > 0 && (tipX - waistIntake / 2 < 0.8 || tipX + waistIntake / 2 > wx - 0.8))) {
+        errors.push({keys:['waist' + arc, 'bust' + arc, ...(front ? ['bustSpan'] : [])],
+          text:'The ' + key + ' waist is too narrow for this dart placement. Check the waist and bust arcs.'});
+      }
+
+      const darts = [];
+      const outline = [move(pt(0, depth)), neckline(neckX, depth)];
+      if (!front) {
+        const a = lerp(top, shoulder, 0.47);
+        const b = a.map((v, i) => v + shoulderDir[i] * shoulderIntake);
+        const middle = midpoint(a, b);
+        const dartLen = Math.min(7, (underarm[1] - shoulder[1]) * 0.46);
+        const tip = pt(middle[0] - shoulderDir[1] * dartLen, middle[1] + shoulderDir[0] * dartLen);
+        darts.push(dart(a, tip, b));
+        outline.push(line(a), line(b));
+      }
+      outline.push(line(shoulder), ...armhole(shoulder, underarm, across, front), line(sideUpper));
+      if (bustIntake > 0.15) {
+        const backoff = Math.min(3, dartRun * 0.32);
+        const point = pt(tipX + backoff, breakY + bustIntake / 2);
+        darts.push(dart(sideUpper, point, sideLower));
+        outline.push(line(sideLower));
+      }
+      outline.push(line(waistSide));
+      if (waistIntake > 0) {
+        const wa = pt(tipX - waistIntake / 2, length);
+        const wb = pt(tipX + waistIntake / 2, length);
+        const wy = front ? apexY + Math.min(2.7, m.apexWaist * 0.2) : breakY + 1.4;
+        darts.push(dart(wa, pt(tipX, wy), wb));
+        outline.push(line(wb), line(wa));
+      }
+      outline.push(line(pt(0, length)), ['Z']);
+
+      const gx = Math.min(2.0, tipX * 0.32);
+      const grainStart = Math.max(underarm[1] + 1.2, depth + 2.5);
+      const grainEnd = length - 2.4;
+      if (grainEnd < grainStart + 2) {
+        errors.push({keys:['side', key + 'Length'], text:'The ' + key + ' waist is too close to the underarm for this draft.'});
+      }
+      return {
+        key, outline, darts, width: Math.max(wx, shoulder[0], bw), height: length,
+        bustLine: poly(pt(0, breakY), sideUpper),
+        grain: [pt(gx, grainStart), pt(gx, grainEnd)],
+        centerLabel: pt(0.78, (length + depth) / 2),
+        pieceLabel: pt(Math.max(3.25, bw * 0.25), Math.min(breakY - 1.1, length * 0.64)),
+        apex: front ? pt(tipX, apexY) : null,
+        stats: { bust: bw, waist: sewnWaist, side: lowerLength + sideUpper[1] - underarm[1],
+          shoulder: Math.hypot(...shoulder.map((v, i) => v - top[i])) - shoulderIntake,
+          waistIntake: waistIntake > 0 ? waistIntake : 0, bustIntake, shoulderIntake }
+      };
+    });
+    if (errors.length) return { errors };
+    return { pieces, warnings, measurements: m, errors: [] };
+  }
+
+  const layout = { pageWidth: 612, pageHeight: 792, left: 32, top: 39, width: 548, height: 711 };
+  const pointsPerCm = 72 / 2.54;
+  const pad = 0.85;
+  const columnLabel = (index) => String.fromCharCode(65 + index);
+  function tilePlan(pieces) {
+    return pieces.map((piece) => {
+      const prefix = piece.key === 'front' ? 'F' : 'B';
+      const nx = Math.ceil((piece.width + 2 * pad) * pointsPerCm / layout.width);
+      const ny = Math.ceil((piece.height + 2 * pad) * pointsPerCm / layout.height);
+      const label = (row, col) => prefix + '-' + columnLabel(col) + (row + 1);
+      const tiles = Array.from({length: nx * ny}, (_, index) => {
+        const row = Math.floor(index / nx);
+        const col = index % nx;
+        // Every shared edge has one code, repeated on the two pages it joins.
+        const horizontal = (r, c) => prefix + ' H' + (r * (nx - 1) + c + 1);
+        const vertical = (r, c) => prefix + ' V' + (r * nx + c + 1);
+        return { row, col, label: label(row, col), edges: {
+          top: row > 0 ? vertical(row - 1, col) : null,
+          right: col + 1 < nx ? horizontal(row, col) : null,
+          bottom: row + 1 < ny ? vertical(row, col) : null,
+          left: col > 0 ? horizontal(row, col - 1) : null
+        }};
+      });
+      return { piece, nx, ny, tiles };
+    });
+  }
+
+  globalThis.BodiceDraft = { draft, example, layout, pointsPerCm, pad, tilePlan };
+})();
+</script>
+<script>
+(() => {
+  const { layout, pointsPerCm: scale, pad, tilePlan } = BodiceDraft;
+  const num = (value) => Number(value.toFixed(3));
+  const ink = 0.13;
+  const light = 0.58;
+  const safeText = (value) => String(value).replace(/[^\x20-\x7e]/g, '-').replace(/[\\()]/g, '\\$&');
+
+  class Page {
+    constructor() { this.ops = []; }
+    add(...ops) { this.ops.push(...ops); }
+    path(path, style = {}) {
+      const { x = 0, y = 0, s = 1, width = 1, gray = ink, dash = [] } = style;
+      const point = (i, v) => num(i % 2 === 0 ? x + v * s : layout.pageHeight - (y + v * s));
+      const ops = { M: 'm', L: 'l', C: 'c', Z: 'h' };
+      this.add(width + ' w', gray + ' G', '[' + dash.join(' ') + '] 0 d',
+        ...path.map(([op, ...coords]) => coords.map((v, i) => point(i, v)).concat(ops[op]).join(' ')), 'S');
+    }
+    line(x1, y1, x2, y2, style) {
+      this.path([['M', x1, y1], ['L', x2, y2]], style);
+    }
+    rect(x, y, w, h, { width = 1, gray = ink, fill } = {}) {
+      this.add(width + ' w', gray + ' G', '[] 0 d');
+      if (fill !== undefined) this.add(fill + ' g');
+      this.add([x, layout.pageHeight - y - h, w, h].map(num).join(' ') + ' re ' + (fill !== undefined ? 'B' : 'S'));
+    }
+    clip(x, y, w, h) {
+      this.add('q', [x, layout.pageHeight - y - h, w, h].map(num).join(' ') + ' re W n');
+    }
+    text(x, y, value, { size = 10, bold = false, gray = ink, rotate = false } = {}) {
+      const matrix = rotate ? '0 1 -1 0' : '1 0 0 1';
+      this.add('BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + gray + ' g ' + matrix +
+        ' ' + num(x) + ' ' + num(layout.pageHeight - y) + ' Tm (' + safeText(value) + ') Tj ET');
+    }
+  }
+
+  function drawPiece(page, piece, x, y, s, detail) {
+    const weight = detail ? 1.22 : 0.78;
+    const transform = { x, y, s, width: weight };
+    page.path(piece.bustLine, { ...transform, gray: 0.66, dash: detail ? [5, 4] : [2.2, 1.7], width: detail ? 0.65 : 0.36 });
+    page.path(piece.outline, transform);
+    for (const dart of piece.darts) {
+      page.path(dart.fold, { ...transform, gray: 0.65, dash: detail ? [4, 3] : [2, 2], width: 0.55 });
+      page.path(dart.legs, { ...transform, gray: 0.29, width: weight * 0.73 });
+    }
+    const [[gx, gy], [, end]] = piece.grain;
+    const arrow = detail ? 0.18 : 0.22;
+    page.path([['M', gx, gy], ['L', gx, end],
+      ['M', gx - arrow, gy + arrow * 1.5], ['L', gx, gy], ['L', gx + arrow, gy + arrow * 1.5],
+      ['M', gx - arrow, end - arrow * 1.5], ['L', gx, end], ['L', gx + arrow, end - arrow * 1.5]],
+      { ...transform, gray: 0.34, width: weight * 0.73 });
+    if (piece.apex) {
+      const [ax, ay] = piece.apex;
+      const r = detail ? 0.14 : 0.19;
+      page.path([['M', ax - r, ay], ['L', ax + r, ay], ['M', ax, ay - r], ['L', ax, ay + r]], { ...transform, gray: 0.36 });
+    }
+    if (detail) {
+      const [lx, ly] = piece.pieceLabel;
+      const cx = x + piece.centerLabel[0] * s;
+      const cy = y + (piece.height - 2.3) * s;
+      page.text(x + lx * s, y + ly * s, piece.key.toUpperCase() + ' BODICE', { size: 16, bold: true });
+      page.text(x + lx * s, y + ly * s + 14, 'STITCHING LINES / ADD SEAM ALLOWANCE', { size: 7.1, gray: 0.35 });
+      page.text(cx, cy, 'CENTER ' + piece.key.toUpperCase() + ' / GRAIN', { size: 7.6, gray: 0.35, rotate: true });
+      page.text(x + 3.4 * s, y + piece.bustLine[0][2] * s + 9, 'BUST LEVEL', { size: 7, gray: 0.51 });
+    }
+  }
+
+  function map(page, panel, left, top, width, height) {
+    const cell = Math.min(width / panel.nx, height / panel.ny / (layout.height / layout.width));
+    const cellHeight = cell * layout.height / layout.width;
+    page.text(left, top - 11, panel.piece.key.toUpperCase() + '  /  ' + panel.tiles.length + ' TILES', { size: 10, bold: true });
+    page.rect(left, top, cell * panel.nx, cellHeight * panel.ny, { gray: 0.58, fill: 0.985, width: 0.65 });
+    for (const t of panel.tiles) {
+      const x = left + t.col * cell, y = top + t.row * cellHeight;
+      page.rect(x, y, cell, cellHeight, { gray: 0.58, width: 0.55 });
+      page.text(x + 4, y + (cellHeight < 26 ? 7 : 11), t.label,
+        { size: cell < 41 ? 5.7 : 7.5, bold: true, gray: 0.42 });
+    }
+    const ratio = cell / layout.width * scale;
+    drawPiece(page, panel.piece, left + (pad + 0.02) * ratio, top + pad * ratio, ratio, false);
+  }
+
+  function guide(panels) {
+    const page = new Page();
+    const count = panels.reduce((sum, p) => sum + p.tiles.length, 0);
+    page.text(42, 48, 'BODICE WORKROOM   /   PRINT + ASSEMBLE', { size: 10, bold: true, gray: 0.34 });
+    page.text(42, 91, 'Your bodice block', { size: 34, bold: true });
+    page.text(42, 117, 'US Letter  /  ' + count + ' pattern tiles  /  Front and back', { size: 11, gray: 0.35 });
+    page.line(42, 133, 570, 133, { gray: 0.7, width: 0.7 });
+    page.text(42, 160, '1  Check your print scale', { size: 15, bold: true });
+    page.text(42, 183, 'Print this page first. Choose US Letter and Actual Size (100%).');
+    page.text(42, 202, 'Turn off Fit to Page and print single-sided.');
+    page.text(42, 221, 'Measure both sides of the test square with a ruler.');
+    page.text(42, 240, 'At the right size, print the remaining pages with the same settings.');
+    page.rect(425, 148, 144, 144, { width: 0.7 });
+    page.text(462, 213, 'TEST SQUARE', { size: 10, bold: true });
+    page.text(475, 232, '2 in x 2 in', { size: 9 });
+    page.text(464, 248, '50.8 x 50.8 mm', { size: 8, gray: 0.4 });
+    page.line(42, 312, 570, 312, { gray: 0.7, width: 0.7 });
+    page.text(42, 339, '2  Trim and tape the tiles', { size: 15, bold: true });
+    page.text(42, 361, 'Lay the tiles face up as shown, with each page title at the top.');
+    page.text(42, 379, 'Trim along each gray frame. Butt matching edges together at the gray codes.');
+    page.text(42, 397, 'Line up the pattern lines and tape the joins from the back. Keep the pieces separate.');
+    map(page, panels[0], 42, 436, 242, 217);
+    map(page, panels[1], 315, 436, 242, 217);
+
+    page.line(42, 674, 570, 674, { gray: 0.7, width: 0.7 });
+    page.text(42, 699, '3  Trace and sew a test bodice', { size: 15, bold: true });
+    page.text(42, 720, 'The dark outlines are stitching lines. Add seam allowance before cutting fabric.');
+    page.text(42, 738, 'Fold the paper darts and smooth the seam crossings before tracing.');
+    page.text(42, 756, 'Sew in a stable woven fabric. Check the balance and fit before reusing the block.');
+    return page;
+  }
+
+  function tilePage(panel, tile) {
+    const page = new Page();
+    const { left, top, width, height } = layout;
+    page.text(left, 26, 'BODICE WORKROOM   /   ' + panel.piece.key.toUpperCase(), { size: 8, gray: 0.4 });
+    page.text(left + width - 36, 26, tile.label, { size: 12, bold: true, gray: 0.35 });
+    page.clip(left, top, width, height);
+    page.text(left + 20, top + 77, tile.label, { size: 38, bold: true, gray: 0.87 });
+    drawPiece(page, panel.piece, left - tile.col * width + pad * scale, top - tile.row * height + pad * scale, scale, true);
+    page.add('Q');
+    page.rect(left, top, width, height, { gray: 0.5, width: 0.65 });
+
+    const { edges } = tile;
+    const hMid = left + width * 0.63;
+    const vMid = top + height * 0.54;
+    for (const [edge, code] of Object.entries(edges)) {
+      if (!code) continue;
+      if (edge === 'top' || edge === 'bottom') {
+        const borderY = edge === 'top' ? top : top + height;
+        const inward = edge === 'top' ? 1 : -1;
+        page.line(hMid, borderY, hMid, borderY + inward * 6, { gray: light, width: 0.8 });
+        page.text(hMid + 4, borderY + (edge === 'top' ? 18 : -7), code, { size: 8, bold: true, gray: 0.42 });
+      } else {
+        const borderX = edge === 'left' ? left : left + width;
+        const inward = edge === 'left' ? 1 : -1;
+        page.line(borderX, vMid, borderX + inward * 6, vMid, { gray: light, width: 0.8 });
+        page.text(borderX + (edge === 'left' ? 4 : -30), vMid - 4, code, { size: 8, bold: true, gray: 0.42 });
+      }
+    }
+    page.text(left, 768, 'TRIM TO GRAY FRAME    /    US LETTER    /    ACTUAL SIZE (100%)', { size: 7.8, gray: 0.37 });
+    return page;
+  }
+
+  function encodePdf(pages) {
+    const objects = [
+      '<< /Type /Catalog /Pages 2 0 R /ViewerPreferences << /PrintScaling /None >> >>',
+      '<< /Type /Pages /Count ' + pages.length + ' /Kids [' + pages.map((_, i) => (5 + i * 2) + ' 0 R').join(' ') + '] >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'
+    ];
+    for (const page of pages) {
+      const stream = page.ops.join('\n') + '\n';
+      const contentId = objects.length + 2;
+      objects.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + contentId + ' 0 R >>');
+      objects.push('<< /Length ' + stream.length + ' >>\nstream\n' + stream + 'endstream');
+    }
+    let pdf = '%PDF-1.7\n';
+    const offsets = ['0000000000 65535 f \n'];
+    objects.forEach((object, i) => {
+      offsets.push(String(pdf.length).padStart(10, '0') + ' 00000 n \n');
+      pdf += (i + 1) + ' 0 obj\n' + object + '\nendobj\n';
+    });
+    const xref = pdf.length;
+    pdf += 'xref\n0 ' + offsets.length + '\n' + offsets.join('') +
+      'trailer\n<< /Size ' + offsets.length + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+    return new TextEncoder().encode(pdf);
+  }
+
+  globalThis.BodicePDF = {
+    create(draft) {
+      const panels = tilePlan(draft.pieces);
+      return encodePdf([guide(panels), ...panels.flatMap((s) => s.tiles.map((t) => tilePage(s, t)))]);
+    }
+  };
+})();
+</script>
+<script>
+(() => {
+  const prefix = 'bodice-workroom:measurements:1:';
+  const draftKey = 'bodice-workroom:current-draft:1';
+  const format = 'bodice-workroom-measurements';
+  const fields = Object.keys(BodiceDraft.example);
+  const allowsZero = key => key === 'drop' || key.endsWith('Ease');
+  const idFor = name => name.normalize('NFKC').trim().toLowerCase();
+
+  function validate({ name, unit, values } = {}) {
+    if (typeof name !== 'string' || !name.trim() || name.trim().length > 60 ||
+        !['in', 'cm'].includes(unit) || !values || typeof values !== 'object' || Array.isArray(values)) {
+      return null;
+    }
+    const entries = Object.entries(values);
+    if (entries.some(([key, value]) => !fields.includes(key) || !Number.isFinite(value) ||
+        (allowsZero(key) ? value < 0 : value <= 0))) return null;
+    if (entries.every(([key]) => key.endsWith('Ease'))) return null;
+    return { name: name.trim(), unit, values: Object.fromEntries(entries) };
+  }
+
+  function readProfile(raw) {
+    try {
+      const value = JSON.parse(raw);
+      return value && validate(value);
+    } catch {
+      return null;
+    }
+  }
+
+  let storage;
+  try {
+    storage = globalThis.localStorage;
+  } catch {
+    storage = null;
+  }
+  let profiles = new Map();
+
+  function list() {
+    if (storage) {
+      try {
+        const current = new Map();
+        for (let index = 0; index < storage.length; index++) {
+          const key = storage.key(index);
+          if (!key?.startsWith(prefix)) continue;
+          const profile = readProfile(storage.getItem(key));
+          if (profile && key === prefix + idFor(profile.name)) current.set(idFor(profile.name), profile);
+        }
+        profiles = current;
+      } catch {
+        storage = null;
+      }
+    }
+    return [...profiles.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  function save(profile) {
+    const id = idFor(profile.name);
+    if (storage) {
+      try {
+        storage.setItem(prefix + id, JSON.stringify(profile));
+      } catch {
+        storage = null;
+      }
+    }
+    profiles.set(id, profile);
+  }
+
+  function remove(id) {
+    if (storage) {
+      try {
+        storage.removeItem(prefix + id);
+      } catch {
+        return false;
+      }
+    }
+    profiles.delete(id);
+    return true;
+  }
+
+  function parseBackup(raw) {
+    const backup = JSON.parse(raw);
+    if (backup?.format !== format || backup.version !== 1 || !Array.isArray(backup.profiles)) {
+      throw new Error('Unrecognized measurement backup');
+    }
+    const valid = backup.profiles.map(p => p && validate(p));
+    if (valid.some(p => !p) || new Set(valid.map(p => idFor(p.name))).size !== valid.length) {
+      throw new Error('Invalid or duplicate profile in backup');
+    }
+    return valid;
+  }
+
+  function draftStorage() {
+    const areas = [];
+    try {
+      if (globalThis.sessionStorage) areas.push(globalThis.sessionStorage);
+    } catch {
+      // The browser can disable tab storage independently of local storage.
+    }
+    if (storage) areas.push(storage);
+    return areas;
+  }
+
+  function draftProfileId(record) {
+    return typeof record?.profile?.name === 'string' ? idFor(record.profile.name) : null;
+  }
+
+  function clearProfileDrafts(id) {
+    let cleared = true;
+    for (const area of draftStorage()) {
+      try {
+        const record = JSON.parse(area.getItem(draftKey));
+        if (draftProfileId(record) === id) area.removeItem(draftKey);
+      } catch {
+        cleared = false;
+      }
+    }
+    return cleared;
+  }
+
+  function readDraft() {
+    for (const area of draftStorage()) {
+      try {
+        const record = JSON.parse(area.getItem(draftKey));
+        if (!record || !['in','cm'].includes(record.unit) || !Array.isArray(record.fields)) continue;
+        const id = draftProfileId(record);
+        if (storage && id && !storage.getItem(prefix + id)) {
+          area.removeItem(draftKey);
+          continue;
+        }
+        return record;
+      } catch {
+        // Try the other storage area if this copy cannot be read.
+      }
+    }
+    return null;
+  }
+
+  function writeDraft(record) {
+    const raw = JSON.stringify(record);
+    let saved = false;
+    for (const area of draftStorage()) {
+      try {
+        area.setItem(draftKey, raw);
+        saved = true;
+      } catch {
+        // Keep the other copy available when one storage area is full or blocked.
+      }
+    }
+    return saved;
+  }
+
+  globalThis.BodiceProfiles = {
+    idFor, allowsZero, validate, list, save, remove, parseBackup, readDraft, writeDraft, clearProfileDrafts,
+    isPersistent: () => Boolean(storage),
+    isProfileKey: key => key === null || key.startsWith(prefix),
+    backup: () => JSON.stringify({format, version: 1, profiles: list()}, null, 2)
+  };
+})();
+</script>
+<script>
+(() => {
+  const { example, draft, tilePlan, layout, pointsPerCm, pad } = BodiceDraft;
+  const $ = (selector) => document.querySelector(selector);
+  const $$ = (selector) => [...document.querySelectorAll(selector)];
+  const icon = (name) => '<svg aria-hidden="true"><use href="#' + name + '"/></svg>';
+
+  const groups = [
+    { tab: 'Around the body', intro: 'An arc runs from your left dot to your right dot at the same level. Measure around the front and back separately.', fields: [
+      {key:'bustFront', name:'Front bust arc', marker:'bust', area:'front', tip:'Run the tape across the fullest part of your chest, from one side seam to the other. Keep the tape level.'},
+      {key:'bustBack', name:'Back bust arc', marker:'bust', area:'back', tip:'At the same level as the front bust arc, measure across your back between those same two side marks.'},
+      {key:'waistFront', name:'Front waist arc', marker:'waist', area:'front', tip:'Follow the waist elastic across your front from one side mark to the other.'},
+      {key:'waistBack', name:'Back waist arc', marker:'waist', area:'back', tip:'Follow the same waist elastic around your back, from one side mark to the other.'},
+      {key:'neck', name:'Neck circumference', marker:'neck', area:'front', tip:'Wrap the tape once around the base of your neck where a high neckline would sit. Leave room to move without pulling the tape.'}
+    ]},
+    { tab: 'Lengths', intro: 'Use the same waist elastic and marked shoulder points for every length.', fields: [
+      {key:'frontLength', name:'High shoulder to waist, front', marker:'length', area:'front', tip:'Start at the point where your neck meets your shoulder. Take the tape down over the fullest point of your chest to the waist elastic.'},
+      {key:'backLength', name:'High shoulder to waist, back', marker:'length', area:'back', tip:'Start at the same neck-and-shoulder point. Let the tape follow your upper back down to the waist, roughly parallel to your spine.'},
+      {key:'frontCenter', name:'Center front length', marker:'centerFront', area:'front', tip:'Start at the hollow between your collarbones. Measure straight down the middle of your front to the waist elastic.'},
+      {key:'backCenter', name:'Center back length', marker:'centerBack', area:'back', tip:'Find the small bump at the base of your neck. Measure down your spine from there to the waist elastic.'},
+      {key:'side', name:'Underarm to waist', marker:'side', area:'side', tip:'With your arm relaxed, place the tape at the underarm mark on your torso, about a finger below the crease. Measure down your side to the waist mark.'}
+    ]},
+    { tab: 'Widths & bust', intro: 'Measure single shoulder lengths and full cross-body widths as described below.', fields: [
+      {key:'shoulder', name:'Shoulder length', marker:'shoulder', area:'front', tip:'Measure along one shoulder, from the base of your neck to the point where the shoulder turns into your arm.'},
+      {key:'drop', name:'Shoulder drop', marker:'drop', area:'back', tip:'Ask a helper to hold a ruler level from the base-of-neck shoulder point, above your shoulder tip. Measure the vertical drop from that level to the tip.'},
+      {key:'acrossFront', name:'Across chest', marker:'across', area:'front', tip:'With arms relaxed, measure straight across your upper chest between the front arm creases, about halfway from the shoulder top to the underarm. Use the whole width.'},
+      {key:'acrossBack', name:'Across back', marker:'across', area:'back', tip:'With arms relaxed, have a helper measure between the back arm creases at mid-armhole height. Keep the tape level across your shoulder blades.'},
+      {key:'bustSpan', name:'Bust point to bust point', marker:'span', area:'front', tip:'Measure horizontally from the fullest point on one side of your chest to the fullest point on the other. For a flatter chest, use the points where you want any front darts to aim.'},
+      {key:'apexWaist', name:'Bust point to waist', marker:'apex', area:'front', tip:'Start at one bust point and measure straight down to the waist elastic on the same side. Use the same bust point you used for the previous measurement.'}
+    ]}
+  ];
+  const easeFields = [
+    {key:'bustEase', name:'Total bust ease', tip:'Added room around your whole bust. Start with about 1 5/8 in (4 cm) for a closer woven fitting sample.'},
+    {key:'waistEase', name:'Total waist ease', tip:'Added room around your whole waist. Start with about 3/4 in (2 cm).'}
+  ];
+  const all = groups.flatMap(g => g.fields);
+  const fieldByKey = Object.fromEntries([...all, ...easeFields].map(f => [f.key, f]));
+  const exampleDraft = draft(example);
+  const state = {unit: 'in', group: 0, view: 'draft', fields: {}, help: new Set(), requested: false, sample: false, profile: null};
+  const profiles = BodiceProfiles;
+  const person = $('#profiles-person');
+  const personName = $('#profiles-name');
+  const defaultEase = {bustEase: example.bustEase, waistEase: example.waistEase};
+  const ephemeralPreview = globalThis.top !== globalThis &&
+    globalThis.location?.hostname.endsWith('.web-sandbox.oaiusercontent.com');
+  const svgTag = (viewBox, label, content) => '<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + label + '" viewBox="' + viewBox + '">' + content + '</svg>';
+  const format = (n, unit = state.unit) => Number((unit === 'in' ? n / 2.54 : n).toFixed(unit === 'in' ? 3 : 2)).toString();
+  const toPath = (commands) => commands.map(([op, ...v]) => op + v.map(n => Number(n.toFixed(3))).join(' ')).join(' ');
+
+  function parseMeasurement(raw) {
+    const value = raw.trim().replace(/,/g, '.').replace(/(\d)-(?=\d+\/)/g, '$1 ');
+    if (!value) return null;
+    if (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(value)) return Number(value);
+    const match = value.match(/^(?:(\d+)\s+)?(\d+)\s*\/\s*(\d+)$/);
+    if (match && Number(match[3]) > 0) return Number(match[1] || 0) + Number(match[2]) / Number(match[3]);
+    return NaN;
+  }
+
+  function measurementIllustration(field) {
+    const side = field.area === 'side';
+    const back = field.area === 'back';
+    const body = side
+      ? 'M52 17v10q0 4 12 7q9 3 12 12l3 12q-2 7-7 9l-2 18H39l3-18q-8-9-7-29l3-9 1-12'
+      : 'M49 17v10L31 32q-10 3-12 13l-4 18m56-46v10l18 5q10 3 12 13l4 18M30 48q7 11 5 22l-2 16h54l-2-16q-2-11 5-22M48 27q12 ' + (back ? '6' : '12') + ' 24 0';
+    const marks = {
+      bust: 'M34 56q26 3 52 0', waist: 'M34 75q26 0 52 0',
+      neck: 'M48 26q12 10 24 0M48 26q12-4 24 0',
+      length: back ? 'M48 28q-2 19-4 47' : 'M48 28q-5 12-3 27l1 20',
+      centerFront: 'M60 33v42', centerBack: 'M60 30v45',
+      side: 'M67 53q0 11-2 22', shoulder: 'M48 28l-17 5',
+      drop: 'M31 26v7M31 26h18', across:'M31 47h58',
+      span: 'M45 56h30', apex: 'M45 56v19'
+    };
+    return svgTag('0 0 120 100', (field.area || '') + ' measurement diagram',
+      '<path d="' + body + '" fill="none" stroke="#2d3047" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M' + (side ? '40 75h31' : '34 75h52') + '" stroke="#419d78" stroke-width="1.2" stroke-dasharray="3 2"/>' +
+      (back ? '<path d="M60 30v45" stroke="#419d78" stroke-width="1" stroke-dasharray="2 2"/>' : '') +
+      '<path d="' + marks[field.marker] + '" fill="none" stroke="#a4243b" stroke-width="2.7" stroke-linecap="round"/>' +
+      '<text x="60" y="98" font-family="sans-serif" text-anchor="middle" font-size="8" font-weight="700" fill="#2d3047">' + field.area.toUpperCase() + '</text>');
+  }
+
+  function arrow(grain) {
+    const [[x, y], [, bottom]] = grain;
+    return 'M' + x + ' ' + y + 'V' + bottom +
+      'M' + (x - .26) + ' ' + (y + .4) + 'L' + x + ' ' + y + 'l.26 .4' +
+      'M' + (x - .26) + ' ' + (bottom - .4) + 'L' + x + ' ' + bottom + 'l.26 -.4';
+  }
+
+  function shape(piece, x, y, mode) {
+    const dark = mode === 'hero';
+    const tile = mode === 'tiles';
+    const outline = dark ? '#f4f9e9' : '#2d3047';
+    const dartColor = dark ? '#e9c46a' : '#a4243b';
+    const guide = dark ? '#9ed6bf' : '#34775c';
+    const [lx, ly] = piece.pieceLabel;
+    const stroke = (d, color, weight, dash = '', fill = 'none') =>
+      '<path d="' + d + '" fill="' + fill + '" stroke="' + color + '" stroke-width="' + weight +
+      '" stroke-dasharray="' + dash + '" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>';
+    return '<g transform="translate(' + x + ' ' + y + ')">' +
+      stroke(toPath(piece.outline), outline, tile ? 1.35 : 1.55, '', dark ? '#419d7830' : '#f4f9e9b8') +
+      stroke(toPath(piece.bustLine), guide, .85, '3 3') +
+      piece.darts.map((d) => stroke(toPath(d.legs), dartColor, 1.1) + stroke(toPath(d.fold), dartColor, .7, '2 2')).join('') +
+      stroke(arrow(piece.grain), guide, .88) +
+      (piece.apex ? '<circle cx="' + piece.apex[0] + '" cy="' + piece.apex[1] + '" r=".27" fill="' + dartColor + '"/>' : '') +
+      (tile ? '' :
+        '<text x="' + lx + '" y="' + (ly - 1.5) + '" fill="' + outline + '" font-family="Instrument Serif, Georgia, serif" font-size="' + (dark ? '3.7' : '3.25') + '">' +
+        (piece.key === 'front' ? 'Front' : 'Back') + '</text>' +
+        '<text x="' + (dark ? lx : 3.3) + '" y="' + (ly + .15) + '" fill="' + guide + '" font-family="sans-serif" font-size="1.18" letter-spacing=".16">' +
+        (dark ? 'BODICE BLOCK' : 'CENTER ' + piece.key.toUpperCase() + ' AT LEFT') + '</text>') + '</g>';
+  }
+
+  function drawing(data, mode) {
+    const [front, back] = data.pieces;
+    if (mode === 'tiles') {
+      const panels = tilePlan(data.pieces);
+      const tileW = layout.width / pointsPerCm;
+      const tileH = layout.height / pointsPerCm;
+      const width = (panels[0].nx + panels[1].nx) * tileW + 11;
+      const height = Math.max(...panels.map(p => p.ny)) * tileH + 8;
+      return svgTag('0 0 ' + width + ' ' + height, 'US Letter assembly map showing ' + panels.flatMap(p => p.tiles.map(t => t.label)).join(', '),
+        panels.map((p, i) => {
+          const x = i ? panels[0].nx * tileW + 8 : 1.5;
+          const y = 6;
+          return '<text x="' + x + '" y="3.5" fill="#2d3047" font-family="sans-serif" font-size="2.2" font-weight="bold">' + p.piece.key.toUpperCase() + '</text>' +
+            p.tiles.map(t => '<rect x="' + (x + t.col * tileW) + '" y="' + (y + t.row * tileH) +
+              '" width="' + tileW + '" height="' + tileH + '" fill="#fffdf1" stroke="#419d78" stroke-width=".16"/>').join('') +
+            shape(p.piece, x + pad, y + pad, mode) +
+            p.tiles.map(t => '<text x="' + (x + t.col * tileW + .8) + '" y="' + (y + t.row * tileH + 2.3) +
+              '" fill="#515972" font-family="sans-serif" font-size="1.55" font-weight="bold">' + t.label + '</text>').join('');
+        }).join(''));
+    }
+    const margin = mode === 'hero' ? 6 : 3;
+    const gap = mode === 'hero' ? 10 : 9;
+    const w = front.width + back.width + margin * 2 + gap;
+    const h = Math.max(front.height, back.height) + margin * 2;
+    const xBack = front.width + margin + gap;
+    let decorations = '';
+    if (mode === 'hero') {
+      decorations = '<path d="M2 ' + (h - 3) + 'h' + (w - 4) + 'M3 3v' + (h - 5) + '" stroke="#419d78a8" stroke-width=".16" stroke-dasharray=".9 .95" fill="none"/>';
+      for (let i = 6; i < h - 3; i += 3) {
+        decorations += '<path d="M3 ' + i + 'h' + (i % 2 ? 1 : 1.75) + '" stroke="#419d78de" stroke-width=".16"/>';
+      }
+    }
+    return svgTag('0 0 ' + w + ' ' + h, 'Front and back bodice drafting pieces with darts and grainlines',
+      decorations + shape(front, margin, margin, mode) + shape(back, xBack, margin, mode));
+  }
+
+  function fieldMarkup(f) {
+    const id = 'm-' + f.key;
+    const helpId = 'help-' + f.key;
+    const expanded = state.help.has(f.key);
+    return '<div class="field-row"><div class="field-label"><label for="' + id + '">' + f.name +
+      '</label><button type="button" class="help-button" data-help="' + f.key + '" aria-label="How to measure ' +
+      f.name.toLowerCase() + '" aria-expanded="' + expanded + '" aria-controls="' + helpId + '">' + icon('help') + '</button></div>' +
+      '<div class="input-wrap"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" id="' +
+      id + '" data-key="' + f.key + '" placeholder="—" aria-describedby="' + helpId + '"' +
+      (f.key.endsWith('Ease') ? '' : ' aria-required="true"') + '><span class="unit" aria-hidden="true">' + state.unit + '</span></div>' +
+      '<div id="' + helpId + '" class="field-help"' + (expanded ? '' : ' hidden') + '>' +
+      (f.marker ? measurementIllustration(f) : '') + '<p>' + f.tip + '</p></div></div>';
+  }
+
+  function renderFields() {
+    $$('#measure-form [role="tab"]').forEach((el, i) => {
+      el.setAttribute('aria-selected', String(state.group === i));
+      el.tabIndex = state.group === i ? 0 : -1;
+    });
+    $('#measure-panel').setAttribute('aria-labelledby', $$('#measure-form [role="tab"]')[state.group].id);
+    const group = groups[state.group];
+    $('#group-intro').textContent = group.intro;
+    $('#fields').innerHTML = group.fields.map(fieldMarkup).join('');
+    $('#ease-fields').innerHTML = easeFields.map(fieldMarkup).join('');
+    $$('#measure-form input').forEach(el => { el.value = state.fields[el.dataset.key]?.raw ?? ''; });
+    $('#next').innerHTML = (state.group + 1 < groups.length ? 'Next: ' + groups[state.group + 1].tab : 'Review draft') + icon('arrow');
+    $$('[data-unit]').forEach(b => b.setAttribute('aria-pressed', String(state.unit === b.dataset.unit)));
+  }
+
+  function formErrors(fields) {
+    return fields.flatMap(({ key, name }) => {
+      const value = state.fields[key]?.value;
+      if (value == null) return [{keys:[key], text:'Enter ' + name.toLowerCase() + '.'}];
+      if (!Number.isFinite(value) || (profiles.allowsZero(key) ? value < 0 : value <= 0)) {
+        return [{keys:[key], text:'Enter a number for ' + name.toLowerCase() + '. Decimals or fractions such as 14 1/2 work.'}];
+      }
+      return [];
+    });
+  }
+
+  function calculate() {
+    const missing = formErrors([...all, ...easeFields]);
+    if (missing.length) return { errors: missing, incomplete: true };
+    return draft(Object.fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value])));
+  }
+
+  function renderMath(data) {
+    const dimensions = [['Bust width at bust line','bust'], ['Waist, dart sewn','waist'],
+      ['Side seam, dart sewn','side'], ['Shoulder, dart sewn','shoulder'],
+      ['Waist dart intake','waistIntake'], ['Side bust dart intake','bustIntake'], ['Shoulder dart intake','shoulderIntake']];
+    const row = ([name,key]) => '<tr><th scope="row">' + name + '</th>' +
+      data.pieces.map(p => '<td>' + format(p.stats[key]) + ' ' + state.unit + '</td>').join('') + '</tr>';
+    $('#math-content').innerHTML = '<table><thead><tr><th scope="col">Seam or width</th><th scope="col">Half front</th><th scope="col">Half back</th></tr></thead><tbody>' +
+      dimensions.map(row).join('') + '</tbody></table><p>Each half-width starts with half the matching arc plus a quarter of the total ease. The front and back side seams both sew to the underarm-to-waist length you entered.</p>' +
+      '<p>Bust dart intake comes from the difference between the high-shoulder front and back lengths, limited by the space on the front block. The back shoulder has a small shaping dart.</p>';
+  }
+
+  function refresh() {
+    const count = all.filter(f => {
+      const value = state.fields[f.key]?.value;
+      return Number.isFinite(value) && (value > 0 || (f.key === 'drop' && value === 0));
+    }).length;
+    $('#progress').textContent = count + ' of ' + all.length + ' entered';
+    const current = calculate();
+    const useExample = all.every(f => !state.fields[f.key]?.raw.trim()) && !state.requested;
+    const data = current.pieces ? current : useExample ? exampleDraft : null;
+    const visibleErrors = current.errors.length && (state.requested || !current.incomplete);
+    const active = groups[state.group].fields;
+    const sameTab = (e) => e.keys.some(k => active.some(f => f.key === k) || k.endsWith('Ease'));
+    const relevant = visibleErrors && current.errors.find(sameTab);
+    const marked = visibleErrors ? new Set(current.errors.flatMap(e => e.keys)) : new Set();
+    const error = $('#form-error');
+    error.hidden = !visibleErrors;
+    if (visibleErrors) error.textContent = (relevant || current.errors[0]).text;
+    $$('#measure-form input').forEach((el) => el.setAttribute('aria-invalid', String(marked.has(el.dataset.key))));
+    $$('#measure-form [role="tab"]').forEach((el, i) => el.classList.toggle('has-error', groups[i].fields.some(f => marked.has(f.key))));
+    const draftStatus = state.profile ? 'Draft for ' + state.profile.name : 'Draft from your measurements';
+    $('#preview-status').textContent = useExample ? 'Example draft' : data ? (state.sample ? 'Example measurements loaded' : draftStatus) :
+      current.incomplete ? 'Add your measurements to draft' : 'Check the highlighted measurements';
+    $('#pattern').innerHTML = data ? drawing(data, state.view) :
+      '<div class="empty-preview"><span>' + icon('ruler') + '</span><p>Your pattern will appear here</p><small>Complete each group to see your front and back pieces.</small></div>';
+    $('#draft-math').hidden = !data;
+    $('#preview-warnings').hidden = !data?.warnings.length;
+    if (data?.warnings.length) $('#preview-warnings').innerHTML = data.warnings.map(w => '<p>' + w + '</p>').join('');
+    if (data) renderMath(data);
+    const pageCount = data ? tilePlan(data.pieces).reduce((sum,p) => sum + p.tiles.length, 1) : null;
+    $('#page-count').textContent = 'US Letter' + (pageCount ? ' · ' + pageCount + ' pages' : '');
+    $('#download').disabled = !data;
+    $('#download span').textContent = useExample || state.sample ? 'Example PDF' : 'Download PDF';
+    return {data, current, isExample: useExample || state.sample};
+  }
+
+  function setGroup(index, {focus = false, persist = true} = {}) {
+    state.group = index;
+    renderFields();
+    refresh();
+    if (persist) rememberDraft();
+    if (focus) $$('[data-group]')[index].focus();
+  }
+
+  function setValues(values) {
+    state.fields = {};
+    for (const [key, value] of Object.entries(values)) state.fields[key] = { value, raw: format(value) };
+    state.help.clear();
+    state.requested = false;
+    $('#download-status').hidden = true;
+  }
+
+  function showDraftStorage(saved) {
+    $('#draft-storage').textContent = ephemeralPreview ?
+      'For autosave that survives refresh, download this HTML file and open it directly in Chrome.' :
+      saved === false ? 'Browser storage is unavailable. Keep this tab open while you finish.' :
+      'Your current draft autosaves in this browser.';
+  }
+
+  function rememberDraft() {
+    const {unit, group, view, sample, requested, profile, fields} = state;
+    const saved = profiles.writeDraft({unit, group, view, sample, requested, profile,
+      name: personName.value, fields: Object.entries(fields)});
+    showDraftStorage(saved);
+  }
+
+  function restoreDraft() {
+    const record = profiles.readDraft();
+    if (!record) {
+      setValues(defaultEase);
+      return;
+    }
+    state.unit = record.unit;
+    state.group = Number.isInteger(record.group) && groups[record.group] ? record.group : 0;
+    state.view = record.view === 'tiles' ? 'tiles' : 'draft';
+    state.sample = record.sample === true;
+    state.requested = record.requested === true;
+    state.fields = Object.fromEntries(record.fields.flatMap(entry => {
+      if (!Array.isArray(entry)) return [];
+      const [key, field] = entry;
+      if (!Object.hasOwn(fieldByKey, key) || typeof field?.raw !== 'string') return [];
+      const value = Number.isFinite(field.value) ? field.value : field.raw.trim() ? NaN : null;
+      return [[key, {value, raw:field.raw}]];
+    }));
+    const profile = record.profile && profiles.validate(record.profile);
+    if (profile && profiles.list().some(p => profiles.idFor(p.name) === profiles.idFor(profile.name))) {
+      state.profile = profile;
+    }
+    personName.value = typeof record.name === 'string' ? record.name.slice(0, 60) : '';
+    $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(state.view === b.dataset.view)));
+  }
+
+  function downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  function refreshProfiles(selected = person.value) {
+    const saved = profiles.list();
+    const options = [{id:'', name:'Choose a person'}, ...saved.map(p => ({id:profiles.idFor(p.name), name:p.name}))];
+    person.replaceChildren(...options.map(({id, name}) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = name;
+      return option;
+    }));
+    person.value = options.some(option => option.id === selected) ? selected : '';
+    person.disabled = !saved.length;
+    $('#profiles-load').disabled = !person.value;
+    $('#profiles-remove').disabled = !person.value;
+    $('#profiles-export').disabled = !saved.length;
+    $('#profiles-summary').textContent = state.profile ? 'Editing ' + state.profile.name :
+      saved.length ? saved.length + ' saved' : 'No profiles yet';
+    const storageNotice = $('#profiles-storage');
+    storageNotice.textContent = ephemeralPreview ? 'Profiles in this preview can reset on refresh. Export a backup to keep them.' :
+      profiles.isPersistent() ? '' : 'Browser storage is unavailable. Export a backup before closing this tab.';
+    storageNotice.hidden = !storageNotice.textContent;
+    updateSaveLabel();
+  }
+
+  function updateSaveLabel() {
+    const updating = state.profile && profiles.idFor(state.profile.name) === profiles.idFor(personName.value);
+    $('#profiles-save').textContent = updating ? 'Update measurements' : 'Save measurements';
+  }
+
+  function profileStatus(message) {
+    $('#profiles-status').textContent = message;
+  }
+
+  function switchDraft(profile, {persist = true} = {}) {
+    state.profile = profile;
+    state.sample = false;
+    if (profile) state.unit = profile.unit;
+    personName.value = profile?.name ?? '';
+    setValues(profile ? profile.values : defaultEase);
+    setGroup(0, {persist});
+    refreshProfiles(profile ? profiles.idFor(profile.name) : '');
+  }
+
+  function confirmSwitch() {
+    if (state.sample) return true;
+    const baseline = state.profile ? state.profile.values : defaultEase;
+    const edited = [...all, ...easeFields].some(({key}) => {
+      const field = state.fields[key];
+      if (field?.raw.trim() && !Number.isFinite(field.value)) return true;
+      return (field?.value ?? undefined) !== baseline[key];
+    });
+    return !edited || confirm('You have unsaved measurement changes. Continue without saving them?');
+  }
+
+  person.addEventListener('change', () => {
+    $('#profiles-load').disabled = !person.value;
+    $('#profiles-remove').disabled = !person.value;
+  });
+  personName.addEventListener('input', () => {
+    updateSaveLabel();
+    rememberDraft();
+  });
+
+  function saveProfile() {
+    if (state.sample) {
+      profileStatus('Enter your own measurements before saving a profile. Use New person to start with a blank form.');
+      return;
+    }
+    const entries = Object.entries(state.fields).filter(([, field]) => field.raw.trim());
+    const values = Object.fromEntries(entries.map(([key, field]) => [key, field.value]));
+    const record = profiles.validate({name:personName.value, unit:state.unit, values});
+    if (!record) {
+      profileStatus('Enter a name and at least one measurement. Fix or clear any entries that are not valid numbers.');
+      return;
+    }
+    const id = profiles.idFor(record.name);
+    const saved = profiles.list().find(p => profiles.idFor(p.name) === id);
+    if (saved && (!state.profile || profiles.idFor(state.profile.name) !== id)) {
+      profileStatus('That name is already saved. Load that profile to update it, or enter a different name.');
+      return;
+    }
+    if (state.profile && profiles.idFor(state.profile.name) === id && JSON.stringify(saved) !== JSON.stringify(state.profile)) {
+      profileStatus('This profile changed in another tab. Reload it or save these measurements under a different name.');
+      return;
+    }
+    profiles.save(record);
+    state.profile = record;
+    personName.value = record.name;
+    refreshProfiles(id);
+    refresh();
+    rememberDraft();
+    profileStatus(ephemeralPreview ? 'Saved ' + record.name + ' in this preview.' :
+      profiles.isPersistent() ? 'Saved measurements for ' + record.name + '.' :
+      record.name + ' is available in this tab. Export a backup to keep these measurements.');
+  }
+
+  $('#profiles-save').addEventListener('click', saveProfile);
+  personName.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.isComposing) saveProfile();
+  });
+
+  $('#profiles-load').addEventListener('click', () => {
+    const record = profiles.list().find(p => profiles.idFor(p.name) === person.value);
+    if (!record) {
+      refreshProfiles();
+      return;
+    }
+    if (!confirmSwitch()) return;
+    switchDraft(record);
+    profileStatus('Loaded measurements for ' + record.name + '.');
+  });
+
+  $('#profiles-new').addEventListener('click', () => {
+    if (!confirmSwitch()) return;
+    switchDraft(null);
+    personName.focus();
+    profileStatus('Enter a name and measurements, then choose Save measurements.');
+  });
+
+  $('#profiles-remove').addEventListener('click', () => {
+    const id = person.value;
+    const record = profiles.list().find(p => profiles.idFor(p.name) === id);
+    if (!record) {
+      refreshProfiles();
+      return;
+    }
+    if (!confirm('Delete the saved profile and any linked draft for ' + record.name + '?')) return;
+    if (!profiles.remove(id)) {
+      profileStatus('This browser could not delete the saved profile.');
+      return;
+    }
+    const cleared = profiles.clearProfileDrafts(id);
+    if (state.profile && profiles.idFor(state.profile.name) === id) switchDraft(null, {persist:false});
+    else refreshProfiles('');
+    (person.disabled ? $('#profiles-new') : person).focus();
+    profileStatus(cleared ? 'Deleted the saved profile for ' + record.name + '.' :
+      'Deleted the saved profile, but the browser could not clear the autosaved draft.');
+  });
+
+  $('#profiles-export').addEventListener('click', () => {
+    downloadFile(new Blob([profiles.backup()], {type:'application/json'}), 'bodice-workroom-measurements.json');
+    profileStatus('Backup downloaded with the saved names and measurements.');
+  });
+
+  const backupFile = $('#profiles-file');
+  $('#profiles-import').addEventListener('click', () => backupFile.click());
+  backupFile.addEventListener('change', async () => {
+    const file = backupFile.files[0];
+    backupFile.value = '';
+    if (!file) return;
+    let incoming;
+    try {
+      incoming = profiles.parseBackup(await file.text());
+    } catch {
+      profileStatus('Choose a valid measurement backup exported from Bodice Workroom.');
+      return;
+    }
+    const duplicate = new Set(profiles.list().map(p => profiles.idFor(p.name)));
+    const added = incoming.filter(p => !duplicate.has(profiles.idFor(p.name)));
+    added.forEach(profiles.save);
+    refreshProfiles();
+    const summary = 'Imported ' + added.length + (added.length === 1 ? ' profile.' : ' profiles.');
+    const skipped = incoming.length - added.length;
+    profileStatus(summary + (skipped ? ' Existing profiles with matching names were kept.' : ''));
+  });
+
+  globalThis.addEventListener('storage', ({key, newValue}) => {
+    if (!profiles.isPersistent() || !profiles.isProfileKey(key)) return;
+    const activeId = state.profile && profiles.idFor(state.profile.name);
+    if (activeId && newValue === null && !profiles.list().some(p => profiles.idFor(p.name) === activeId)) {
+      profiles.clearProfileDrafts(activeId);
+      switchDraft(null, {persist:false});
+      profileStatus('The active profile was deleted in another tab.');
+      return;
+    }
+    refreshProfiles();
+  });
+
+  $('#measure-form').addEventListener('input', (event) => {
+    const key = event.target.dataset.key;
+    if (!key) return;
+    const raw = event.target.value;
+    const value = parseMeasurement(raw);
+    state.fields[key] = { raw, value: value === null ? null : value * (state.unit === 'in' ? 2.54 : 1) };
+    state.sample = false;
+    $('#download-status').hidden = true;
+    refresh();
+    rememberDraft();
+  });
+
+  $$('#measure-form [role="tab"]').forEach((b, i) => {
+    b.addEventListener('click', () => setGroup(i));
+    b.addEventListener('keydown', event => {
+      const key = event.key;
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(key)) return;
+      event.preventDefault();
+      const next = key === 'Home' ? 0 : key === 'End' ? groups.length - 1 :
+        (i + groups.length + (key === 'ArrowLeft' ? -1 : 1)) % groups.length;
+      setGroup(next, {focus:true});
+    });
+  });
+
+  $('#measure-form').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-help]');
+    if (!button) return;
+    const key = button.dataset.help;
+    const open = !state.help.has(key);
+    if (open) state.help.add(key);
+    else state.help.delete(key);
+    button.setAttribute('aria-expanded', String(open));
+    $('#help-' + key).hidden = !open;
+  });
+
+  $$('[data-unit]').forEach(button => button.addEventListener('click', () => {
+    if (state.unit === button.dataset.unit) return;
+    state.unit = button.dataset.unit;
+    for (const field of Object.values(state.fields)) {
+      if (field.value != null && Number.isFinite(field.value)) field.raw = format(field.value);
+    }
+    renderFields();
+    refresh();
+    rememberDraft();
+  }));
+
+  function scrollToPreview() {
+    const opts = { block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' };
+    $('#preview').scrollIntoView(opts);
+    $('#preview-title').tabIndex = -1;
+    $('#preview-title').focus({preventScroll:true});
+  }
+
+  function advanceMeasurements() {
+    if (state.group < groups.length - 1) {
+      setGroup(state.group + 1, {focus:true});
+      return;
+    }
+    state.requested = true;
+    const result = refresh();
+    rememberDraft();
+    if (result.current.pieces) {
+      scrollToPreview();
+      return;
+    }
+    const key = result.current.errors[0].keys[0];
+    const index = groups.findIndex(g => g.fields.some(f => f.key === key));
+    if (index >= 0) setGroup(index);
+    else $('#fit-settings').open = true;
+    $('#m-' + key)?.focus();
+  }
+
+  $('#next').addEventListener('click', advanceMeasurements);
+  $('#measure-form').addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches('input[data-key]')) {
+      event.preventDefault();
+      advanceMeasurements();
+    }
+  });
+
+  function loadExample(scroll) {
+    if (!confirmSwitch()) return;
+    state.profile = null;
+    personName.value = '';
+    setValues(example);
+    state.sample = true;
+    setGroup(0);
+    refreshProfiles('');
+    profileStatus('');
+    if (scroll) $('#measure').scrollIntoView({block:'start'});
+  }
+
+  $('#hero-example').addEventListener('click', () => loadExample(true));
+  $('#form-example').addEventListener('click', () => loadExample(false));
+  $('#clear').addEventListener('click', () => {
+    if (!confirmSwitch()) return;
+    switchDraft(null);
+    profileStatus('');
+    $('#m-bustFront').focus();
+  });
+
+  $$('[data-view]').forEach(button => button.addEventListener('click', () => {
+    state.view = button.dataset.view;
+    $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    refresh();
+    rememberDraft();
+  }));
+
+  $('#download').addEventListener('click', () => {
+    const {data, isExample} = refresh();
+    if (!data) return;
+    const status = $('#download-status');
+    try {
+      downloadFile(new Blob([BodicePDF.create(data)], {type:'application/pdf'}),
+        isExample ? 'bodice-block-example-letter.pdf' : 'my-bodice-block-letter.pdf');
+      status.textContent = 'PDF ready. Check the test square on page 1 before printing the tiles.';
+    } catch (error) {
+      console.error(error);
+      status.textContent = 'The PDF could not be created. Try downloading again.';
+    }
+    status.hidden = false;
+  });
+
+  $('#hero-pattern').innerHTML = drawing(exampleDraft, 'hero');
+  restoreDraft();
+  renderFields();
+  refresh();
+  refreshProfiles(state.profile ? profiles.idFor(state.profile.name) : '');
+  showDraftStorage();
+})();
+</script>
+</body>
+</html>
