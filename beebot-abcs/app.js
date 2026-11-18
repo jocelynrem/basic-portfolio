@@ -247,6 +247,10 @@ function syncViewportLayout() {
   const layoutHorizontalPadding = getPaddingSize(boardLayout, "paddingLeft", "paddingRight");
   const boardGap = Number.parseFloat(window.getComputedStyle(boardLayout).gap || "0");
   const isStacked = window.getComputedStyle(boardLayout).flexDirection === "column";
+  if (isStacked) {
+    programPanel.style.height = "";
+    sequenceCard.style.height = "";
+  }
   const contentWidth = Math.max(boardLayout.clientWidth - layoutHorizontalPadding, 0);
   const contentHeight = Math.max(boardLayout.clientHeight - layoutVerticalPadding, 0);
   const availableWidth = isStacked
@@ -268,14 +272,45 @@ function syncViewportLayout() {
   stage.style.width = `${Math.max(nextWidth, 0)}px`;
   stage.style.height = `${Math.max(nextHeight, 0)}px`;
 
-  if (isStacked) {
-    programPanel.style.height = "";
-    sequenceCard.style.height = "";
-    return;
+  const tokenWidth = Math.min(170, (nextWidth / GRID.cols) * 0.768, (nextHeight / GRID.rows) * 0.768);
+  token.style.width = `${tokenWidth}px`;
+  token.style.setProperty("--drag-size", `${clamp(tokenWidth * 0.4, 22, 42)}px`);
+
+  if (!isStacked) {
+    programPanel.style.height = `${Math.max(nextHeight, 0)}px`;
+    sequenceCard.style.height = `${Math.max(nextHeight, 0)}px`;
   }
 
-  programPanel.style.height = `${Math.max(nextHeight, 0)}px`;
-  sequenceCard.style.height = `${Math.max(nextHeight, 0)}px`;
+  fitProgramSymbols();
+}
+
+function fitProgramSymbols() {
+  const count = state.sequence.length;
+  if (!count) return;
+
+  const width = sequenceList.clientWidth;
+  const height = sequenceList.clientHeight;
+  const targetIconSize = Math.min(56, 56 * Math.sqrt(6 / count));
+  let best = { iconSize: -1 };
+
+  // Start in one column and wrap longer programs to keep their symbols readable.
+  for (let columns = 1; columns <= count; columns += 1) {
+    const rows = Math.ceil(count / columns);
+    const gap = Math.min(6, width / (columns * 12), height / (rows * 12));
+    const cellWidth = Math.max(0, (width - gap * (columns - 1)) / columns);
+    const cellHeight = Math.max(0, (height - gap * (rows - 1)) / rows);
+    const size = Math.min(72, cellWidth, cellHeight);
+    const iconSize = Math.max(0, Math.min(targetIconSize, size - 4));
+
+    if (iconSize > best.iconSize) best = { columns, rows, gap, size, iconSize };
+    if (iconSize >= targetIconSize) break;
+  }
+
+  sequenceList.style.setProperty("--step-columns", best.columns);
+  sequenceList.style.setProperty("--step-rows", best.rows);
+  sequenceList.style.setProperty("--step-gap", `${best.gap}px`);
+  sequenceList.style.setProperty("--step-size", `${best.size}px`);
+  sequenceList.style.setProperty("--step-icon-size", `${best.iconSize}px`);
 }
 
 function setStatus(message) {
@@ -324,7 +359,6 @@ function renderSequence(activeIndex = -1) {
       return `
         <div class="${activeClass}">
           <img src="${definition.icon}" alt="${definition.label}" />
-          <span class="step-label">${definition.label}</span>
         </div>
       `;
     })
@@ -631,7 +665,6 @@ function selectMat(id) {
   matImage.alt = activeMat.alt;
   stage.setAttribute("aria-label", activeMat.name + " mat");
   stage.style.aspectRatio = String(activeMat.aspectRatio);
-  token.style.width = `clamp(80px, ${76.8 / GRID.cols}%, 170px)`;
   matInstructions.textContent = activeMat.instructions;
   const dragLabel = activeMat.freePlacement ? "Drag Bee-Bot to any square" : "Drag Bee-Bot back to the START square";
   dragHandle.setAttribute("aria-label", dragLabel);
@@ -670,6 +703,13 @@ window.addEventListener("resize", () => {
   syncViewportLayout();
   updateBeeBotPosition();
 });
+
+if ("ResizeObserver" in window) {
+  new ResizeObserver(() => {
+    syncViewportLayout();
+    updateBeeBotPosition();
+  }).observe(boardLayout);
+}
 
 syncViewportLayout();
 updateBeeBotPosition();

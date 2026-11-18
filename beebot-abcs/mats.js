@@ -85,4 +85,22 @@ const MATS = [
       ["A5", "Volcano (B5)", "C5", "Island (D5)"],
     ],
   },
+  {
+    id: "number-bingo",
+    name: "Number Bingo",
+    image: "assets/number-bingo.webp",
+    alt: "Four-column, five-row number mat with a checkered flag, numerals, number words, expanded form, and base-ten blocks",
+    grid: { rows: 5, cols: 4 },
+    aspectRatio: 4 / 5,
+    start: { row: 0, col: 0, direction: 1 },
+    freePlacement: true,
+    instructions: "Solve a problem on your bingo sheet, then program Bee-Bot to reach its answer on the mat. Bee-Bot starts on the flag, facing right. Drag it to any square, tap its arrows to build a program, then press GO. Press X to clear and return to the flag. Switching mats clears the program.",
+    cellLabels: [
+      ["Flag start", "50 + 6", "16 in base-ten blocks", "13"],
+      ["348 in base-ten blocks", "245", "seventeen", "97"],
+      ["thirty five", "2 + 60 + 200", "604 in base-ten blocks", "100 + 20 + 3"],
+      ["300 + 10 + 3", "987", "one hundred ninety one", "60 in base-ten blocks"],
+      ["five hundred eight", "10 + 1 + 800", "75 in base-ten blocks", "700 + 5"],
+    ],
+  },
 ];
