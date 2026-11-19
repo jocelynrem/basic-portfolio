@@ -677,7 +677,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   outline-offset:3px;
 }
 
-.timeline-controls select,.timeline-controls input[type="date"] {
+.timeline-controls select,.week-buttons input[type="date"] {
   min-width:0;
   min-height:50px;
   padding:8px 10px;
@@ -688,8 +688,25 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .week-buttons {
   display:flex;
-  flex:none;
+  align-items:end;
+  min-width:0;
   gap:1px;
+}
+
+.week-buttons label {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:2px;
+  min-width:0;
+  margin-right:7px;
+  font-size:.84rem;
+  font-weight:750;
+}
+
+.week-buttons input[type="date"] {
+  width:100%;
+  min-height:44px;
+  font-weight:normal;
 }
 
 .week-buttons button {
@@ -749,8 +766,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .week-toolbar {
   display:flex;
+  flex-wrap:wrap;
   justify-content:space-between;
-  align-items:flex-start;
+  align-items:center;
   gap:8px 12px;
   padding:8px 10px;
 }
@@ -1113,6 +1131,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   }
 }
 
+@media(min-width:601px) {
+  .timeline-controls:has(> #timeline-quarter-control[hidden]) {
+    grid-template-columns:minmax(6rem,1fr) minmax(11rem,2.5fr) auto;
+  }
+}
+
 @media(max-width:760px) {
   .subject-grid {
     grid-template-columns:1fr;
@@ -1214,7 +1238,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   .timeline-controls .topic-lookup,.timeline-controls .timeline-view-control {
     grid-column:1/-1;
   }
-  .timeline-controls select,.timeline-controls input[type="date"] {
+  .timeline-controls:has(> #timeline-quarter-control[hidden]) > label[for="timeline-grade"] {
+    grid-column:1/-1;
+  }
+  .week-buttons {
+    width:100%;
+  }
+  .week-buttons label {
+    flex:1;
+  }
+  .timeline-controls select,.week-buttons input[type="date"] {
     width:100%;
     padding-inline:5px;
     font-size:.82rem;

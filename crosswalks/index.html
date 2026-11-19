@@ -7,7 +7,7 @@
   <title>Moore County CS Crosswalk</title>
   <link rel="icon" type="image/svg+xml" href="./smart-toy.svg">
   <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
-  <link rel="stylesheet" href="../pacing/styles.css?v=3">
+  <link rel="stylesheet" href="../pacing/styles.css?v=5">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -33,7 +33,6 @@
       </div>
       <div class="timeline-controls">
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
-        <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
         <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
         <form id="topic-lookup" class="topic-lookup" role="search" aria-label="Search the crosswalk">
           <label class="search-label" for="lookup-topic">Find a standard by topic</label>
@@ -54,6 +53,7 @@
             <p id="timeline-day-note" role="status"></p>
           </div>
           <div id="timeline-week-buttons" class="week-buttons" role="group" aria-label="Week navigation">
+            <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
             <button type="button" id="week-back" aria-label="Previous teaching week">←</button>
             <button type="button" id="week-next" aria-label="Next teaching week">→</button>
             <button type="button" id="week-today">Today</button>
