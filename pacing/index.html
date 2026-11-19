@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Browse Moore County Schools K–5 pacing by week or quarter and find North Carolina standards by topic.">
   <title>MCS K–5 Pacing</title>
+  <link rel="icon" type="image/svg+xml" sizes="any" href="./favicon.svg">
   <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
-  <link rel="stylesheet" href="./styles.css?v=3">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body class="pacing-page">
   <a class="skip" href="#main">Skip to content</a>
   <header class="header">
     <div class="shell header-row">
       <h1 class="brand">
+        <img src="./favicon.svg" alt="" width="32" height="32">
         <span>MCS K–5 Pacing</span>
       </h1>
       <nav class="navigation" aria-label="Main navigation">
@@ -24,10 +26,14 @@
   </header>
   <main id="main" tabindex="-1">
     <section id="timeline-view" class="shell timeline" aria-labelledby="timeline-heading">
-      <div class="section-head">
-        <h2 id="timeline-heading">Teaching timeline</h2>
-        <p id="timeline-range" class="timeline-range">2026–27 school year</p>
-      </div>
+      <header class="pacing-intro">
+        <div class="pacing-intro-heading">
+          <h2 id="timeline-heading">Plan your teaching week</h2>
+          <p id="timeline-range">2026–27 school year</p>
+        </div>
+        <p>Choose a grade and date to see what Moore County Schools’ pacing guides cover.
+          Switch to <strong>Quarterly</strong> for a full grading period, or <a href="#search">search by topic</a> to find a North Carolina standard.</p>
+      </header>
       <div class="timeline-controls">
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
         <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
