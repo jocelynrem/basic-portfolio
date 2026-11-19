@@ -7,7 +7,7 @@
   <title>Moore County CS Crosswalk</title>
   <link rel="icon" type="image/svg+xml" href="./smart-toy.svg">
   <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
-  <link rel="stylesheet" href="../pacing/styles.css">
+  <link rel="stylesheet" href="../pacing/styles.css?v=2">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -32,10 +32,16 @@
         <p id="timeline-range" class="timeline-range">2026–27 school year</p>
       </div>
       <div class="timeline-controls">
+        <fieldset class="timeline-view-control" id="timeline-mode">
+          <legend>Timeline view</legend>
+          <div class="timeline-view-options">
+            <label><input type="radio" name="period" value="week" checked>Weekly</label>
+            <label><input type="radio" name="period" value="quarter">Quarterly</label>
+          </div>
+        </fieldset>
         <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
         <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
         <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
-        <label class="timeline-view-control" for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
       </div>
       <section class="timeline-calendar" aria-labelledby="timeline-week">
         <div class="week-toolbar">
@@ -4669,6 +4675,6 @@ window.standardsData = {
 <script src="../crosswalks/standards-index.js"></script>
 <script src="../pacing/calendar.js"></script>
 <script src="./csta-details.js"></script>
-<script src="../pacing/app.js"></script>
+<script src="../pacing/app.js?v=2"></script>
 </body>
 </html>

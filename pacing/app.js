@@ -44,7 +44,7 @@
   const nav = [...document.querySelectorAll('[data-view]')];
   const dateInput = byId('timeline-date');
   const gradeInput = byId('timeline-grade');
-  const timelineMode = byId('timeline-mode');
+  const viewControl = byId('timeline-mode');
   const quarterInput = byId('timeline-quarter');
   const todayButton = byId('week-today');
   const schoolDate = new Intl.DateTimeFormat('en-US', {
@@ -109,13 +109,11 @@
   options(gradeInput, '', schoolGrades);
   options(quarterInput, '', calendar.quarters.map((_, index) => [String(index + 1), `Quarter ${index + 1}`]));
   const compactTimeline = window.matchMedia('(max-width: 480px)');
-  function labelTimelineOptions() {
+  function labelTimelineGrade() {
     gradeInput.options[0].label = compactTimeline.matches ? 'K' : 'Kindergarten';
-    timelineMode.options[0].label = compactTimeline.matches ? 'Weekly' : 'Week by week';
-    timelineMode.options[1].label = compactTimeline.matches ? 'Quarterly' : 'Quarter overview';
   }
-  compactTimeline.addEventListener('change', labelTimelineOptions);
-  labelTimelineOptions();
+  compactTimeline.addEventListener('change', labelTimelineGrade);
+  labelTimelineGrade();
 
   function dateLabel(day, formatter = shortDate) {
     return formatter.format(new Date(`${isoDate(day)}T00:00:00Z`));
@@ -755,7 +753,7 @@
   }
 
   function renderTimeline() {
-    const isQuarter = timelineMode.value === 'quarter';
+    const isQuarter = viewControl.querySelector(':checked').value === 'quarter';
     const selected = timelineDay(dateInput.value, calendar);
     const subjects = byId('timeline-subjects');
     const strip = byId('timeline-days');
@@ -839,10 +837,16 @@
     renderTimeline();
   }
 
+  function selectTimelineView(mode) {
+    // Older cached pages use a select for the same control.
+    if (viewControl.tagName === 'SELECT') viewControl.value = mode;
+    else viewControl.querySelector(`input[value="${mode}"]`).checked = true;
+  }
+
   function openCurrentWeek() {
     const today = currentSchoolDay();
     dateInput.value = isoDate(Math.max(calendar.first, Math.min(calendar.last, today)));
-    timelineMode.value = 'week';
+    selectTimelineView('week');
     renderTimeline();
   }
 
@@ -853,7 +857,7 @@
     if (period) {
       chosenQuarter = quarter;
       dateInput.value = isoDate(period.days[0] ?? period.start);
-      timelineMode.value = 'quarter';
+      selectTimelineView('quarter');
       renderTimeline();
     } else {
       openCurrentWeek();
@@ -964,7 +968,7 @@
     }
     renderTimeline();
   });
-  timelineMode.addEventListener('change', renderTimeline);
+  viewControl.addEventListener('change', renderTimeline);
   quarterInput.addEventListener('change', () => {
     chosenQuarter = Number(quarterInput.value);
     renderTimeline();
