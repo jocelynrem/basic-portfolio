@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse Moore County Schools K–5 pacing by week or quarter and find North Carolina standards by topic.">
+  <title>MCS K–5 Pacing</title>
+  <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="pacing-page">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="shell header-row">
+      <h1 class="brand">
+        <span>MCS K–5 Pacing</span>
+      </h1>
+      <nav class="navigation" aria-label="Main navigation">
+        <a href="#timeline" data-view="timeline" aria-current="page">Teaching timeline</a>
+        <a href="#search" data-view="search">Find a standard</a>
+        <a href="#sources" data-view="sources">District guides</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1">
+    <section id="timeline-view" class="shell timeline" aria-labelledby="timeline-heading">
+      <div class="section-head">
+        <h2 id="timeline-heading">Teaching timeline</h2>
+        <p id="timeline-range" class="timeline-range">2026–27 school year</p>
+      </div>
+      <form id="topic-lookup" class="topic-lookup" role="search" aria-label="Find a North Carolina standard">
+        <label class="search-label" for="lookup-topic">Find a standard by topic</label>
+        <div class="topic-fields"><input type="search" id="lookup-topic" name="q" placeholder="Try fractions or moon phases"><button type="submit">Search</button></div>
+      </form>
+      <div class="timeline-controls">
+        <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
+        <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
+        <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
+        <label class="timeline-view-control" for="timeline-mode">View<select id="timeline-mode"><option value="week">Week by week</option><option value="quarter">Quarter overview</option></select></label>
+      </div>
+      <section class="timeline-calendar" aria-labelledby="timeline-week">
+        <div class="week-toolbar">
+          <div class="week-context">
+            <h3 id="timeline-week"></h3>
+            <p id="timeline-day-note" role="status"></p>
+          </div>
+          <div id="timeline-week-buttons" class="week-buttons" role="group" aria-label="Week navigation">
+            <button type="button" id="week-back" aria-label="Previous teaching week">←</button>
+            <button type="button" id="week-next" aria-label="Next teaching week">→</button>
+            <button type="button" id="week-today">Today</button>
+          </div>
+        </div>
+        <div id="timeline-days" class="day-strip" role="group" aria-label="Days in this school week"></div>
+      </section>
+      <div id="timeline-subjects" class="subject-grid"></div>
+      <details class="legend"><summary>How the dates are assigned</summary><p><strong>Guide dates</strong> come from the pacing guide. <strong>Calendar estimate</strong> uses five-student-day blocks within each grading period, skipping closures. <strong>Listed for the quarter</strong> means the guide gives a grading period without specific dates. <strong>Projected science pacing</strong> for grades 2–5 starts on the first student day and follows the guide’s suggested lengths, counting five student days per week.</p><p>The quarter view includes standards that overlap the grading period, plus plans listed for the quarter or the whole year. Printed guide dates can cross district grading periods. Schools may follow different programs or adjust their pace.</p><a id="timeline-calendar-link">Open the official MCS school calendar</a></details>
+    </section>
+    <section id="sources-view" class="shell sources" aria-labelledby="sources-heading" hidden>
+      <div class="section-head"><h2 id="sources-heading">District pacing guides</h2><p>Browse by grade and subject. Math guides follow Eureka Math. Use the MCS curriculum hub for school-only materials.</p></div>
+      <div class="source-filters"><label for="source-grade">Grade<select id="source-grade"></select></label><label for="source-subject">Subject<select id="source-subject"></select></label></div>
+      <div id="sources-list" class="source-list"></div>
+    </section>
+    <section id="search-view" class="shell site-search" aria-labelledby="site-search-heading" hidden>
+      <div role="search" aria-labelledby="site-search-heading">
+        <div class="section-head"><h2 id="site-search-heading"><label for="site-search-query">Find a North Carolina standard</label></h2></div>
+        <div class="search-wrap"><input type="search" id="site-search-query" placeholder="Try a topic, unit, or standard code"></div>
+      </div>
+      <div class="source-filters">
+        <label for="search-grade">Grade<select id="search-grade"></select></label>
+        <label for="search-subject">Subject<select id="search-subject"></select></label>
+      </div>
+      <div class="results-header"><p id="site-search-count" role="status"></p></div>
+      <div id="site-search-results"></div>
+    </section>
+  </main>
+  <footer class="shell footer"><span>MCS K–5 Pacing</span><a href="https://sites.google.com/ncmcs.org/curriculum/k-5">MCS K–5 curriculum hub</a><a href="https://www.dpi.nc.gov/districts-schools/classroom-resources/office-teaching-and-learning/standard-course-study">NC Standard Course of Study</a><a class="portfolio-return" href="../">jocelynrem.com<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5M4 9h10a5 5 0 0 1 0 10h-3"/></svg></a></footer>
+  <noscript><p class="shell">Turn on JavaScript to search and filter the standards.</p></noscript>
+<script src="./district-data.js"></script>
+<script src="./timeline-data.js"></script>
+<script src="../crosswalks/standards-index.js"></script>
+<script src="./calendar.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
