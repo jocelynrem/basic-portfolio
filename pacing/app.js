@@ -46,6 +46,8 @@
   const gradeInput = byId('timeline-grade');
   const viewControl = byId('timeline-mode');
   const quarterInput = byId('timeline-quarter');
+  const previousPeriodButton = byId('week-back');
+  const nextPeriodButton = byId('week-next');
   const todayButton = byId('week-today');
   const schoolDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/New_York'
@@ -752,8 +754,12 @@
     return dayNumber(`${parts.year}-${parts.month}-${parts.day}`);
   }
 
+  function isQuarterView() {
+    return viewControl.querySelector(':checked').value === 'quarter';
+  }
+
   function renderTimeline() {
-    const isQuarter = viewControl.querySelector(':checked').value === 'quarter';
+    const isQuarter = isQuarterView();
     const selected = timelineDay(dateInput.value, calendar);
     const subjects = byId('timeline-subjects');
     const strip = byId('timeline-days');
@@ -761,7 +767,9 @@
     strip.replaceChildren();
     byId('timeline-quarter-control').hidden = !isQuarter;
     byId('timeline-week-controls').hidden = isQuarter;
-    byId('timeline-week-buttons').hidden = isQuarter;
+    byId('timeline-week-buttons').setAttribute('aria-label', isQuarter ? 'Quarter navigation' : 'Week navigation');
+    previousPeriodButton.setAttribute('aria-label', isQuarter ? 'Previous quarter' : 'Previous teaching week');
+    nextPeriodButton.setAttribute('aria-label', isQuarter ? 'Next quarter' : 'Next teaching week');
     const today = currentSchoolDay();
     todayButton.disabled = today < calendar.first || today > calendar.last;
     strip.hidden = isQuarter || !selected;
@@ -769,6 +777,8 @@
       const quarter = chosenQuarter ?? (selected?.quarter || 1);
       quarterInput.value = String(quarter);
       const period = calendar.quarters[quarter - 1];
+      previousPeriodButton.disabled = quarter === 1;
+      nextPeriodButton.disabled = quarter === calendar.quarters.length;
       byId('timeline-week').textContent = `Quarter ${quarter} · ${spanLabel(period)}`;
       byId('timeline-day-note').textContent = `${period.days.length} teaching days in Quarter ${quarter}.`;
       for (const subject of districtSubjects) {
@@ -779,16 +789,16 @@
     if (!selected) {
       byId('timeline-week').textContent = 'Choose a school-year date';
       byId('timeline-day-note').textContent = `Enter a date between ${dateLabel(calendar.first)} and ${dateLabel(calendar.last)}.`;
-      byId('week-back').disabled = true;
-      byId('week-next').disabled = true;
+      previousPeriodButton.disabled = true;
+      nextPeriodButton.disabled = true;
       return;
     }
     byId('timeline-week').textContent = spanLabel({ start: selected.start, end: selected.end });
     const note = selected.isTeaching ? `${dateLabel(selected.selected, fullDate)} · Grading period ${selected.quarter}` :
       `${dateLabel(selected.selected, fullDate)} · ${selected.reason}${selected.targets.length ? '. Showing this week’s plans.' : '.'}`;
     byId('timeline-day-note').textContent = note;
-    byId('week-back').disabled = !calendar.weekStarts.some(start => start < selected.start);
-    byId('week-next').disabled = !calendar.weekStarts.some(start => start > selected.start);
+    previousPeriodButton.disabled = !calendar.weekStarts.some(start => start < selected.start);
+    nextPeriodButton.disabled = !calendar.weekStarts.some(start => start > selected.start);
     for (const day of selected.days) {
       const date = isoDate(day);
       const closure = calendar.closed.get(day);
@@ -826,7 +836,14 @@
     for (const subject of districtSubjects) subjects.append(renderSubject(gradeInput.value, subject, selected));
   }
 
-  function moveWeek(direction) {
+  function movePeriod(direction) {
+    if (isQuarterView()) {
+      const quarter = Number(quarterInput.value) + direction;
+      if (!calendar.quarters[quarter - 1]) return;
+      chosenQuarter = quarter;
+      renderTimeline();
+      return;
+    }
     const view = timelineDay(dateInput.value, calendar);
     if (!view) return;
     const week = direction < 0 ? calendar.weekStarts.findLast(day => day < view.start) : calendar.weekStarts.find(day => day > view.start);
@@ -973,11 +990,13 @@
     chosenQuarter = Number(quarterInput.value);
     renderTimeline();
   });
-  byId('week-back').addEventListener('click', () => moveWeek(-1));
-  byId('week-next').addEventListener('click', () => moveWeek(1));
+  previousPeriodButton.addEventListener('click', () => movePeriod(-1));
+  nextPeriodButton.addEventListener('click', () => movePeriod(1));
   todayButton.addEventListener('click', () => {
     const today = currentSchoolDay();
-    if (today >= calendar.first && today <= calendar.last) dateInput.value = isoDate(today);
+    if (today < calendar.first || today > calendar.last) return;
+    dateInput.value = isoDate(today);
+    if (isQuarterView()) chosenQuarter = timelineDay(dateInput.value, calendar).quarter;
     renderTimeline();
   });
   const calendarLink = byId('timeline-calendar-link');

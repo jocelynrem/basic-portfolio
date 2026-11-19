@@ -608,7 +608,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .timeline-controls {
   display:grid;
-  grid-template-columns:minmax(8rem,1fr) minmax(9rem,1fr) minmax(15rem,2.5fr) auto;
+  grid-template-columns:minmax(11rem,2.5fr) minmax(6rem,1fr) auto;
   align-items:end;
   gap:12px;
 }
@@ -677,7 +677,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   outline-offset:3px;
 }
 
-.timeline-controls select,.week-buttons input[type="date"] {
+.timeline-controls select,.week-buttons :is(input,select) {
   min-width:0;
   min-height:50px;
   padding:8px 10px;
@@ -688,6 +688,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .week-buttons {
   display:flex;
+  align-self:start;
   align-items:end;
   min-width:0;
   gap:1px;
@@ -698,12 +699,13 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   grid-template-columns:minmax(0,1fr);
   gap:2px;
   min-width:0;
+  width:8.5rem;
   margin-right:7px;
   font-size:.84rem;
   font-weight:750;
 }
 
-.week-buttons input[type="date"] {
+.week-buttons :is(input,select) {
   width:100%;
   min-height:44px;
   font-weight:normal;
@@ -765,9 +767,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .week-toolbar {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
   gap:8px 12px;
   padding:8px 10px;
@@ -1125,18 +1126,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin-right:auto;
 }
 
-@media(max-width:850px) {
-  .timeline-controls {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(min-width:601px) {
-  .timeline-controls:has(> #timeline-quarter-control[hidden]) {
-    grid-template-columns:minmax(6rem,1fr) minmax(11rem,2.5fr) auto;
-  }
-}
-
 @media(max-width:760px) {
   .subject-grid {
     grid-template-columns:1fr;
@@ -1232,14 +1221,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
     padding-inline:2px;
     font-size:.66rem;
   }
+  .week-toolbar,.timeline-controls {
+    grid-template-columns:minmax(0,1fr);
+  }
   .timeline-controls {
     gap:10px;
-  }
-  .timeline-controls .topic-lookup,.timeline-controls .timeline-view-control {
-    grid-column:1/-1;
-  }
-  .timeline-controls:has(> #timeline-quarter-control[hidden]) > label[for="timeline-grade"] {
-    grid-column:1/-1;
   }
   .week-buttons {
     width:100%;
@@ -1247,7 +1233,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   .week-buttons label {
     flex:1;
   }
-  .timeline-controls select,.week-buttons input[type="date"] {
+  .timeline-controls select,.week-buttons :is(input,select) {
     width:100%;
     padding-inline:5px;
     font-size:.82rem;
