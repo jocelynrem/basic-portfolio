@@ -929,14 +929,14 @@
     if (window.location.hash !== hash) window.history.replaceState(null, '', hash);
   }
   siteSearchInput.addEventListener('input', updateSiteSearch);
+  byId('topic-lookup')?.addEventListener('submit', event => {
+    event.preventDefault();
+    const q = byId('lookup-topic').value.trim();
+    window.location.hash = q ? `#search?${new URLSearchParams({ q })}` : '#search';
+  });
   if (isPacing) {
     byId('search-grade').addEventListener('change', updateSiteSearch);
     byId('search-subject').addEventListener('change', updateSiteSearch);
-    byId('topic-lookup').addEventListener('submit', event => {
-      event.preventDefault();
-      const q = byId('lookup-topic').value.trim();
-      window.location.hash = q ? `#search?${new URLSearchParams({ q })}` : '#search';
-    });
   } else {
     for (const control of Object.values(controls)) control.addEventListener(control.type === 'search' ? 'input' : 'change', changeFilters);
     byId('reset').addEventListener('click', () => {

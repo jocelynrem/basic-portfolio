@@ -6,7 +6,7 @@
   <meta name="description" content="Browse Moore County Schools K–5 pacing by week or quarter and find North Carolina standards by topic.">
   <title>MCS K–5 Pacing</title>
   <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
-  <link rel="stylesheet" href="./styles.css?v=2">
+  <link rel="stylesheet" href="./styles.css?v=3">
 </head>
 <body class="pacing-page">
   <a class="skip" href="#main">Skip to content</a>
@@ -28,11 +28,14 @@
         <h2 id="timeline-heading">Teaching timeline</h2>
         <p id="timeline-range" class="timeline-range">2026–27 school year</p>
       </div>
-      <form id="topic-lookup" class="topic-lookup" role="search" aria-label="Find a North Carolina standard">
-        <label class="search-label" for="lookup-topic">Find a standard by topic</label>
-        <div class="topic-fields"><input type="search" id="lookup-topic" name="q" placeholder="Try fractions or moon phases"><button type="submit">Search</button></div>
-      </form>
       <div class="timeline-controls">
+        <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
+        <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
+        <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
+        <form id="topic-lookup" class="topic-lookup" role="search" aria-label="Find a North Carolina standard">
+          <label class="search-label" for="lookup-topic">Find a standard by topic</label>
+          <div class="topic-fields"><input type="search" id="lookup-topic" name="q" placeholder="Try fractions or moon phases"><button type="submit">Search</button></div>
+        </form>
         <fieldset class="timeline-view-control" id="timeline-mode">
           <legend>Timeline view</legend>
           <div class="timeline-view-options">
@@ -40,9 +43,6 @@
             <label><input type="radio" name="period" value="quarter">Quarterly</label>
           </div>
         </fieldset>
-        <label for="timeline-grade">Grade<select id="timeline-grade"></select></label>
-        <label id="timeline-week-controls" for="timeline-date">Date<input type="date" id="timeline-date" aria-describedby="timeline-range"></label>
-        <label id="timeline-quarter-control" for="timeline-quarter" hidden>Quarter<select id="timeline-quarter" aria-describedby="timeline-range"></select></label>
       </div>
       <section class="timeline-calendar" aria-labelledby="timeline-week">
         <div class="week-toolbar">
@@ -85,6 +85,6 @@
 <script src="./timeline-data.js"></script>
 <script src="../crosswalks/standards-index.js"></script>
 <script src="./calendar.js"></script>
-<script src="./app.js?v=2"></script>
+<script src="./app.js?v=3"></script>
 </body>
 </html>
