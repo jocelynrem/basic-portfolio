@@ -6,14 +6,14 @@
   --red:#d03739;
   --red-dark:#9a222b;
   --gold:#e3d081;
-  --ink:#232d2e;
-  --muted:#595959;
-  --line:#ced7d5;
-  --control-border:#687b78;
   --white:#fff;
-  --paper:#f2f2f2;
-  --mint:#f1f7ed;
-  --teal-wash:#def1ed;
+  --paper:#faf9f5;
+  --ink:#202e2c;
+  --muted:#475a55;
+  --line:#d5dcd5;
+  --control-border:#71827b;
+  --mint:#edf3ee;
+  --teal-wash:#daeae3;
   --red-wash:#fae9e9;
   --gold-wash:#f7f1db;
   font:16px/1.5 system-ui,-apple-system,sans-serif;
@@ -76,9 +76,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .header {
-  background:var(--teal-dark);
-  color:var(--white);
-  box-shadow:inset 0 -3px var(--teal);
+  background:var(--white);
+  color:var(--teal-dark);
+  border-bottom:1px solid var(--line);
 }
 
 .header-row {
@@ -115,7 +115,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .navigation a {
   padding:8px 12px;
   border-radius:7px;
-  color:var(--white);
+  color:var(--muted);
   text-decoration:none;
   font-size:.9rem;
   font-weight:650;
@@ -123,12 +123,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .navigation a[aria-current],.navigation a:hover {
-  background:var(--teal-light);
   color:var(--teal-dark);
-}
-
-.header :focus-visible {
-  outline-color:var(--gold);
+  text-decoration:underline;
+  text-underline-offset:.48em;
+  text-decoration-thickness:2px;
 }
 
 .workspace {
@@ -247,8 +245,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   outline:none;
 }
 
-.search-wrap input::placeholder {
+.topic-fields input::placeholder,.search-wrap input::placeholder {
   color:var(--muted);
+  opacity:1;
 }
 
 .site-search {
@@ -391,8 +390,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timing-chip {
-  background:var(--gold-wash);
-  color:var(--ink);
+  background:var(--mint);
+  color:var(--teal-dark);
   padding:2px 7px;
   border-radius:5px;
   font-weight:680;
@@ -531,8 +530,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .qualifier {
-  background:var(--gold-wash);
-  color:var(--ink);
+  background:var(--paper);
+  color:var(--muted);
   font-weight:700;
   border-radius:5px;
   padding:1px 6px;
@@ -749,21 +748,18 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 #week-today {
   margin-inline-start:7px;
   border-radius:7px;
-  background:var(--red);
-  color:var(--white);
+  border:1px solid var(--control-border);
+  background:var(--white);
+  color:var(--teal-dark);
   font-size:.87rem;
 }
 
 #week-today:hover:enabled {
-  background:var(--red-dark);
+  background:var(--teal-wash);
 }
 
 .week-buttons button:focus-visible,.timeline-day:focus-visible {
   outline-offset:-4px;
-}
-
-#week-today:focus-visible {
-  outline-color:var(--white);
 }
 
 .week-buttons button:disabled,.timeline-day:disabled {
@@ -809,7 +805,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   grid-template-columns:repeat(5,minmax(0,1fr));
   border-top:1px solid var(--line);
   border-radius:0 0 9px 9px;
-  background:var(--mint);
+  background:#f5f7f3;
 }
 
 .timeline-day {
@@ -876,9 +872,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .day-badge-today {
-  background:var(--teal-wash);
-  border-color:var(--teal);
-  color:var(--teal-dark);
+  background:var(--teal-dark);
+  border-color:var(--teal-dark);
+  color:var(--white);
 }
 
 .day-badge-closed {
@@ -894,7 +890,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timeline-day[aria-pressed="true"] {
-  background:var(--teal-light);
+  background:var(--teal-wash);
   border-bottom-color:var(--teal-dark);
   color:var(--teal-dark);
 }
@@ -914,6 +910,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .timeline-subject h4 {
+  color:var(--teal-dark);
   margin:0;
   font-size:1.05rem;
 }
@@ -935,15 +932,16 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .basis-badge {
   padding:2px 6px;
   border-radius:5px;
-  background:var(--teal-wash);
+  background:var(--mint);
   color:var(--teal-dark);
   font-size:.73rem;
   font-weight:700;
 }
 
 .basis-badge.estimate {
-  background:var(--gold-wash);
-  color:var(--ink);
+  background:var(--paper);
+  color:var(--muted);
+  border:1px dashed var(--control-border);
 }
 
 .timeline-standards {
@@ -956,8 +954,14 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   margin-top:4px;
 }
 
+.timeline-standards code,.site-search-result code {
+  background:var(--mint);
+  color:var(--teal-dark);
+  padding:.08em .3em;
+  border-radius:3px;
+}
+
 .timeline-standards code {
-  color:var(--muted);
   font-size:.75rem;
 }
 
@@ -1063,29 +1067,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .source-card {
-  --subject-ink:var(--teal-dark);
-  --subject-wash:var(--teal-wash);
   padding:13px;
   background:white;
   border:1px solid var(--line);
-  border-top:3px solid var(--subject-ink);
+  border-top:3px solid var(--teal-dark);
   border-radius:9px;
-}
-
-.source-card[data-subject="ELA"] {
-  --subject-ink:var(--red-dark);
-  --subject-wash:var(--red-wash);
-}
-
-.source-card[data-subject="Science"] {
-  --subject-wash:var(--teal-light);
-  border-top-color:var(--teal);
-}
-
-.source-card[data-subject="Social studies"] {
-  --subject-ink:var(--ink);
-  --subject-wash:var(--gold-wash);
-  border-top-color:var(--gold);
 }
 
 .source-card h4 {
@@ -1105,8 +1091,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   padding:3px 7px;
   border-radius:4px;
   font-size:.78rem;
-  color:var(--subject-ink);
-  background:var(--subject-wash);
+  color:var(--teal-dark);
+  background:var(--mint);
   font-weight:750;
 }
 
@@ -1305,15 +1291,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 
 .topic-fields button {
-  border-color:var(--red);
+  border-color:var(--teal-dark);
   color:var(--white);
-  background:var(--red);
+  background:var(--teal-dark);
   font-weight:700;
 }
 
 .topic-fields button:hover {
-  background:var(--red-dark);
-  border-color:var(--red-dark);
+  background:#153d40;
+  border-color:#153d40;
 }
 
 .pacing-page .site-search .source-filters {
@@ -1323,4 +1309,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .pacing-page .site-search .source-filters label {
   flex:1 1 9rem;
   max-width:14rem;
+}
+
+@media(forced-colors:active) {
+  .timeline-view-options label:has(:checked),.timeline-day[aria-pressed="true"] {
+    outline:2px solid Highlight;
+    outline-offset:-3px;
+  }
 }
