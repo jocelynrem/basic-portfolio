@@ -1,0 +1,276 @@
+@font-face {
+  font-family:"DM Sans";
+  src:url("./fonts/dm-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight:100 1000;
+  font-display:swap;
+}
+
+@font-face {
+  font-family:Baskervville;
+  src:url("./fonts/baskervville-latin-400-normal.woff2") format("woff2");
+  font-weight:400;
+  font-display:swap;
+}
+
+@font-face {
+  font-family:Baskervville;
+  src:url("./fonts/baskervville-latin-400-italic.woff2") format("woff2");
+  font-weight:400;
+  font-style:italic;
+  font-display:swap;
+}
+
+:root {
+  --paper:#faf9f5;
+  --ink:#202e2c;
+  --muted:#475a55;
+  --line:#d5dcd5;
+  --control-border:#71827b;
+  --mint:#edf3ee;
+  --teal-wash:#daeae3;
+  --display:Baskervville,Georgia,serif;
+  font-family:"DM Sans",system-ui,sans-serif;
+}
+
+.header {
+  background:var(--white);
+  color:var(--teal-dark);
+  box-shadow:none;
+  border-bottom:1px solid var(--line);
+}
+
+.header-row { min-height:64px; }
+
+.brand {
+  font-size:1.1rem;
+  font-weight:750;
+  letter-spacing:-.035em;
+}
+
+.navigation a {
+  border-radius:0;
+  color:var(--muted);
+  padding:10px 6px;
+}
+
+.navigation { gap:clamp(8px,2vw,26px); }
+
+.navigation a[aria-current],.navigation a:hover {
+  color:var(--teal-dark);
+  background:transparent;
+  text-decoration:underline;
+  text-underline-offset:.48em;
+  text-decoration-thickness:2px;
+}
+
+.header :focus-visible { outline-color:var(--teal-dark); }
+
+.timeline { padding-top:0; }
+
+.pacing-intro {
+  display:grid;
+  align-items:center;
+  padding-block:clamp(24px,3vw,42px);
+  border-bottom:1px solid var(--line);
+}
+
+#timeline-range {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:0 0 10px;
+  color:var(--muted);
+  font-size:.77rem;
+  font-weight:700;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+
+#timeline-range::before {
+  content:"";
+  width:25px;
+  height:2px;
+  background:var(--red-dark);
+}
+
+.pacing-intro h2,.section-head h2,.week-context h3,.timeline-subject h4,.guide-heading,.site-search-group h3 {
+  font:400 1.65rem/1.15 var(--display);
+  letter-spacing:-.035em;
+  color:var(--ink);
+}
+
+.pacing-intro h2 {
+  margin:0;
+  font-size:clamp(2.45rem,4.2vw,3.8rem);
+  line-height:1.02;
+  text-wrap:balance;
+}
+
+.pacing-intro h2 em {
+  display:block;
+  color:var(--teal-dark);
+}
+
+.pacing-intro h2 + p {
+  max-width:61ch;
+  margin:13px 0 0;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+@media(min-width:761px) {
+  .pacing-intro {
+    grid-template-columns:1.45fr 1fr;
+    gap:clamp(24px,5vw,80px);
+  }
+  .pacing-intro::after {
+    content:"";
+    width:100%;
+    height:clamp(152px,16vw,215px);
+    background:url("./planner-desk.webp") right center / contain no-repeat;
+    mix-blend-mode:multiply;
+  }
+}
+
+.timeline-controls {
+  gap:clamp(12px,1.8vw,26px);
+  padding-block:20px;
+}
+
+.timeline-controls > label,.search-label,.timeline-view-control legend,.week-buttons label {
+  color:var(--ink);
+  font-weight:650;
+}
+
+.topic-fields {
+  gap:0;
+}
+
+.topic-fields input {
+  width:100%;
+  padding-inline:14px;
+  border-right:0;
+  border-radius:7px 0 0 7px;
+}
+
+.topic-fields input::placeholder,.search-wrap input::placeholder { color:var(--muted); opacity:1; }
+.topic-fields input:focus-visible { z-index:1; }
+
+.topic-fields button {
+  padding-inline:18px;
+  background:var(--teal-dark);
+  border-color:var(--teal-dark);
+  border-radius:0 7px 7px 0;
+}
+.topic-fields button:hover { background:#153d40; border-color:#153d40; }
+
+.timeline-calendar {
+  margin:0 0 20px;
+  border-radius:12px;
+}
+
+.week-toolbar {
+  gap:8px 18px;
+  padding:14px 18px;
+}
+
+.week-context {
+  display:block;
+  padding:0;
+}
+
+.week-context h3 { font-size:clamp(1.45rem,2.4vw,2rem); }
+.week-context p { margin-top:4px; }
+.week-buttons label { font-size:.8rem; }
+
+#week-today {
+  border:1px solid var(--control-border);
+  background:var(--white);
+  color:var(--teal-dark);
+}
+
+#week-today:hover:enabled { background:var(--teal-wash); }
+#week-today:focus-visible { outline-color:var(--teal-dark); }
+
+.day-strip { background:#f5f7f3; }
+
+.timeline-day {
+  min-height:54px;
+  align-content:center;
+}
+
+.timeline-day[aria-pressed="true"] {
+  background:var(--teal-wash);
+  color:var(--teal-dark);
+  border-bottom-color:var(--teal-dark);
+}
+
+.day-badge-today {
+  background:var(--teal-dark);
+  color:var(--white);
+  border-color:var(--teal-dark);
+}
+
+.subject-grid { gap:16px; }
+
+.timeline-subject,.source-card,.site-search-result {
+  padding:clamp(16px,1.8vw,24px);
+  border-radius:10px;
+}
+
+.timeline-subject h4 {
+  margin:0 0 12px;
+  padding-bottom:11px;
+  border-bottom:1px solid var(--line);
+  color:var(--teal-dark);
+}
+
+.timeline-group:first-of-type { border-top:0; padding-top:0; }
+.timeline-standards { line-height:1.55; }
+.timeline-standards li + li { margin-top:6px; }
+.timeline-standards code,.site-search-result code {
+  padding:.08em .3em;
+  background:var(--mint);
+  color:var(--teal-dark);
+  border-radius:3px;
+}
+
+.basis-badge,.source-card .source-category {
+  color:var(--teal-dark);
+  background:var(--mint);
+}
+
+.basis-badge.estimate {
+  color:var(--muted);
+  background:var(--paper);
+  border:1px dashed var(--control-border);
+}
+
+.sources,.site-search { padding-block:clamp(26px,4vw,52px); }
+.section-head h2 { font-size:clamp(2rem,4vw,3.2rem); margin-bottom:12px; }
+.site-search-group h3,.guide-heading { margin-bottom:12px; }
+.site-search-result + .site-search-result { margin-top:8px; }
+.source-card[data-subject] { border-top:3px solid var(--teal-dark); }
+
+@media(max-width:760px) {
+  .header-row { min-height:0; gap:5px 16px; }
+  .navigation { gap:9px; }
+  .navigation a { padding:6px 4px 8px; }
+  .pacing-intro h2 em { display:inline; }
+}
+
+@media(max-width:600px) {
+  .navigation { width:100%; flex-wrap:nowrap; gap:6px; }
+  .navigation a { font-size:.82rem; white-space:normal; }
+  .timeline-controls { gap:12px; padding-block:16px; }
+  .week-toolbar { padding:12px; }
+  .week-buttons label { width:auto; }
+  .subject-grid { gap:12px; }
+}
+
+@media(forced-colors:active) {
+  .timeline-view-options label:has(:checked),.timeline-day[aria-pressed="true"] {
+    outline:2px solid Highlight;
+    outline-offset:-3px;
+  }
+}
