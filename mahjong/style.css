@@ -865,3 +865,45 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   .play-coach { padding: 9px 12px; }
   #coach-details summary { min-height: 36px; }
 }
+
+.guided-layout { display: flex; flex-direction: column; }
+.guided-layout .game-column { display: contents; }
+.guided-layout .hand-focus { order: 1; }
+.guided-layout .hand-focus[hidden] { display: none; }
+.guided-layout .line-column { display: grid; align-items: start; gap: 8px; margin-top: 8px; }
+.guided-layout .side-panel, .guided-layout .play-coach { margin: 0; min-width: 0; }
+.guided-layout .card-intro { justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid var(--line); }
+.guided-layout .ordered-hands#hand-list {
+  grid-template-columns: minmax(0, 1fr);
+  max-height: clamp(9rem, 20svh, 14rem);
+  overflow-y: auto;
+  scrollbar-color: #9daa93 transparent;
+}
+.guided-layout .coach-feedback :empty,
+.guided-layout .coach-feedback:not(:has(> :not(:empty))) { display: none; }
+@media (max-width: 679px) {
+  .guided-layout .card-intro { padding-block: 0; }
+  .guided-layout .ordered-hands#hand-list { max-height: 8.25rem; }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  .guided-layout #rack { column-gap: 3px; padding-inline: 1px; }
+}
+@media (min-width: 680px) and (max-width: 1079px) {
+  .guided-layout .line-column { grid-template-columns: 1fr 1fr; }
+  .guided-layout .ordered-hands#hand-list { max-height: clamp(11rem, 30svh, 18rem); }
+}
+@media (min-width: 1080px) {
+  main:has(.guided-layout) { max-width: 1520px; }
+  .workspace:has(.guided-layout), .play-area.guided-layout { max-width: none; }
+  .play-area.guided-layout { display: grid; grid-template-columns: minmax(0, 1fr) clamp(310px, 28vw, 420px); gap: 16px; align-items: start; }
+  .guided-layout .game-column { display: block; min-width: 0; }
+  .guided-layout .line-column { margin-top: 0; }
+  .guided-layout .ordered-hands#hand-list { max-height: clamp(14rem, 40svh, 26rem); }
+  .guided-layout .player-zone { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .guided-layout .player-zone > .action-bar { flex-direction: row; align-items: center; justify-content: space-between; }
+  .guided-layout .player-zone .charleston-choice { flex-direction: row; }
+  .guided-layout .player-zone .charleston-choice .button { width: auto; }
+  .guided-layout .rack { min-width: 0; column-gap: clamp(3px, .4vw, 7px); }
+  .guided-layout #rack .tile { min-width: 0; }
+  .guided-layout .goal-pattern { flex-wrap: wrap; }
+}

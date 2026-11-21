@@ -3,11 +3,11 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=win-source-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=guided-play-1';
-import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=guided-play-1';
+import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=guided-layout-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
-import {practiceGame} from './learning.mjs?v=wind-sort-1';
+import {practiceGame,restorePracticeChoice} from './learning.mjs?v=guided-layout-1';
 import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
@@ -39,9 +39,11 @@ const difficultyNames={easy:'Easy',standard:'Standard',hard:'Hard'};
 const difficultyNotes={easy:'Bots play exposed hands.',standard:'Bots play all card lines, including concealed hands.',hard:'Bots play all card lines and use visible tiles to judge which hands are within reach.'};
 let difficultyPreference='easy';try{difficultyPreference=G.normalizeDifficulty(localStorage.getItem('parlor-difficulty'));}catch{}
 let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Error();}catch{s=null;}s||=newMatch(difficultyPreference);normalizeMatch(s);
+restorePracticeChoice(s);
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
-let rankedHands=[],coachLines=[],coachChoiceAdvice='';
+let rankedHands=[],coachLines=[];
+const showingLines=()=>s.guidedPlay||pickerOpen;
 const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
 const callFilterLine=()=>s.onlyChosenHandCalls?pinned:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
@@ -84,11 +86,6 @@ function playSound(){if(!sound)return;try{const ctx=new(window.AudioContext||win
 function save(){try{localStorage.setItem('parlor-hand-picker-open',String(pickerOpen));}catch{}s.receivedIds=[...receivedIds];s.goalHandId=pinned;s.goalTargetKey=goalKey;try{localStorage.setItem(STORE,JSON.stringify(s));if(!s.practiceSession)localStorage.setItem('parlor-match-2026',JSON.stringify({scores:s.scores,scoreHistory:s.scoreHistory,dealer:s.dealer,handNumber:s.handNumber}));}catch{}}
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4800);}
 function show(title,body,eyebrow=''){clearTimeout(botTimer);modal.classList.remove('tile-style-modal');modal.dataset.view=''; $('#modal-eyebrow').textContent=eyebrow;$('#modal-eyebrow').hidden=!eyebrow;$('#modal-content').innerHTML=`<h2 id="modal-title">${title}</h2>${body}`;if(!modal.open)modal.showModal();}
-function showSecondCharlestonChoice(){
- show('Second Charleston?',`${s.guidedPlay?`<p>${esc(coachChoiceAdvice)}</p>`:''}<div class="modal-actions">${secondCharlestonActions()}</div>`);
- modal.dataset.view='second-charleston';
- $('#modal [data-action="second"]').focus();
-}
 function exposedMarkup(p,size='tiny',splitAt=0){
  const groups=s.exposed[p].map((e,group)=>`<div class="exposure" title="${e.tiles.length} ${G.tileName(e.k)}">${e.tiles.map(t=>{
   const face=tile(t,size,false,p===0&&matchingIds.has(t.id)?'hand-match':'');let content=face;
@@ -261,7 +258,7 @@ function showLearn(){
  const playing=!['ended','matchEnded'].includes(s.phase);
  const guide=playing?`<section class="learn-guided"><h3>Guided play</h3><p>Get feedback as you choose a hand, pass, call, and discard in this game.</p>${btn(s.guidedPlay?'Return to guided play':'Start guided play','open-coach','small')}</section>`:'';
  const playable=coachLines.filter(row=>!row.blocked);
- const target=currentPlan()?.target??playable[0]?.target;
+ const target=currentPlan()?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
  const advice=tileAdvice(s,target,count);
  if(playable.length&&!claims.length&&['pass','discard'].includes(advice.kind)){
@@ -381,20 +378,22 @@ function renderCoach(){
  const [focus,other]=coachLines;
  const dead=G.isDeadHand(s);
  const comparison=dead?{title:'Watch the table',reason:'Your hand is out for this round.'}:
-  focus?handComparison(focus,other,Boolean(pinned)):{title:'No matching hand',reason:'Try another section or change the hand picker filters.'};
+  !focus?{title:'No matching hand',reason:'Try changing the hand picker filters.'}:
+  pinned?handComparison(focus,other,true):{title:'',reason:''};
  const playable=coachLines.filter(row=>!row.blocked);
  const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps});
- coachChoiceAdvice=advice.text;
  setCoachText('#coach-verdict',comparison.title);
  setCoachText('#coach-reason',comparison.reason);
  setCoachText('#coach-action',advice.text);
- const details=dead?[]:coachLines.map(row=>{
+ const details=dead||(!pinned&&!advice.text)?[]:coachLines.map(row=>{
   const label=row===focus&&pinned?'Chosen hand':'';
   const description=row.incompatible?'Conflicts with your exposures':
    `${row.away} tiles away · ${row.naturalsNeeded} missing for singles and pairs · ${row.target.points} card points`;
   return [label,row.target.name,description].filter(Boolean).join(' · ');
  }).concat(advice.details||[]);
- $('#coach-details').hidden=!details.length;
+ const disclosure=$('#coach-details');
+ disclosure.hidden=!details.length;
+ if(disclosure.hidden)disclosure.open=false;
  const html=details.map(detail=>`<li>${esc(detail)}</li>`).join('');
  if($('#coach-numbers').innerHTML!==html)$('#coach-numbers').innerHTML=html;
 }
@@ -403,11 +402,14 @@ function renderHands(){
  const dead=G.isDeadHand(s);
  const pinnedLine=targetHandDisplay==='line'&&!dead?targetFor(pinned,goalKey):null;
  const panel=$('#hands-panel');
- $('.side-panel').hidden=!pickerOpen&&!pinnedLine;
- if(!pickerOpen&&!pinnedLine){panel.replaceChildren();return;}
+ const open=showingLines();
+ $('.side-panel').hidden=!open&&!pinnedLine;
+ if(!open&&!pinnedLine){panel.replaceChildren();return;}
+ const oldScroll=s.guidedPlay?$('#hand-list')?.scrollTop||0:0;
+ const focusedHand=panel.contains(document.activeElement)?document.activeElement.dataset.hand:null;
  const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
  const hand=s.hands[0],exposed=s.exposed[0];
- const rows=pickerOpen&&!dead?rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed)):[];
+ const rows=open&&!dead?rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed)):[];
  if(pinnedLine){
   const index=rows.findIndex(({target})=>target.id===pinnedLine.id);
   if(index>=0)rows.splice(index,1);
@@ -424,13 +426,15 @@ function renderHands(){
   </button>`;
   return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline">${handPickerButton()}<button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
  }).join('');
- const filters=pickerOpen?`<div class="card-intro">
-  <span class="card-year">2026</span>
+ const filters=open?`<div class="card-intro">
+  ${s.guidedPlay?'<h2 id="line-heading" tabindex="-1">Choose a line</h2>':'<span class="card-year">2026</span>'}
   <label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>
-  <button class="text-button picker-close" data-action="toggle-hands" aria-label="Close hand picker">×</button>
+  ${s.guidedPlay?'':'<button class="text-button picker-close" data-action="toggle-hands" aria-label="Close hand picker">×</button>'}
  </div>`:'';
  const empty='<p class="empty-recommendations">'+(dead?'No matching lines.':'No hands match your current filters.')+'</p>';
  panel.innerHTML=`${filters}<div id="hand-list" class="ordered-hands ranked-hands">${contents||empty}</div>`;
+ if(oldScroll)$('#hand-list').scrollTop=oldScroll;
+ if(focusedHand)panel.querySelector('[data-hand="'+CSS.escape(focusedHand)+'"]')?.focus({preventScroll:true});
  if(filterFocused)$('#hands-panel [name="hide-concealed"]')?.focus({preventScroll:true});
 }
 function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??G.best(s.hands[0],s.exposed[0],id)?.target:null;}
@@ -455,10 +459,10 @@ function currentPlan(){
  return {target,...matchHandTiles(hand,exposed,target,jokerPlacements(target)),away:G.evaluate(hand,exposed,target).missing};
 }
 function handPickerButton(){
- return pickerOpen?'':'<button class="text-button" data-action="toggle-hands" aria-expanded="false" aria-controls="hands-panel">See all lines</button>';
+ return showingLines()?'':'<button class="text-button" data-action="toggle-hands" aria-expanded="false" aria-controls="hands-panel">See all lines</button>';
 }
 function renderHandFocus(plan,variations=closestTargetVariations()){
- const el=$('#hand-focus');el.hidden=plan?targetHandDisplay==='line':pickerOpen&&!G.isDeadHand(s);el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
+ const el=$('#hand-focus');el.hidden=plan?targetHandDisplay==='line':showingLines()&&!G.isDeadHand(s);el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
  const picker=handPickerButton();
  if(!plan){
   delete el.dataset.handId;delete el.dataset.targetKey;
@@ -502,16 +506,17 @@ function chooseHand(id,key){
  render();
  const chosen=$('#hand-list .hand-card.chosen');
  chosen?.focus({preventScroll:true});
- const coach=$('#play-coach');
- if(coach.hidden&&targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
- if(!coach.hidden&&(coach.getBoundingClientRect().bottom<0||coach.getBoundingClientRect().top>innerHeight))coach.scrollIntoView({block:'nearest'});
+ if(targetHandDisplay==='line'){
+  if(s.guidedPlay)$('#hand-list').scrollTop=0;
+  else chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
+ }
 }
 function clearHand(){
- const line=targetHandDisplay==='line'&&pickerOpen?pinned:null;
+ const line=showingLines()?pinned:null;
  pinned=null;goalKey=null;jokerTargetGroup=null;
  render();
  const row=line?$('#hand-list [data-hand="'+CSS.escape(line)+'"]'):null;
- (row??$('#hand-focus [data-action="toggle-hands"], .card-intro .picker-close'))?.focus({preventScroll:true});
+ (row??$('#line-heading, #hand-focus [data-action="toggle-hands"], .card-intro .picker-close'))?.focus({preventScroll:true});
 }
 function showFinishedTable(phase,content){
  const board=$('#table');
@@ -564,6 +569,7 @@ function render(){
  if(s.turn!==0||s.phase!=='discard')swapMessage='';
  finalizeRound(s,s.winner===0?goalKey:null);
  const completed=finishMatch(s);
+ $('.play-area').classList.toggle('guided-layout',s.guidedPlay&&!['ended','matchEnded'].includes(s.phase));
  if(completed){pinned=null;goalKey=null;selected.clear();try{localStorage.setItem('parlor-last-match',JSON.stringify(completed));}catch{}}
  document.documentElement.dataset.tileStyle=tileStyle;for(const[key,value]of Object.entries(BOARDS[tileStyle]))document.documentElement.style.setProperty('--board-'+key,value);
  if(s.phase==='matchEnded'){renderMatchEnd();save();clearTimeout(botTimer);return;}
@@ -572,7 +578,7 @@ function render(){
   const next=s.practiceSession?btn('Practice again','practice-again'):btn('Next round','next-round');
   showFinishedTable('ended',roundReviewMarkup(s,next));save();clearTimeout(botTimer);return;
  }
- const board=$('#table'),enteringSecondChoice=s.phase==='charlestonChoice'&&board.dataset.phase!==s.phase;
+ const board=$('#table');
  board.classList.remove('match-complete');board.dataset.phase=s.phase;$('.opponent-row').hidden=false;$('.player-zone').hidden=false;
  const signals=handSignals(plan,s.hands[0]);matchingIds=new Set(plan?[...plan.ids,...plan.exposedIds]:[]);usableJokerIds=signals.usableJokers;winningJokerIds=signals.winningJokers;
  neededDiscardKeys=signals.needed;[1,2,3].forEach(renderSeat);
@@ -582,14 +588,6 @@ function render(){
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
  updateCoachHands(plan);renderCoach();
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan,variations);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
- if(enteringSecondChoice&&!modal.open){
-  if(!touchRack())showSecondCharlestonChoice();
-  else{
-   const start=$('#actions [data-action="second"]');
-   start.scrollIntoView({block:'nearest',inline:'nearest'});
-   start.focus({preventScroll:true});
-  }
- }
 }
 function revealFreshTile(){
  const key=s.drawn!=null?'draw:'+s.drawn:'pass:'+([...receivedIds].join(','));
@@ -609,11 +607,11 @@ function updateBoardSpace(){
  const bottom=rackHeight+(landscape?(passingTiles?8:18):mobile?25:36);
  // Leave room for the full call button and its marker above the rack.
  const discardSpace=Math.max(57,(latest?.offsetHeight||0)+13);
- const center=landscape?(passingTiles?6:discardSpace):mobile?(passingTiles?50:100):150;
+ const center=s.guidedPlay&&passingTiles?12:landscape?(passingTiles?6:discardSpace):mobile?(passingTiles?50:100):150;
  const mobileBase=passingTiles?380:Math.min(530,Math.max(414,innerHeight-125));
  const viewportHeight=window.visualViewport?.scale===1?window.visualViewport.height:innerHeight;
  const boardTop=board.getBoundingClientRect().top+scrollY;
- const base=landscape?viewportHeight-boardTop-40:mobile?mobileBase:Math.min(600,Math.max(500,innerHeight-110));
+ const base=s.guidedPlay?0:landscape?viewportHeight-boardTop-40:mobile?mobileBase:Math.min(600,Math.max(500,innerHeight-110));
  const top=Math.max(mobile?32:70,north.offsetHeight+(mobile?12:24));
  const normalHeight=landscape?Math.max(base,bottom+center+26):Math.max(base,top+bottom+center+16);
  const rackInset=parseFloat(getComputedStyle(rack).bottom)||0;
@@ -661,6 +659,7 @@ function renderTableTools(){
  $('#charleston-info').hidden=!passingTiles;
  $('#table-discards').hidden=s.phase==='matchEnded'||!s.discards.length;
  if(!passingTiles)return;
+ applyCharlestonGuidePreference();
  const step=s.phase==='charleston'?`${s.passRound}-${s.passStep}`:s.phase;
  for(const label of document.querySelectorAll('[data-charleston-step]')){
   if(label.dataset.charlestonStep===step)label.setAttribute('aria-current','step');
@@ -766,10 +765,6 @@ function selectRackTile(id){
   jokerTargetGroup=null;renderHandFocus(currentPlan());
  }
  if(winningClaim)return;
- if(s.phase==='charlestonChoice'&&!touchRack()){
-  showSecondCharlestonChoice();
-  return;
- }
  const passingTiles=['charleston','courtesy'].includes(s.phase);
  const discarding=s.phase==='discard'&&s.turn===0;
  if(!claims.length&&!passingTiles&&!discarding)return;
@@ -835,7 +830,7 @@ document.addEventListener('click',async e=>{
  else if(a==='learn'||a==='hint'){showLearn();}
  else if(a==='open-coach'){
   s.guidedPlay=true;modal.close();render();
-  $('#play-coach').focus({preventScroll:true});$('#play-coach').scrollIntoView({block:'nearest'});
+  $('#line-heading')?.focus({preventScroll:true});
  }
  else if(a==='close-coach'){
   s.guidedPlay=false;$('#coach-details').open=false;render();
@@ -874,12 +869,10 @@ document.addEventListener('click',async e=>{
  else if(a==='sort'){G.sortHand(s.hands[0]);delete s.rackOrder;render();}
  else if(a==='pass'){await runPass();}
  else if(a==='second'||a==='stop-charleston'){
-  const fromDialog=modal.open&&modal.dataset.view==='second-charleston';
-  if(fromDialog)modal.close();
   G.secondCharleston(s,a==='second');
   selected.clear();
   render();
-  if(fromDialog)$('#rack [data-tile]:not(.joker)')?.focus();
+  $('#rack [data-tile]:not(.joker)')?.focus({preventScroll:true});
  }
  else if(a==='draw'){if(canDrawWall(s)){selected.clear();receivedIds.clear();drawFromWall(s);playSound();render();}}
  else if(a==='discard'){discardTile([...selected][0]);}
@@ -925,19 +918,26 @@ document.addEventListener('change',e=>{
 modal.addEventListener('close',()=>{modal.classList.remove('tile-style-modal');scheduleBot();});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
 const charlestonToggle=$('#charleston-toggle'),charlestonGuide=$('#charleston-guide');
+let guidePreference;
+try{guidePreference=localStorage.getItem('parlor-charleston-guide');}catch{}
 function setCharlestonGuideOpen(open){
  charlestonGuide.hidden=!open;
  charlestonToggle.setAttribute('aria-expanded',String(open));
 }
-try{setCharlestonGuideOpen(localStorage.getItem('parlor-charleston-guide')!=='closed');}catch{}
+function applyCharlestonGuidePreference(){
+ const open=guidePreference?guidePreference==='open':!(s.guidedPlay&&innerWidth<680);
+ setCharlestonGuideOpen(open);
+}
 charlestonToggle.addEventListener('click',()=>{
  const open=charlestonGuide.hidden;
  setCharlestonGuideOpen(open);
- try{localStorage.setItem('parlor-charleston-guide',open?'open':'closed');}catch{}
+ guidePreference=open?'open':'closed';
+ try{localStorage.setItem('parlor-charleston-guide',guidePreference);}catch{}
  updateBoardSpace();
 });
 const boardObserver=new ResizeObserver(updateBoardSpace);boardObserver.observe($('#seat2'));boardObserver.observe($('.player-zone'));
 window.addEventListener('resize',()=>{
+ applyCharlestonGuidePreference();
  if(mobileArrange&&!touchRack()){mobileArrange=false;renderActions();}
  lastDiscardShown=null;updateBoardSpace();lastFreshKey='';revealFreshTile();
 });

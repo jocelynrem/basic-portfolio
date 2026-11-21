@@ -8,7 +8,7 @@
  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2324594e'/%3E%3Ctext x='20' y='29' text-anchor='middle' fill='%23fff8e8' font-size='30'%3E✿%3C/text%3E%3C/svg%3E">
  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
- <link rel="stylesheet" href="style.css?v=guided-play-1">
+ <link rel="stylesheet" href="style.css?v=guided-layout-1">
  <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
 </head>
 <body>
@@ -30,6 +30,7 @@
  <main>
   <div class="workspace">
    <section class="play-area" aria-label="Mahjong game">
+    <div class="game-column">
     <div class="charleston-info" id="charleston-info" hidden>
      <button class="text-button charleston-toggle" id="charleston-toggle" aria-expanded="true" aria-controls="charleston-guide">Charleston<span class="charleston-chevron" aria-hidden="true"></span></button>
      <div class="charleston-guide" id="charleston-guide">
@@ -78,7 +79,13 @@
      </div>
     </div>
     </div>
-    <section id="play-coach" class="play-coach" aria-labelledby="coach-heading" tabindex="-1" hidden>
+    <section id="hand-focus" class="hand-focus" aria-label="Chosen hand and hand picker" aria-live="polite" hidden></section>
+    </div>
+    <div class="line-column">
+    <aside class="side-panel" aria-label="Card lines">
+     <div id="hands-panel"></div>
+    </aside>
+    <section id="play-coach" class="play-coach" aria-labelledby="coach-heading" hidden>
      <div class="coach-heading"><h2 id="coach-heading">Learn · Guided play</h2><button class="text-button" data-action="close-coach" aria-label="Close guided play">Close</button></div>
      <div class="coach-feedback" aria-live="polite" aria-atomic="true">
       <strong id="coach-verdict"></strong>
@@ -87,10 +94,7 @@
      </div>
      <details id="coach-details"><summary>Show details</summary><ul id="coach-numbers"></ul></details>
     </section>
-    <section id="hand-focus" class="hand-focus" aria-label="Chosen hand and hand picker" aria-live="polite" hidden></section>
-   <aside class="side-panel">
-    <div id="hands-panel"></div>
-   </aside>
+    </div>
 
    </section>
 
@@ -102,6 +106,6 @@
  </footer>
  <div class="toast" id="toast" role="status" hidden></div>
  <dialog id="modal" aria-labelledby="modal-title"><div class="modal-top"><span class="eyebrow" id="modal-eyebrow"></span><button class="icon-button" data-action="close" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>
- <script type="module" src="js/app.mjs?v=guided-play-1"></script>
+ <script type="module" src="js/app.mjs?v=guided-layout-1"></script>
 </body>
 </html>
