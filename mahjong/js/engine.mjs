@@ -48,10 +48,6 @@ export function wallOrder(dealer=0){return [dealer,(dealer+3)%4,(dealer+2)%4,(de
 export function newGame(mode='random',options={}){
  const dealer=((options.dealer||0)%4+4)%4;
  const wall=deck(),hands=[[],[],[],[]];
- if(mode==='guided'){
-   const keys=['F','F','B2','B2','B2','C4','C4','C4','G','G','J','D1','C9','B8'];if(dealer!==0)keys.splice(keys.indexOf('C9'),1);
-   for(const k of keys){let i=wall.findIndex(t=>t.k===k);hands[0].push(wall.splice(i,1)[0]);}
- }
  for(let p=0;p<4;p++)while(hands[p].length<(p===dealer?14:13))hands[p].push(wall.pop());
  hands.forEach(sortHand);
  const dice=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],reserved=2*(dice[0]+dice[1]);
@@ -75,7 +71,7 @@ function availablePlans(exposed){
  if(!exposed.length)return fullCardPlans;
  return TARGETS.map(target=>compatible(target,exposed)).filter(Boolean).map(groups=>groups.sort(byGroupSize));
 }
-function unseenCopies(visible,k){return Math.max(0,(k==='F'||k==='J'?8:4)-(visible[k]||0));}
+export function unseenCopies(visible,k){return Math.max(0,(k==='F'||k==='J'?8:4)-(visible[k]||0));}
 function liveHandScore(hand,exposed,visible,plans=availablePlans(exposed)){
  const counts={};
  for(const {k} of hand)counts[k]=(counts[k]||0)+1;

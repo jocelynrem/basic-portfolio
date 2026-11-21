@@ -5,9 +5,16 @@ import {claimOptions,pass,secondCharleston,TARGETS,visibleTileCounts} from '../j
 import {prepareTable} from '../js/table-actions.mjs';
 import {assessHand,recommendHands} from '../js/recommendations.mjs';
 import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from '../js/coaching.mjs';
+import {pivotReason,trackOutlook} from '../js/outlook.mjs';
 
 function guided(){
  const game=practiceGame({dealer:0});
+ // A repeatable comparison rack for these examples, using actual tiles from the deal.
+ const pool=game.hands.flat().concat(game.wall);
+ const example=['F','F','B2','B2','B2','C4','C4','C4','G','G','J','D1','C9','B8'];
+ game.hands[0]=example.map(key=>pool.splice(pool.findIndex(t=>t.k===key),1)[0]);
+ for(let p=1;p<4;p++)game.hands[p]=pool.splice(0,13);
+ game.wall=pool;
  const hand=game.hands[0];
  const focus=assessHand(hand,[],TARGETS.find(t=>t.key==='even2-0'));
  const [other]=recommendHands(hand,[],{visible:visibleTileCounts(game)}).filter(row=>row.target.id!==focus.target.id);
@@ -23,6 +30,22 @@ test('new practice deals open without a chosen hand or an idle passing prompt',(
  }
  game.phase='charleston';
  assert.equal(turnAdvice(game,lines,options).text,'');
+});
+
+test('starting practice and practicing again use the shuffled deck for every seat',t=>{
+ // Different deterministic shuffles expose a preset rack without relying on chance.
+ const random=t.mock.method(Math,'random',()=>0.21);
+ const first=practiceGame({dealer:0});
+ random.mock.mockImplementation(()=>0.79);
+ const next=practiceGame(first);
+ const tiles=game=>game.hands[0].map(t=>t.k);
+ assert.notDeepEqual(tiles(first),tiles(practiceGame({dealer:0})));
+ assert.equal(next.dealer,1);
+ for(const game of [first,next]){
+  assert.equal(game.hands[game.dealer].length,14);
+  assert.equal(new Set([...game.hands.flat(),...game.wall].map(t=>t.id)).size,152);
+  assert.ok(!game.goalHandId);
+ }
 });
 
 test('an old practice preset is cleared only at the opening and only once',()=>{
@@ -44,14 +67,81 @@ test('the guided opening compares distinct hands and recognizes the missing natu
  const [evens,run]=lines;
  assert.equal(run.target.id,'run7');
  assert.deepEqual(lines.map(row=>row.away),[5,5]);
- const {reason}=handComparison(evens,run,true);
+ const {reason}=handComparison(evens,run);
  assert.match(reason,/pair of 6 Craks/);
  for(const row of lines)assert.ok(reason.includes(row.target.name));
- assert.match(handComparison(run,evens,true).title,/Your pick has a slight edge/);
+ assert.equal(handComparison(run,evens).title,'Slight edge');
+ assert.equal(handComparison(run,evens).leader,run.target.name);
  game.discards=[0,1,2].map(id=>({player:1,tile:{id:200+id,k:'C6'}}));
  const unavailable=assessHand(hand,[],evens.target,visibleTileCounts(game));
  assert.ok(unavailable.blocked);
  assert.match(handComparison(unavailable,run,true).reason,/Too few copies of 6 Crak/);
+});
+
+test('the outlook follows committed moves and public evidence, including a claimed discard only once',()=>{
+ const {game,lines}=guided(),[evens,run]=lines;
+ const assess=()=>assessHand(game.hands[0],game.exposed[0],evens.target,visibleTileCounts(game));
+ let tracker=trackOutlook(null,game,assess());
+ assert.equal(tracker.status,'Tracking');
+ game.hands[0].reverse();game.wall.reverse();game.hands[1]=[];
+ assert.deepEqual(trackOutlook(tracker,game,assess()),tracker);
+ const discarded={k:'C6',id:304};
+ game.discards.push({tile:discarded,claimed:false,player:1});
+ tracker=trackOutlook(tracker,game,assess());
+ assert.equal(tracker.status,'Weakening');
+ assert.match(tracker.note,/discard pile.*6 Crak/);
+ game.discards[0].claimed=true;
+ game.exposed[2].push({k:'C6',tiles:[discarded,{id:305,k:'C6'},{id:306,k:'J'}]});
+ tracker=trackOutlook(tracker,game,assess());
+ assert.match(tracker.note,/opponent exposed 6 Crak/);
+ assert.equal(assess().gaps.find(g=>g.key==='C6').unseen,2);
+ assert.match(pivotReason(assess(),run),/every unseen copy of 6 Crak/);
+ game.discards.push({tile:{id:307,k:'C6'},claimed:false,player:3});
+ tracker=trackOutlook(tracker,game,assess());
+ assert.equal(tracker.status,'Blocked');
+ assert.match(pivotReason(assess(),run),/2468 · Line 2.*Consecutive Run · Line 7/);
+ assert.deepEqual(trackOutlook(JSON.parse(JSON.stringify(tracker)),game,assess()),tracker);
+ assert.equal(trackOutlook(tracker,game,run).history.length,0);
+});
+
+test('a useful draw improves the chosen line and an unrelated discard leaves it alone',()=>{
+ const {game,lines:[row,other]}=guided();
+ const initial=trackOutlook(null,game,row);
+ assert.equal(pivotReason(row,other),'');
+ game.discards.push({tile:{k:'W',id:500},player:1});
+ const assess=()=>assessHand(game.hands[0],[],row.target,visibleTileCounts(game));
+ const steady=trackOutlook(initial,game,assess());
+ assert.equal(steady.status,'Steady');
+ game.hands[0].push({k:'C6',id:501});
+ const improved=trackOutlook(steady,game,assess());
+ assert.equal(improved.status,'Improving');
+ assert.match(improved.note,/6 Crak/);
+ assert.equal(improved.start-improved.last.away,1);
+});
+
+test('helpful draws count each physical copy once and only include tiles that reduce the distance',()=>{
+ const {game,lines}=guided();
+ for(const row of lines){
+  const tested=assessHand(game.hands[0],[],row.target,visibleTileCounts(game));
+  for(const key of [...new Set([...row.target.groups.map(([k])=>k),'J'])]){
+   const hand=[...game.hands[0],{k:key,id:600}];
+   const closer=assessHand(hand,[],row.target).away<row.away;
+   assert.equal(Object.hasOwn(tested.helpful,key),closer);
+  }
+  assert.equal(tested.usefulCopies,Object.values(tested.helpful).reduce((n,c)=>n+c,0));
+ }
+});
+
+test('exposed jokers count as jokers, and a set with scarce naturals can motivate a pivot',()=>{
+ const {lines:[,run]}=guided(),hand=[{k:'B2',id:1},{k:'B2',id:2}];
+ const table={hands:[hand,[],[],[]],discards:[],exposed:[[],[{k:'B2',tiles:[{k:'B2',id:3},{k:'B2',id:4},{k:'J',id:5}]}],[],[]]};
+ const row=assessHand(hand,[],run.target,visibleTileCounts(table));
+ assert.equal(row.helpful.B2,0);
+ assert.equal(row.helpful.J,7);
+ assert.equal(row.jokerDebt,2);
+ assert.equal(row.blocked,false);
+ const safer=recommendHands(hand,[],{visible:visibleTileCounts(table)}).find(r=>r.target.id!==row.target.id&&!r.jokerDebt&&r.away<=row.away);
+ assert.match(pivotReason(row,safer),/jokers/);
 });
 
 test('a whole pass can preserve the target and cost a tile toward the alternative',()=>{

@@ -1,4 +1,4 @@
-import {newGame} from './engine.mjs?v=wind-sort-1';
+import {newGame} from './engine.mjs?v=hand-outlook-1';
 
 // Practice has its own hand and points; the normal table is kept by the caller.
 export function practiceGame(previous,difficulty=previous.difficulty){

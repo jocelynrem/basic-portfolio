@@ -2,12 +2,13 @@ import * as G from './engine.mjs?v=win-source-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=win-source-1';
-import {recommendHands,assessHand} from './recommendations.mjs?v=guided-play-1';
-import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=guided-layout-1';
+import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
+import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=hand-outlook-1';
+import {trackOutlook,pivotReason} from './outlook.mjs?v=hand-outlook-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
-import {practiceGame,restorePracticeChoice} from './learning.mjs?v=guided-layout-1';
+import {practiceGame,restorePracticeChoice} from './learning.mjs?v=hand-outlook-1';
 import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
@@ -366,6 +367,11 @@ function updateCoachHands(plan){
  const allowed=rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed));
  const focus=plan?assessHand(s.hands[0],s.exposed[0],plan.target,visible):allowed[0];
  coachLines=focus?[focus,...allowed.filter(row=>row.target.id!==focus.target.id).slice(0,1)]:[];
+ if(plan&&focus){
+  // A callable discard is still on offer. Record its impact when the call resolves.
+  if(!claims.length||s.outlook?.line!==pinned)s.outlook=trackOutlook(s.outlook,s,focus);
+ }
+ else delete s.outlook;
 }
 function setCoachText(selector,value){
  const el=$(selector);
@@ -377,26 +383,57 @@ function renderCoach(){
  if(el.hidden)return;
  const [focus,other]=coachLines;
  const dead=G.isDeadHand(s);
- const comparison=dead?{title:'Watch the table',reason:'Your hand is out for this round.'}:
+ const canDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
+ const hasWin=winningClaim||canDeclare&&G.winning(s.hands[0],s.exposed[0]);
+ const tracking=pinned&&focus&&!dead&&!hasWin&&s.outlook;
+ const bestVariation=tracking&&rankedHands.find(row=>row.target.id===pinned);
+ const pivot=tracking&&!hasWin&&!claims.length&&(!bestVariation||pivotReason(bestVariation,other))&&pivotReason(focus,other);
+ const comparison=hasWin?{kind:'fit',title:'Mahjong',reason:''}:dead?{title:'Watch',reason:'Your hand is out for this round.'}:
   !focus?{title:'No matching hand',reason:'Try changing the hand picker filters.'}:
-  pinned?handComparison(focus,other,true):{title:'',reason:''};
+  pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:pinned?handComparison(focus,other):{title:'',reason:''};
  const playable=coachLines.filter(row=>!row.blocked);
  const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps});
+ $('#coach-tracker').hidden=!tracking;
+ if(tracking){
+  const status=tracking.status;
+  setCoachText('#outlook-line',focus.target.name);
+  setCoachText('#outlook-status',status);
+  $('#coach-tracker').dataset.trend=status;
+  setCoachText('#outlook-note',tracking.note);
+ }
+ $('.coach-callout').hidden=!comparison.title;
+ $('#coach-mark').dataset.kind=comparison.kind||'';
+ setCoachText('#coach-mark',({blocked:'×',pivot:'⇄',fit:'✓'})[comparison.kind]||'');
  setCoachText('#coach-verdict',comparison.title);
+ setCoachText('#coach-leader',comparison.leader&&comparison.leader===focus?.target.name?'Your line':comparison.leader||'');
  setCoachText('#coach-reason',comparison.reason);
  setCoachText('#coach-action',advice.text);
+ const switchButton=$('[data-action="coach-switch"]');
+ switchButton.hidden=!pivot;
+ if(pivot)switchButton.textContent='Switch to '+other.target.name;
  const details=dead||(!pinned&&!advice.text)?[]:coachLines.map(row=>{
   const label=row===focus&&pinned?'Chosen hand':'';
   const description=row.incompatible?'Conflicts with your exposures':
    `${row.away} tiles away · ${row.naturalsNeeded} missing for singles and pairs · ${row.target.points} card points`;
   return [label,row.target.name,description].filter(Boolean).join(' · ');
  }).concat(advice.details||[]);
+ if(tracking){
+  if(tracking.start!==null&&!focus.incompatible)details.push('When chosen: '+distanceLabel(tracking.start)+'. Now: '+distanceLabel(focus.away)+'.');
+  if(!focus.incompatible){
+   const copies=Object.entries(focus.helpful).map(([k,n])=>G.tileName(k)+' × '+n).join(', ');
+   if(copies)details.push('Unseen tiles that improve this variation: '+copies+'. Total: '+focus.usefulCopies+'. These copies may be in the wall or another rack.');
+   for(const gap of focus.gaps)details.push(G.tileName(gap.key)+' for singles or pairs: '+gap.need+' needed, '+gap.unseen+' unseen.');
+   if(focus.jokerDebt)details.push('Additional jokers needed even if you collect every available natural tile: '+focus.jokerDebt+'.');
+  }
+  for(const entry of tracking.history)details.push(entry.status+' · '+entry.note+(entry.away===null?'':' '+distanceLabel(entry.away)+'.'));
+ }
  const disclosure=$('#coach-details');
  disclosure.hidden=!details.length;
  if(disclosure.hidden)disclosure.open=false;
  const html=details.map(detail=>`<li>${esc(detail)}</li>`).join('');
  if($('#coach-numbers').innerHTML!==html)$('#coach-numbers').innerHTML=html;
 }
+const distanceLabel=n=>n===0?'Ready for Mahjong':n+' tile'+(n===1?'':'s')+' away';
 function renderHands(){
  if(s.phase==='ended'||s.phase==='matchEnded')return;
  const dead=G.isDeadHand(s);
@@ -410,19 +447,23 @@ function renderHands(){
  const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
  const hand=s.hands[0],exposed=s.exposed[0];
  const rows=open&&!dead?rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed)):[];
+ if(s.guidedPlay&&pinned&&!dead){
+  const chosenIndex=rows.findIndex(row=>row.target.id===pinned);
+  if(chosenIndex>=0)rows[chosenIndex]=coachLines[0];
+ }
  if(pinnedLine){
   const index=rows.findIndex(({target})=>target.id===pinnedLine.id);
   if(index>=0)rows.splice(index,1);
   const {matched,missing}=G.evaluate(hand,exposed,pinnedLine);
-  rows.unshift({target:pinnedLine,away:matched<0?-1:missing});
+  rows.unshift({target:pinnedLine,away:matched<0?-1:missing,blocked:s.guidedPlay&&coachLines[0]?.blocked});
  }
- const contents=rows.map(({target,away})=>{
+ const contents=rows.map(({target,away,blocked})=>{
   const chosen=goalKey===target.key;
   const pin=target.id===pinnedLine?.id;
-  const distance=away<0?'':away===0?'Ready':away+' away';
+  const distance=away<0?'':distanceLabel(away);
   const line=`<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
    <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
-   <span class="hand-values">${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="hand-score"><span>${target.points} pt</span><strong>${distance}</strong></span></span>
+   <span class="hand-values"><strong class="line-distance">${distance}</strong>${blocked?'<span>Blocked</span>':''}${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="card-points">${target.points} pt</span></span>
   </button>`;
   return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline">${handPickerButton()}<button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
  }).join('');
@@ -486,7 +527,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  const position=variations.findIndex(({key})=>key===target.key)+1;
  const previewLabel=`Preview ${position} of ${variations.length}`;
  const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
- $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count" ${plan.compatible&&plan.away>0?'data-distance':''}>${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</strong>${previewButton}`;
+ $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?distanceLabel(plan.away):'Conflicts with your exposures'}</strong>${previewButton}`;
  $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
@@ -500,6 +541,7 @@ function chooseHand(id,key){
   toast('This hand conflicts with your exposed tiles.');
   return;
  }
+ if(pinned!==id||goalKey!==target.key)delete s.outlook;
  pinned=id;
  goalKey=target.key;
  jokerTargetGroup=null;
@@ -514,6 +556,7 @@ function chooseHand(id,key){
 function clearHand(){
  const line=showingLines()?pinned:null;
  pinned=null;goalKey=null;jokerTargetGroup=null;
+ delete s.outlook;
  render();
  const row=line?$('#hand-list [data-hand="'+CSS.escape(line)+'"]'):null;
  (row??$('#line-heading, #hand-focus [data-action="toggle-hands"], .card-intro .picker-close'))?.focus({preventScroll:true});
@@ -845,11 +888,20 @@ document.addEventListener('click',async e=>{
  else if(a==='scores'){showScores();}
  else if(a==='declare-discard'){declareDiscard();}
  else if(a==='clear-goal'){clearHand();}
+ else if(a==='coach-switch'){
+  const alternative=coachLines[1];
+  if(alternative&&!$('[data-action="coach-switch"]').hidden){
+   chooseHand(alternative.target.id,alternative.target.key);
+   const list=$('#hand-list'),chosen=list.querySelector('.chosen');
+   if(chosen)list.scrollTop+=chosen.getBoundingClientRect().top-list.getBoundingClientRect().top;
+  }
+ }
  else if(a==='next-goal-preview'){
   const variations=closestTargetVariations();
   if(variations.length>1){
    const index=variations.findIndex(({key})=>key===goalKey);
    goalKey=variations[(index+1)%variations.length].key;
+   delete s.outlook;
    render();
   }
  }

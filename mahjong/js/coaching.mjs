@@ -1,5 +1,5 @@
 import {compatible,evaluate,tileName,winning} from './engine.mjs?v=win-source-1';
-import {compareFit} from './recommendations.mjs?v=guided-play-1';
+import {compareFit} from './recommendations.mjs?v=hand-outlook-1';
 
 const line=row=>row.target.name;
 function gapName(gap){
@@ -8,33 +8,32 @@ function gapName(gap){
  return 'a natural '+tile;
 }
 
-export function handComparison(focus,alternative,pinned){
+export function handComparison(focus,alternative){
  const a=line(focus),b=alternative&&line(alternative);
  if(focus.blocked){
   const gap=focus.gaps.find(g=>g.blocked);
-  const reason=focus.incompatible?'Your exposed tiles don’t fit this line.':
-   'Too few copies of '+tileName(gap.key)+' are still available for the required singles or pairs.';
-  return {title:'Reconsider '+a,reason:reason+(alternative&&!alternative.blocked?' '+b+' is still possible.':'')};
+  const reason=focus.incompatible?'Your exposed tiles don’t fit '+a+'.':
+   'Too few copies of '+tileName(gap.key)+' remain for '+a+' to complete its singles or pairs.';
+  return {kind:'blocked',title:'Blocked',reason:reason+(alternative&&!alternative.blocked?' '+b+' is still possible.':'')};
  }
- if(!alternative||alternative.blocked)return {title:a+' fits your rack',reason:'Your tiles fit this line. '+(pinned?'Keep building the highlighted groups.':'Choose it to highlight the groups on your rack.')};
+ if(!alternative||alternative.blocked)return {kind:'fit',title:'Good fit',reason:a+' fits your rack.'};
  const [lead,next]=compareFit(focus,alternative)<=0?[focus,alternative]:[alternative,focus];
  const distance=next.away-lead.away;
- if(!distance&&lead.naturalsNeeded===next.naturalsNeeded){
+ if(!distance&&lead.naturalsNeeded===next.naturalsNeeded&&lead.tight===next.tight&&lead.jokerDebt===next.jokerDebt){
   const shared=Object.keys(focus.kept).find(key=>focus.kept[key]>0&&alternative.kept[key]>0);
-  const tip=shared?' Keep '+tileName(shared)+' for either hand.':' Let the next tiles guide your choice.';
-  return {title:'Either hand works',reason:(pinned?'Your pick, '+a+', is as close as '+b:a+' and '+b+' are equally close')+'.'+tip};
+  return {kind:'even',title:'Even',reason:a+' and '+b+' are equally close.'+(shared?' Keep '+tileName(shared)+' for either.':'')};
  }
- const label=distance>=2&&lead.naturalsNeeded<=next.naturalsNeeded?'Clear favorite':'Slight edge';
- const gap=(distance&&lead.naturalsNeeded>next.naturalsNeeded?lead:next).gaps[0];
  let reason;
- if(!distance)reason=line(lead)+' and '+line(next)+' are equally close. '+line(next)+' still needs '+gapName(gap)+'. A joker can’t fill that gap.';
- else if(lead.naturalsNeeded>next.naturalsNeeded)reason=line(lead)+' uses more of your rack, though it still needs '+gapName(gap)+'. '+line(next)+' needs fewer natural tiles for singles and pairs.';
- else{
-  const extra=Object.keys(lead.kept).find(key=>lead.kept[key]>(next.kept[key]||0));
-  reason='More of your rack fits '+line(lead)+' than '+line(next)+'.'+(extra?' Keep '+tileName(extra)+' for '+line(lead)+'.':'');
+ if(!distance&&lead.jokerDebt<next.jokerDebt)reason=line(lead)+' and '+line(next)+' are equally close. '+line(lead)+' needs fewer extra jokers.';
+ else if(!distance){
+  const gap=next.gaps.find(g=>g.need===g.unseen)??next.gaps[0];
+  reason=line(lead)+' is as close as '+line(next)+', which still needs '+gapName(gap)+'.';
+ }else{
+  reason=line(lead)+' is closer than '+line(next)+'.';
+  if(lead.naturalsNeeded>next.naturalsNeeded)reason+=' It still needs '+gapName(lead.gaps[0])+'.';
  }
- const verdict=pinned&&lead===focus?(label==='Clear favorite'?'Your pick is the clear favorite':'Your pick has a slight edge'):label;
- return {title:verdict+' · '+line(lead),reason};
+ const clear=distance>=2&&lead.naturalsNeeded<=next.naturalsNeeded;
+ return {kind:clear?'clear':'edge',title:clear?'Clear edge':'Slight edge',leader:line(lead),reason};
 }
 
 function distances(rack,exposed,lines){

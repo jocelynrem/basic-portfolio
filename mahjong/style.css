@@ -859,7 +859,33 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 }
 #coach-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 #coach-numbers { margin: 2px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
-.play-area:has(#play-coach:not([hidden]) #coach-details:not([open])) :is(.hand-score,.goal-count[data-distance]) { display: none; }
+.guided-layout:has(#coach-details:not([open])) .card-points { display: none; }
+.line-distance { color: #3d5746; font-size: 12px; font-variant-numeric: tabular-nums; }
+.guided-layout #hand-list .hand-patterns { display: contents; }
+.guided-layout #hand-list .suggestion-label { grid-area: 1 / 1; align-self: center; }
+.guided-layout #hand-list .hand-values { grid-area: 1 / 2; }
+.guided-layout #hand-list .hand-tiles { grid-area: 2 / 1 / 3 / -1; }
+#coach-tracker { padding-bottom: 7px; margin-bottom: 6px; border-bottom: 1px solid #d5dccd; }
+.outlook-heading, .coach-callout { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; }
+#outlook-line { font-size: 12px; }
+#outlook-line::before { content: 'Your line · '; font-weight: 400; }
+#outlook-status { margin-left: auto; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 650; color: #385445; background: #e4eadf; }
+#outlook-status::before { content: '• '; }
+[data-trend="Steady"] #outlook-status::before { content: '→ '; }
+[data-trend="Improving"] #outlook-status::before { content: '↗ '; }
+[data-trend="Weakening"] #outlook-status::before { content: '↘ '; }
+[data-trend="Blocked"] #outlook-status::before { content: '× '; }
+[data-trend="Weakening"] #outlook-status, [data-trend="Blocked"] #outlook-status { background: #f4e3cf; color: #713f20; }
+.coach-feedback #outlook-note { font-size: 12px; }
+#coach-mark { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 5px; background: #e4eadf; color: #315343; font: 700 21px/1 var(--sans); }
+#coach-mark:is([data-kind="edge"],[data-kind="clear"],[data-kind="even"]) { display: inline-flex; justify-content: center; align-items: end; gap: 2px; padding: 5px; }
+#coach-mark:is([data-kind="edge"],[data-kind="clear"],[data-kind="even"])::before,
+#coach-mark:is([data-kind="edge"],[data-kind="clear"],[data-kind="even"])::after { content: ''; border-radius: 1px; background: #41664c; width: 5px; height: 12px; }
+#coach-mark[data-kind="edge"]::after { height: 9px; }
+#coach-mark[data-kind="clear"]::after { height: 5px; }
+#coach-leader { font-size: 12px; color: #42594b; }
+#play-coach [data-action="coach-switch"] { text-align: left; text-decoration: underline; padding: 6px 0; }
+#play-coach [hidden] { display: none; }
 .round-coach-note { margin: 4px 0 12px; line-height: 1.45; }
 @media (max-width: 760px) {
   .play-coach { padding: 9px 12px; }
@@ -879,7 +905,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   overflow-y: auto;
   scrollbar-color: #9daa93 transparent;
 }
-.guided-layout .coach-feedback :empty,
+.guided-layout .coach-feedback :is(p,strong,#coach-leader):empty,
 .guided-layout .coach-feedback:not(:has(> :not(:empty))) { display: none; }
 @media (max-width: 679px) {
   .guided-layout .card-intro { padding-block: 0; }
