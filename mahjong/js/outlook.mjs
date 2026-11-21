@@ -21,14 +21,14 @@ function changeNote(before,now,row,direction){
  const cause=(source,keys,sign)=>keys.find(k=>sign*((now[source][k]||0)-(before[source][k]||0))>0);
  if(before.away!==now.away){
   const tile=cause('held',Object.keys(direction>0?before.helpful:now.helpful),direction);
-  if(tile)return direction>0?'Adding the '+tileName(tile)+' brought this line closer.':'Giving up the '+tileName(tile)+' put this line further away.';
+  if(tile)return direction>0?'That '+tileName(tile)+' brings you closer.':'Letting the '+tileName(tile)+' go cost this line a little ground.';
   return direction>0?'More of your tiles now fit this line.':'Fewer of your tiles now fit this line.';
  }
  const fewer=relevant.filter(k=>k in now.helpful&&now.helpful[k]<before.helpful[k]);
  const key=direction<0&&(cause('exposed',fewer,1)??cause('discarded',fewer,1));
  if(key){
   const exposure=(now.exposed[key]||0)>(before.exposed[key]||0);
-  return (exposure?'An opponent exposed ':'The discard pile gained ')+tileName(key)+'. '+(row.blocked?'Too few natural copies remain for this pattern.':'Fewer helpful copies are unseen.');
+  return (exposure?'An opponent exposed '+tileName(key)+'.':'There’s a '+tileName(key)+' in the discards.')+' '+(row.blocked?'Too few natural copies are left for this pattern.':'That leaves fewer copies to find.');
  }
  if(before.key!==now.key)return 'A different variation now fits your rack.';
  if(now.jokerDebt>before.jokerDebt)return 'Completing the sets now requires another joker.';
@@ -63,7 +63,7 @@ export function pivotReason(focus,other){
  const dead=focus.gaps.find(g=>g.blocked);
  if(dead)return a+' needs more natural copies of '+tileName(dead.key)+' than remain unseen. '+b+' is still open.';
  if(other.away>focus.away||other.jokerDebt>focus.jokerDebt||other.tight>focus.tight)return '';
- if(other.away+2<=focus.away&&other.naturalsNeeded<=focus.naturalsNeeded)return b+' is much closer than '+a+' with the tiles you hold.';
+ if(other.away+2<=focus.away&&other.naturalsNeeded<=focus.naturalsNeeded)return 'I’d give '+b+' a look. You’re much closer to it than '+a+'.';
  if(other.jokerDebt<focus.jokerDebt)return a+' relies on more jokers to finish its sets. '+b+' has more natural tiles available.';
  if(other.tight<focus.tight&&other.naturalsNeeded<=focus.naturalsNeeded){
   const gap=focus.gaps.find(g=>g.need===g.unseen);

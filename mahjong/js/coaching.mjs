@@ -16,21 +16,20 @@ export function handComparison(focus,alternative){
    'Too few copies of '+tileName(gap.key)+' remain for '+a+' to complete its singles or pairs.';
   return {kind:'blocked',title:'Blocked',reason:reason+(alternative&&!alternative.blocked?' '+b+' is still possible.':'')};
  }
- if(!alternative||alternative.blocked)return {kind:'fit',title:'Good fit',reason:a+' fits your rack.'};
+ if(!alternative||alternative.blocked)return {kind:'fit',title:'Good fit',reason:'I’d stick with '+a+' here.'};
  const [lead,next]=compareFit(focus,alternative)<=0?[focus,alternative]:[alternative,focus];
  const distance=next.away-lead.away;
  if(!distance&&lead.naturalsNeeded===next.naturalsNeeded&&lead.tight===next.tight&&lead.jokerDebt===next.jokerDebt){
   const shared=Object.keys(focus.kept).find(key=>focus.kept[key]>0&&alternative.kept[key]>0);
-  return {kind:'even',title:'Even',reason:a+' and '+b+' are equally close.'+(shared?' Keep '+tileName(shared)+' for either.':'')};
+  return {kind:'even',title:'Even',reason:a+' and '+b+' are neck and neck.'+(shared?' Your '+tileName(shared)+' works for either.':'')};
  }
  let reason;
- if(!distance&&lead.jokerDebt<next.jokerDebt)reason=line(lead)+' and '+line(next)+' are equally close. '+line(lead)+' needs fewer extra jokers.';
+ if(!distance&&lead.jokerDebt<next.jokerDebt)reason='I’d lean toward '+line(lead)+'. '+line(next)+' is just as close and needs more jokers.';
  else if(!distance){
   const gap=next.gaps.find(g=>g.need===g.unseen)??next.gaps[0];
-  reason=line(lead)+' is as close as '+line(next)+', which still needs '+gapName(gap)+'.';
+  reason='I’d lean toward '+line(lead)+'. '+line(next)+' is just as close and still needs '+gapName(gap)+'.';
  }else{
-  reason=line(lead)+' is closer than '+line(next)+'.';
-  if(lead.naturalsNeeded>next.naturalsNeeded)reason+=' It still needs '+gapName(lead.gaps[0])+'.';
+  reason=lead.naturalsNeeded>next.naturalsNeeded?line(lead)+' still needs '+gapName(lead.gaps[0])+'. '+line(next)+' is further away.':'You’re closer to '+line(lead)+' than '+line(next)+'.';
  }
  const clear=distance>=2&&lead.naturalsNeeded<=next.naturalsNeeded;
  return {kind:clear?'clear':'edge',title:clear?'Clear edge':'Slight edge',leader:line(lead),reason};
@@ -76,10 +75,10 @@ export function selectionAdvice(hand,exposed,lines,picked,passing){
  if(swap){
   const helped=after.findIndex((d,i)=>d>best[i]);
   const why=helped>=0?'keep '+line(lines[helped])+' closer':passing?'send fewer matching tiles together':'save the joker for a later set';
-  text='Keep '+tileName(swap.keep.k)+'. '+verb+' '+tileName(swap.send.k)+' instead to '+why+'.';
- }else if(loss>=0)text='This selection gives up a tile toward '+line(lines[loss])+'. No single swap better protects '+line(lines[0])+'.';
- else if(passing&&risk)text='Your hand keeps its shape. This pass sends matching tiles to the same player.';
- else text=passing?'This pass keeps '+lines.map(line).join(' and ')+' open.':'Discarding '+tileName(picked[0].k)+' leaves '+line(lines[0])+' intact.';
+  text='I’d keep the '+tileName(swap.keep.k)+'. '+verb+' the '+tileName(swap.send.k)+' to '+why+'.';
+ }else if(loss>=0)text='Tight rack. This costs you a tile toward '+line(lines[loss])+'.';
+ else if(passing&&risk)text='You can spare these. Just watch the matching tiles you’re sending together.';
+ else text=passing?'You can spare '+(picked.length===1?'this tile':'these tiles')+' and keep '+lines.map(line).join(' and ')+' open.':'You can let the '+tileName(picked[0].k)+' go and keep '+line(lines[0])+'.';
  return {text,details:lines.map((row,i)=>line(row)+' after '+(passing?'passing':'discarding')+' the selection: '+after[i]+' tiles away.')};
 }
 
@@ -119,7 +118,7 @@ function newTileTip(hand,exposed,lines,ids){
   const before=without(hand,arrived);
   for(const tile of arrived){
    if(evaluate([...before,tile],exposed,row.target).missing<evaluate(before,exposed,row.target).missing){
-    return 'The new '+tileName(tile.k)+' helps '+line(row)+'. ';
+    return 'That new '+tileName(tile.k)+' works for '+line(row)+'. ';
    }
   }
  }
@@ -128,7 +127,7 @@ function newTileTip(hand,exposed,lines,ids){
 
 function callAdvice(s,lines,claims,picked,staging){
  const tile=s.discards.at(-1).tile;
- if(claims.some(c=>c.win))return {text:tileName(tile.k)+' completes a hand. Call it for Mahjong.'};
+ if(claims.some(c=>c.win))return {text:'That '+tileName(tile.k)+' is your winning tile. Call it for Mahjong!'};
  const choices=staging&&picked.length?claims.filter(c=>c.n===picked.length+1):claims;
  if(!choices.length)return {text:'Choose matching tiles or a joker to preview the exposure.'};
  if(choices.every(c=>c.dead))return {text:'Pass this discard. That exposure fits no line on the card.'};
@@ -145,39 +144,40 @@ function callAdvice(s,lines,claims,picked,staging){
  const fit=projections.find(p=>p.row===primary&&p.away<primary.away)??projections.find(p=>p.row===primary)??projections[0];
  if(!fit)return {text:'Pass to keep '+line(primary)+'. Exposing '+tileName(tile.k)+' would rule out this variation.'};
  const fitsPrimary=fit.row===primary;
- const text=fitsPrimary?(fit.away<primary.away?'Calling '+tileName(tile.k)+' brings '+line(primary)+' closer.':'This call fits '+line(primary)+', but makes no immediate gain.'):
-  'This exposure fits '+line(fit.row)+'. Pass if you want to stay with '+line(primary)+'.';
+ const text=fitsPrimary?(fit.away<primary.away?'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.':'You can call for '+line(primary)+'. You’d still be just as far away.'):
+  'This call fits '+line(fit.row)+'. I’d pass to stay with '+line(primary)+'.';
  return {text,details:['Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away before discarding.']};
 }
 
-export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps}){
+export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine}){
  const rack=s.hands[0],exposed=s.exposed[0],picked=rack.filter(t=>selected.has(t.id));
  if(s.deadHand?.player===0)return {text:'Watch which exposed sets and discards reveal the other players’ hands.'};
  if(claims.some(c=>c.win))return callAdvice(s,lines,claims,picked,staging);
  const mayDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
  const win=mayDeclare&&winning(rack,exposed);
- if(win)return {text:'Your rack completes '+win.name+'. Declare Mahjong.'};
+ if(win)return {text:'That’s '+win.name+'! Declare Mahjong.'};
  if(!lines.length)return {text:'Choose a different card line to find a hand you can still build.'};
  const primary=lines[0];
+ const arrivals=lines.filter(row=>row.target.id!==describedLine);
  if(claims.length)return callAdvice(s,lines,claims,picked,staging);
  const passing=s.phase==='charleston'||s.phase==='courtesy';
  if(picked.length&&(passing||s.phase==='discard'&&s.turn===0))return selectionAdvice(rack,exposed,lines,picked,passing);
  if(s.phase==='charlestonChoice'||s.phase==='courtesy'){
   const spares=spareTiles(rack,exposed,lines);
-  const text=s.phase==='courtesy'?(spares.length?'Offer only tiles you can spare.':'Skip this exchange to preserve your hands.'):
-   spares.length===3?'You can pass three tiles and keep '+lines.map(line).join(' and ')+' open.':'Consider stopping. You don’t have three spare tiles across '+lines.map(line).join(' and ')+'.';
-  return {text:newTileTip(rack,exposed,lines,receivedIds)+text,details:['One pass that preserves these hands: '+(spares.map(t=>tileName(t.k)).join(', ')||'none')+'.']};
+  const text=s.phase==='courtesy'?(spares.length?'Just send what you can spare.':'I’d sit this exchange out. You can use every tile.'):
+   spares.length===3?'You can pass three tiles and keep '+lines.map(line).join(' and ')+' open.':'I’d stop here. A full pass costs you a tile for '+lines.map(line).join(' or ')+'.';
+  return {text:newTileTip(rack,exposed,arrivals,receivedIds)+text,details:['One pass that preserves these hands: '+(spares.map(t=>tileName(t.k)).join(', ')||'none')+'.']};
  }
  if(passing){
-  const blindTip=s.passStep===2?'You can pass incoming tiles blind to protect a needed tile.':'';
-  return {text:(newTileTip(rack,exposed,lines,receivedIds)+blindTip).trim()};
+  const blindTip=s.passStep===2?'Short on spares? You can pass incoming tiles blind.':'';
+  return {text:(newTileTip(rack,exposed,arrivals,receivedIds)+blindTip).trim()};
  }
- if(s.turn!==0)return {text:'Watch the discards for tiles your hand still needs.'};
- if(s.phase==='draw')return {text:'Draw from the wall, then see where the new tile fits.'};
+ if(s.turn!==0)return {text:''};
+ if(s.phase==='draw')return {text:'Your draw. Take a tile from the wall.'};
  if(swaps.length)return {text:'You can exchange '+tileName(swaps[0].k)+' for an exposed joker before discarding.'};
  const candidate=suggestTiles(rack,exposed,lines,1,false)[0];
  const spared=candidate&&distances(without(rack,[candidate]),exposed,lines)[0]===primary.away?candidate:null;
  const fresh=s.drawn!=null?new Set([s.drawn]):s.turns===0?receivedIds:new Set();
- const tip=newTileTip(rack,exposed,lines,fresh);
- return {text:tip+(spared?'Consider discarding '+tileName(spared.k)+' to preserve '+line(primary)+'.':'Select a discard to compare what each hand would give up.')};
+ const tip=newTileTip(rack,exposed,arrivals,fresh);
+ return {text:tip+(spared?'I’d let the '+tileName(spared.k)+' go. '+line(primary)+' stays open.':'Which tile can you spare? Try a discard to see what it costs.')};
 }

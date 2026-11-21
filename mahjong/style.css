@@ -861,6 +861,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 #coach-numbers { margin: 2px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
 .guided-layout:has(#coach-details:not([open])) .card-points { display: none; }
 .line-distance { color: #3d5746; font-size: 12px; font-variant-numeric: tabular-nums; }
+.distance-arrow { display: inline-block; font: 700 1.1em/1 var(--sans); }
+.distance-arrow.closer { color: #30623d; }
+.distance-arrow.farther { color: #914729; }
 .guided-layout #hand-list .hand-patterns { display: contents; }
 .guided-layout #hand-list .suggestion-label { grid-area: 1 / 1; align-self: center; }
 .guided-layout #hand-list .hand-values { grid-area: 1 / 2; }

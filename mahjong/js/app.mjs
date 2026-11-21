@@ -1,10 +1,10 @@
 import * as G from './engine.mjs?v=win-source-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
-import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=win-source-1';
+import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,passTiles,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations,currentLineMove} from './table-actions.mjs?v=line-movement-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=hand-outlook-1';
-import {trackOutlook,pivotReason} from './outlook.mjs?v=hand-outlook-1';
+import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=line-movement-1';
+import {trackOutlook,pivotReason} from './outlook.mjs?v=line-movement-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -392,7 +392,7 @@ function renderCoach(){
   !focus?{title:'No matching hand',reason:'Try changing the hand picker filters.'}:
   pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:pinned?handComparison(focus,other):{title:'',reason:''};
  const playable=coachLines.filter(row=>!row.blocked);
- const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps});
+ const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine:tracking?.note?pinned:null});
  $('#coach-tracker').hidden=!tracking;
  if(tracking){
   const status=tracking.status;
@@ -410,7 +410,7 @@ function renderCoach(){
  setCoachText('#coach-action',advice.text);
  const switchButton=$('[data-action="coach-switch"]');
  switchButton.hidden=!pivot;
- if(pivot)switchButton.textContent='Switch to '+other.target.name;
+ if(pivot)setCoachText('[data-action="coach-switch"]','Switch to '+other.target.name);
  const details=dead||(!pinned&&!advice.text)?[]:coachLines.map(row=>{
   const label=row===focus&&pinned?'Chosen hand':'';
   const description=row.incompatible?'Conflicts with your exposures':
@@ -434,6 +434,13 @@ function renderCoach(){
  if($('#coach-numbers').innerHTML!==html)$('#coach-numbers').innerHTML=html;
 }
 const distanceLabel=n=>n===0?'Ready for Mahjong':n+' tile'+(n===1?'':'s')+' away';
+function distanceMarkup(id,away,move){
+ const label=distanceLabel(away),change=move?.changes?.[id];
+ if(!change||change.after!==away)return label;
+ const closer=change.before>away;
+ const description=esc((closer?'Closer':'Farther away')+' after your '+move.action+' ('+change.before+' → '+away+').');
+ return label+' <span class="distance-arrow '+(closer?'closer':'farther')+'" title="'+description+'"><span aria-hidden="true">'+(closer?'↑':'↓')+'</span><span class="sr-only">'+description+'</span></span>';
+}
 function renderHands(){
  if(s.phase==='ended'||s.phase==='matchEnded')return;
  const dead=G.isDeadHand(s);
@@ -457,10 +464,11 @@ function renderHands(){
   const {matched,missing}=G.evaluate(hand,exposed,pinnedLine);
   rows.unshift({target:pinnedLine,away:matched<0?-1:missing,blocked:s.guidedPlay&&coachLines[0]?.blocked});
  }
+ const move=currentLineMove(s);
  const contents=rows.map(({target,away,blocked})=>{
   const chosen=goalKey===target.key;
   const pin=target.id===pinnedLine?.id;
-  const distance=away<0?'':distanceLabel(away);
+  const distance=away<0?'':distanceMarkup(target.id,away,move);
   const line=`<button class="hand-card ${chosen?'chosen':''}" data-hand="${target.id}" data-target-key="${target.key}" data-away="${away}" aria-pressed="${chosen}">
    <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values"><strong class="line-distance">${distance}</strong>${blocked?'<span>Blocked</span>':''}${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="card-points">${target.points} pt</span></span>
@@ -527,7 +535,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  const position=variations.findIndex(({key})=>key===target.key)+1;
  const previewLabel=`Preview ${position} of ${variations.length}`;
  const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
- $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?distanceLabel(plan.away):'Conflicts with your exposures'}</strong>${previewButton}`;
+ $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?distanceMarkup(target.id,plan.away,currentLineMove(s)):'Conflicts with your exposures'}</strong>${previewButton}`;
  $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
@@ -730,7 +738,7 @@ async function runPass(){
  $('#table').append(layer);await new Promise(r=>setTimeout(r,1000));
  if(run.cancelled||activePass!==run||s!==game)return;
  try{
-  G.pass(game,ids);
+  passTiles(game,ids);
   if(isCourtesy)tableNoticeQueue.push({kind:'play-start',message:'Passing complete. Play begins.'});
   selected.clear();playSound();
  }catch(e){toast(e.message);}

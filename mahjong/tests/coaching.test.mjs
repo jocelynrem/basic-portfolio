@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {practiceGame,restorePracticeChoice} from '../js/learning.mjs';
 import {claimOptions,pass,secondCharleston,TARGETS,visibleTileCounts} from '../js/engine.mjs';
-import {prepareTable} from '../js/table-actions.mjs';
+import {currentLineMove,drawFromWall,passTiles,prepareTable} from '../js/table-actions.mjs';
 import {assessHand,recommendHands} from '../js/recommendations.mjs';
 import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from '../js/coaching.mjs';
 import {pivotReason,trackOutlook} from '../js/outlook.mjs';
@@ -22,6 +22,53 @@ function guided(){
 }
 
 const options={selected:new Set(),claims:[],staging:false,receivedIds:new Set(),swaps:[]};
+
+test('a pass compares each card line across variations and replaces its arrows on a blind pass',t=>{
+ t.mock.method(Math,'random',()=>0.4);
+ const {game}=guided();
+ prepareTable(game);
+ game.guidedPlay=true;
+ const distances=()=>new Map(recommendHands(game.hands[0],[],{visible:visibleTileCounts(game)}).map(row=>[row.target.id,row.away]));
+ const before=distances();
+ assert.equal(currentLineMove(game),null);
+ passTiles(game,game.hands[0].filter(tile=>tile.k==='B2').map(tile=>tile.id));
+ prepareTable(game);
+ const move=currentLineMove(game);
+ assert.equal(move.action,'pass');
+ const directions=new Set();
+ for(const [id,after] of distances()){
+  const prior=before.get(id);
+  directions.add(Math.sign(prior-after));
+  assert.deepEqual(move.changes[id],after===prior?undefined:{before:prior,after});
+ }
+ assert.equal(directions.size,3);
+ game.hands[0].reverse();
+ assert.deepEqual(currentLineMove(JSON.parse(JSON.stringify(game))),move);
+ assert.throws(()=>passTiles(game,[]));
+ assert.equal(currentLineMove(game),move);
+ game.passStep=2;
+ passTiles(game,[]);
+ assert.equal(currentLineMove(game),null);
+});
+
+test('a player draw records the new distance on receipt, including a draw across a wall break',()=>{
+ for(const wallBreak of [false,true]){
+  const {game}=guided();
+  const tile=game.hands[0].splice(game.hands[0].findIndex(t=>t.k==='J'),1)[0];
+  game.phase='draw';game.turn=0;game.wall.push(tile);
+  game.wallSegments[game.wallIndex].remaining=wallBreak?0:1;
+  assert.ok(drawFromWall(game));
+  if(wallBreak){
+   assert.equal(currentLineMove(game),null);
+   prepareTable(game);
+  }
+  const move=currentLineMove(game);
+  assert.equal(move.action,'draw');
+  assert.deepEqual(move.changes.run7,{before:6,after:5});
+  game.hands[0].pop();
+  assert.equal(currentLineMove(game),null);
+ }
+});
 
 test('new practice deals open without a chosen hand or an idle passing prompt',()=>{
  const {game,lines}=guided();
@@ -89,7 +136,7 @@ test('the outlook follows committed moves and public evidence, including a claim
  game.discards.push({tile:discarded,claimed:false,player:1});
  tracker=trackOutlook(tracker,game,assess());
  assert.equal(tracker.status,'Weakening');
- assert.match(tracker.note,/discard pile.*6 Crak/);
+ assert.match(tracker.note,/6 Crak.*discards/);
  game.discards[0].claimed=true;
  game.exposed[2].push({k:'C6',tiles:[discarded,{id:305,k:'C6'},{id:306,k:'J'}]});
  tracker=trackOutlook(tracker,game,assess());
@@ -148,7 +195,7 @@ test('a whole pass can preserve the target and cost a tile toward the alternativ
  const {hand,lines}=guided();
  const picks=['D1','C9','C4'].map(k=>hand.find(t=>t.k===k));
  const feedback=selectionAdvice(hand,[],lines,picks,true);
- assert.match(feedback.text,/Keep 4 Crak.*Pass Green dragon/);
+ assert.match(feedback.text,/keep the 4 Crak.*Pass the Green dragon/);
  assert.match(feedback.details[0],/5 tiles away/);
  assert.match(feedback.details[1],/6 tiles away/);
  const recommended=suggestTiles(hand,[],lines,3,true);
@@ -213,10 +260,10 @@ test('calling compares the staged exposure and discarding previews the selected 
  game.discards=[{player:1,tile:discard}];
  const claims=claimOptions(game,0),chosen=hand.filter(t=>t.k==='C4');
  const advice=turnAdvice(game,lines,{...options,claims,staging:true,selected:new Set(chosen.map(t=>t.id))});
- assert.match(advice.text,/exposure fits Consecutive Run/);
+ assert.match(advice.text,/call fits Consecutive Run/);
  assert.match(advice.details[0],/before discarding/);
  game.phase='discard';game.turn=0;
- assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/Discarding 9 Crak/);
+ assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/let the 9 Crak go/);
  game.phase='draw';
- assert.match(turnAdvice(game,lines,options).text,/Draw from the wall/);
+ assert.match(turnAdvice(game,lines,options).text,/Take a tile from the wall/);
 });

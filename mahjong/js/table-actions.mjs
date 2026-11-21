@@ -1,4 +1,43 @@
 import * as G from './engine.mjs?v=win-source-1';
+import {recommendHands} from './recommendations.mjs?v=hand-outlook-1';
+
+const rackIds=hand=>hand.map(tile=>tile.id).sort((a,b)=>a-b).join(',');
+
+export function currentLineMove(s){
+ const move=s.lineMove;
+ return move&&move.rack===rackIds(s.hands[0])?move:null;
+}
+
+function recordLineMove(s,previousHand,action){
+ const hand=s.hands[0],rack=rackIds(hand);
+ if(rack===rackIds(previousHand)){delete s.lineMove;return;}
+ // Compare the best variation by card line, even if a different variation leads
+ // after the move. Include filtered lines so opening the picker later still works.
+ function distances(tiles){
+  const visible=s.guidedPlay?G.visibleTileCounts({...s,hands:[tiles]}):null;
+  const rows=recommendHands(tiles,s.exposed[0],{visible});
+  return new Map(rows.map(row=>[row.target.id,row.away]));
+ }
+ const before=distances(previousHand),changes={};
+ for(const [id,after] of distances(hand)){
+  const prior=before.get(id);
+  if(prior!==undefined&&prior!==after)changes[id]={before:prior,after};
+ }
+ s.lineMove={action,rack,changes};
+}
+
+export function passTiles(s,ids){
+ const before=[...s.hands[0]];
+ G.pass(s,ids);
+ recordLineMove(s,before,'pass');
+}
+
+function drawPlayerTile(s){
+ const before=[...s.hands[0]];
+ G.draw(s);
+ s.pendingWallDraw=s.phase==='wallPush';
+ if(s.hands[0].length>before.length)recordLineMove(s,before,'draw');
+}
 
 export function lineVariations(lineId,exposed){
  return G.TARGETS.filter(target=>target.id===lineId&&G.compatible(target,exposed));
@@ -57,12 +96,12 @@ export function drawFromWall(s){
  if(s.phase==='claim')G.resolveDiscard(s,true);
  // Another player's legal call can take priority over drawing.
  if(s.phase!=='draw'||s.turn!==0)return false;
- G.draw(s);s.pendingWallDraw=s.phase==='wallPush';return true;
+ drawPlayerTile(s);return true;
 }
 export function finishWallPush(s){
  G.pushWall(s);
  if(s.pendingWallDraw&&s.turn===0&&s.phase==='draw'){
-  s.pendingWallDraw=false;G.draw(s);s.pendingWallDraw=s.phase==='wallPush';
+  drawPlayerTile(s);
  }
 }
 export function exchangeJoker(s,jokerId){
