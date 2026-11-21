@@ -821,3 +821,47 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   max-width: calc(1120px + 2rem);
   margin-inline: auto;
 }
+
+.play-coach {
+  margin: 8px 0;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  border: 1px solid #c7cfb9;
+  border-left: 4px solid #48705b;
+  border-radius: 8px;
+  background: #f7f7ee;
+  color: #243f35;
+}
+.play-coach[hidden] { display: none; }
+.coach-heading { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.coach-heading button { padding: 6px; }
+.learn-guided { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+.coach-heading h2 {
+  margin: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  color: #496650;
+}
+.coach-feedback { grid-column: 1 / -1; }
+#coach-verdict { font: 600 18px/1.3 var(--serif); }
+.coach-feedback p { margin: 3px 0 0; font-size: 14px; line-height: 1.4; }
+#coach-action { color: #36513f; }
+#coach-details { grid-column: 1 / -1; }
+#coach-details summary, .round-coach-details summary {
+  width: fit-content;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+}
+#coach-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+#coach-numbers { margin: 2px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+.play-area:has(#play-coach:not([hidden]) #coach-details:not([open])) :is(.hand-score,.goal-count[data-distance]) { display: none; }
+.round-coach-note { margin: 4px 0 12px; line-height: 1.45; }
+@media (max-width: 760px) {
+  .play-coach { padding: 9px 12px; }
+  #coach-details summary { min-height: 36px; }
+}

@@ -2,7 +2,8 @@ import * as G from './engine.mjs?v=win-source-1';
 import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=wind-sort-1';
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations} from './table-actions.mjs?v=win-source-1';
-import {recommendHands} from './recommendations.mjs?v=compact-preview-1';
+import {recommendHands,assessHand} from './recommendations.mjs?v=guided-play-1';
+import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=guided-play-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -40,11 +41,13 @@ let difficultyPreference='easy';try{difficultyPreference=G.normalizeDifficulty(l
 let s;try{s=JSON.parse(localStorage.getItem(STORE));if(s?.version!==4)throw Error();}catch{s=null;}s||=newMatch(difficultyPreference);normalizeMatch(s);
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
+let rankedHands=[],coachLines=[],coachChoiceAdvice='';
 const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
 const callFilterLine=()=>s.onlyChosenHandCalls?pinned:null;
 let regularReturn=null;try{regularReturn=JSON.parse(localStorage.getItem('parlor-regular-game'));}catch{}
 let savedMatch=null;try{savedMatch=JSON.parse(localStorage.getItem('parlor-match-2026'));}catch{}
 s.jokerPlacements||={};
+s.guidedPlay??=Boolean(s.practiceSession);
 s.dealer??=0;s.handNumber??=savedMatch?.handNumber||1;s.scores??=savedMatch?.scores||[0,0,0,0];s.scoreHistory??=savedMatch?.scoreHistory||[];
 const modal=$('#modal');
 const tableNotice=$('#opponent-move');
@@ -82,7 +85,7 @@ function save(){try{localStorage.setItem('parlor-hand-picker-open',String(picker
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4800);}
 function show(title,body,eyebrow=''){clearTimeout(botTimer);modal.classList.remove('tile-style-modal');modal.dataset.view=''; $('#modal-eyebrow').textContent=eyebrow;$('#modal-eyebrow').hidden=!eyebrow;$('#modal-content').innerHTML=`<h2 id="modal-title">${title}</h2>${body}`;if(!modal.open)modal.showModal();}
 function showSecondCharlestonChoice(){
- show('Second Charleston?',`<div class="modal-actions">${secondCharlestonActions()}</div>`);
+ show('Second Charleston?',`${s.guidedPlay?`<p>${esc(coachChoiceAdvice)}</p>`:''}<div class="modal-actions">${secondCharlestonActions()}</div>`);
  modal.dataset.view='second-charleston';
  $('#modal [data-action="second"]').focus();
 }
@@ -255,10 +258,24 @@ function showJokerChoices(){
  modal.dataset.view='joker-choices';
 }
 function showLearn(){
- const target=currentPlan()?.target,advice=tileAdvice(s,target,s.phase==='courtesy'?(selected.size||3):3);hintIds=advice.tiles.map(t=>t.id);
+ const playing=!['ended','matchEnded'].includes(s.phase);
+ const guide=playing?`<section class="learn-guided"><h3>Guided play</h3><p>Get feedback as you choose a hand, pass, call, and discard in this game.</p>${btn(s.guidedPlay?'Return to guided play':'Start guided play','open-coach','small')}</section>`:'';
+ const playable=coachLines.filter(row=>!row.blocked);
+ const target=currentPlan()?.target??playable[0]?.target;
+ const count=s.phase==='courtesy'?(selected.size||3):3;
+ const advice=tileAdvice(s,target,count);
+ if(playable.length&&!claims.length&&['pass','discard'].includes(advice.kind)){
+  const passing=advice.kind==='pass';
+  const optional=s.phase==='courtesy'||(s.phase==='charleston'&&s.passStep===2);
+  advice.tiles=optional?spareTiles(s.hands[0],s.exposed[0],playable):suggestTiles(s.hands[0],s.exposed[0],playable,passing?count:1,passing);
+  if(advice.tiles.length)advice.reasons=[selectionAdvice(s.hands[0],s.exposed[0],playable,advice.tiles,passing).text];
+ }
+ hintIds=advice.tiles.map(t=>t.id);
  let body='';
  if(['ended','matchEnded'].includes(s.phase))body='<p>The round result shows the closest line for each player.</p>';
  else if(G.isDeadHand(s))body='<p>Your hand has been declared dead. The other players finish the round.</p>';
+ else if(s.guidedPlay&&claims.length)body=`<p>${esc($('#coach-action').textContent)}</p>${winningClaim?btn('Declare Mahjong','learn-declare-discard','small'):''}`;
+ else if(advice.kind==='pass'&&!advice.tiles.length)body=`<p>${s.phase==='courtesy'?'Skip the courtesy exchange':'Pass the incoming packet blind'} to keep your hands intact.</p>`;
  else if(advice.kind==='choose')body=`<p>Choose a hand for advice about individual tiles.</p>${btn('Choose a hand','learn-hands','outline small')}`;
  else if(advice.kind==='pass'||advice.kind==='discard')body=`<p>${advice.kind==='pass'?'Consider passing':'Consider discarding'}:</p><div class="hint-tiles">${advice.tiles.map(t=>tile(t)).join('')}</div><ul class="hint-reasons">${advice.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${btn(advice.tiles.length===1?'Select this tile':'Select these tiles','use-hint','small')}`;
  else if(advice.kind==='win-self'||advice.kind==='win')body=`<p>${esc(advice.reasons[0])}</p>${btn('Declare Mahjong',advice.kind==='win'?'learn-declare-discard':'learn-mahjong','small')}`;
@@ -267,7 +284,7 @@ function showLearn(){
 
  else body='<p>Draw before choosing a discard. Use this panel afterward for tile-specific advice.</p>';
  if(advice.blocked.length)body=`<div class="hint-warning">${advice.blocked.map(b=>`<p>You still need ${b.need} ${esc(G.tileName(b.k))}, but only ${b.unseen} ${b.unseen===1?'copy is':'copies are'} unseen. Jokers cannot fill that single or pair.</p>`).join('')}${btn('Change hand','learn-hands','outline small')}</div>`+body;
- show('Learn',`<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn(s.practiceSession?'Practice again':'Guided practice','practice-again','outline')}${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn('Back to game','return-game')}</div>`:''}`);modal.dataset.view='learn';
+ show('Learn',`${guide}<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn(s.practiceSession?'Practice again':'Guided practice','practice-again','outline')}${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn('Back to game','return-game')}</div>`:''}`);modal.dataset.view='learn';
 }
 const formatScore=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
 function winSourceText(winType,discarder){
@@ -304,6 +321,8 @@ function showDiscards(){
  modal.dataset.view='discards';
 }
 function useGame(game){
+ $('#coach-details').open=false;
+ game.guidedPlay??=Boolean(game.practiceSession);
  clearTimeout(tableNoticeTimer);
  tableNoticeTimer=null;
  tableNoticeQueue.length=0;
@@ -313,10 +332,10 @@ function useGame(game){
  modal.close();render();
 }
 function beginHand(){regularReturn=null;try{localStorage.removeItem('parlor-regular-game');}catch{}useGame(newMatch(difficultyPreference));}
-function advanceRound(){useGame(nextRound(s,difficultyPreference));}
+function advanceRound(){useGame({...nextRound(s,difficultyPreference),guidedPlay:s.guidedPlay});}
 function beginPractice(){
  if(!s.practiceSession){save();regularReturn=JSON.parse(JSON.stringify(s));try{localStorage.setItem('parlor-regular-game',JSON.stringify(regularReturn));}catch{}}
- useGame(practiceGame(s,difficultyPreference));
+ useGame({...practiceGame(s,difficultyPreference),guidedPlay:true});
 }
 function returnToGame(){
  if(!regularReturn){beginHand();return;}
@@ -339,6 +358,46 @@ function targetNotation(target,extraClass=''){
  }).join('');
  return `<span class="hand-tiles ${extraClass}" role="img" aria-label="${esc(description.join(', '))}">${groups}</span>`;
 }
+function updateCoachHands(plan){
+ if(!s.guidedPlay){
+  rankedHands=pickerOpen?recommendHands(s.hands[0],s.exposed[0],{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements}):[];
+  coachLines=[];
+  return;
+ }
+ const visible=G.visibleTileCounts(s);
+ rankedHands=recommendHands(s.hands[0],s.exposed[0],{chosenKey:goalKey,jokerPlacements:s.jokerPlacements,visible});
+ const allowed=rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed));
+ const focus=plan?assessHand(s.hands[0],s.exposed[0],plan.target,visible):allowed[0];
+ coachLines=focus?[focus,...allowed.filter(row=>row.target.id!==focus.target.id).slice(0,1)]:[];
+}
+function setCoachText(selector,value){
+ const el=$(selector);
+ if(el.textContent!==value)el.textContent=value;
+}
+function renderCoach(){
+ const el=$('#play-coach');
+ el.hidden=!s.guidedPlay;
+ if(el.hidden)return;
+ const [focus,other]=coachLines;
+ const dead=G.isDeadHand(s);
+ const comparison=dead?{title:'Watch the table',reason:'Your hand is out for this round.'}:
+  focus?handComparison(focus,other,Boolean(pinned)):{title:'No matching hand',reason:'Try another section or change the hand picker filters.'};
+ const playable=coachLines.filter(row=>!row.blocked);
+ const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps});
+ coachChoiceAdvice=advice.text;
+ setCoachText('#coach-verdict',comparison.title);
+ setCoachText('#coach-reason',comparison.reason);
+ setCoachText('#coach-action',advice.text);
+ const details=dead?[]:coachLines.map(row=>{
+  const label=row===focus&&pinned?'Chosen hand':'';
+  const description=row.incompatible?'Conflicts with your exposures':
+   `${row.away} tiles away · ${row.naturalsNeeded} missing for singles and pairs · ${row.target.points} card points`;
+  return [label,row.target.name,description].filter(Boolean).join(' · ');
+ }).concat(advice.details||[]);
+ $('#coach-details').hidden=!details.length;
+ const html=details.map(detail=>`<li>${esc(detail)}</li>`).join('');
+ if($('#coach-numbers').innerHTML!==html)$('#coach-numbers').innerHTML=html;
+}
 function renderHands(){
  if(s.phase==='ended'||s.phase==='matchEnded')return;
  const dead=G.isDeadHand(s);
@@ -348,14 +407,12 @@ function renderHands(){
  if(!pickerOpen&&!pinnedLine){panel.replaceChildren();return;}
  const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
  const hand=s.hands[0],exposed=s.exposed[0];
- const rows=pickerOpen&&!dead?recommendHands(hand,exposed,{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements}):[];
+ const rows=pickerOpen&&!dead?rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed)):[];
  if(pinnedLine){
   const index=rows.findIndex(({target})=>target.id===pinnedLine.id);
-  if(index>=0)rows.unshift(rows.splice(index,1)[0]);
-  else{
-   const {matched,missing}=G.evaluate(hand,exposed,pinnedLine);
-   rows.unshift({target:pinnedLine,away:matched<0?-1:missing});
-  }
+  if(index>=0)rows.splice(index,1);
+  const {matched,missing}=G.evaluate(hand,exposed,pinnedLine);
+  rows.unshift({target:pinnedLine,away:matched<0?-1:missing});
  }
  const contents=rows.map(({target,away})=>{
   const chosen=goalKey===target.key;
@@ -381,11 +438,13 @@ function closestTargetVariations(){
  if(!pinned||G.isDeadHand(s))return [];
  const hand=s.hands[0],exposed=s.exposed[0];
  const closest=[];
- let best=Infinity;
+ let best=Infinity,blockedBest=true;
+ const visible=s.guidedPlay?G.visibleTileCounts(s):{};
  for(const target of lineVariations(pinned,exposed)){
-  const {missing}=G.evaluate(hand,exposed,target);
-  if(missing<best){best=missing;closest.length=0;}
-  if(missing===best)closest.push(target);
+  const {away,blocked}=assessHand(hand,exposed,target,visible);
+  if(blocked&&!blockedBest)continue;
+  if(blocked!==blockedBest||away<best){best=away;blockedBest=blocked;closest.length=0;}
+  if(away===best)closest.push(target);
  }
  return closest;
 }
@@ -423,7 +482,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  const position=variations.findIndex(({key})=>key===target.key)+1;
  const previewLabel=`Preview ${position} of ${variations.length}`;
  const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
- $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</strong>${previewButton}`;
+ $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count" ${plan.compatible&&plan.away>0?'data-distance':''}>${plan.compatible?(plan.away===0?'Ready for Mahjong':plan.away+' away'):'Conflicts with your exposures'}</strong>${previewButton}`;
  $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
@@ -442,8 +501,10 @@ function chooseHand(id,key){
  jokerTargetGroup=null;
  render();
  const chosen=$('#hand-list .hand-card.chosen');
- if(targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
  chosen?.focus({preventScroll:true});
+ const coach=$('#play-coach');
+ if(coach.hidden&&targetHandDisplay==='line')chosen?.scrollIntoView({block:'nearest',inline:'nearest'});
+ if(!coach.hidden&&(coach.getBoundingClientRect().bottom<0||coach.getBoundingClientRect().top>innerHeight))coach.scrollIntoView({block:'nearest'});
 }
 function clearHand(){
  const line=targetHandDisplay==='line'&&pickerOpen?pinned:null;
@@ -461,6 +522,7 @@ function showFinishedTable(phase,content){
  $('.opponent-row').hidden=true;
  $('.player-zone').hidden=true;
  $('#hand-focus').hidden=true;
+ $('#play-coach').hidden=true;
  $('.side-panel').hidden=true;
  $('#table-center').innerHTML=content;
  renderTableTools();
@@ -479,12 +541,13 @@ function render(){
  const received=prepareTable(s);if(received!==null)receivedIds=new Set(received);
  if(s.dealer!==0&&beforeFirstPass(s))G.declare(s,s.dealer);
  if(Array.isArray(s.rackOrder))s.rackOrder=retainRackOrder(s.hands[0],s.rackOrder);
+ const choosingCall=claims.length>0||s.phase==='claim';
+ claims=prepareDiscardClaims(s,callFilterLine());
  const variations=closestTargetVariations();
  if(variations.length&&!variations.some(({key})=>key===goalKey)){
   goalKey=variations[0].key;jokerTargetGroup=null;
  }
- const plan=currentPlan(),choosingCall=claims.length>0||s.phase==='claim';
- claims=prepareDiscardClaims(s,callFilterLine());
+ const plan=currentPlan();
  for(const {kind,player,key} of G.takeOpponentMoves(s)){
   const name=G.NAMES[player],tile=G.tileName(key);
   tableNoticeQueue.push({message:kind==='call'?`${name} called ${tile}.`:`${name} swapped ${tile} for a joker.`});
@@ -517,6 +580,7 @@ function render(){
  $('#rack').innerHTML=s.hands[0].map(t=>tile(t,'',!G.isDeadHand(s))).join('');
  renderYourExposures();$('#rack-count').innerHTML=`<strong>${s.wall.length}</strong> left in wall`;
  $('.seat-wind').textContent=G.windFor(0,s.dealer).toUpperCase()+(s.dealer===0?' · DEALER':'');
+ updateCoachHands(plan);renderCoach();
  renderTableTools();renderCenter();renderActions();renderHandFocus(plan,variations);renderHands();save();scheduleBot();updateBoardSpace();revealFreshTile();
  if(enteringSecondChoice&&!modal.open){
   if(!touchRack())showSecondCharlestonChoice();
@@ -633,6 +697,7 @@ async function runPass(){
 function beforeFirstPass(game){return game.phase==='charleston'&&game.passRound===1&&game.passStep===0&&scoringMode(game)==='tournament';}
 function roundReviewMarkup(round,action=''){
  const winner=round.winner;
+ const guided=round.guidedPlay??round.practiceSession;
  const title=winner==null?'Wall game':winner===0?'You won this round':G.NAMES[winner]+' wins this round';
  const winType=round.scoreResult?.winType===undefined?round.winType:round.scoreResult.winType;
  const source=winner==null?'':winSourceText(winType,round.scoreResult?.discarder??round.winningDiscarder);
@@ -643,11 +708,14 @@ function roundReviewMarkup(round,action=''){
   const won=player===winner;
   const score=round.scoreResult?.mode==='tournament'?round.scoreResult.deltas[player]:0;
   const distance=won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':missing===null?'No eligible line':`${missing} ${missing===1?'tile':'tiles'} away`;
-  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
+  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won&&!guided?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
   const matched=groups.map(group=>`<span class="winning-group ${group.exposed?'winning-exposed':''}">${faces(group.tiles)}</span>`).join('');
+  const details=[distance,won&&target?target.points+' card points':'',score?formatScore(score)+' round points':''].filter(Boolean).join(' · ');
   const extra=extras.length?`<span class="review-extra"><span class="review-extra-label">Extra tiles</span><span class="winning-group">${faces(extras)}</span></span>`:'';
-  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${distance}${score?' · '+formatScore(score):''}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
+  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${guided?(won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':''):[distance,score?formatScore(score):''].filter(Boolean).join(' · ')}</span></div>${line}<div class="review-tiles">${matched}${extra}</div>${guided?`<details class="round-coach-details"><summary>Show details</summary><p>${esc(details)}</p></details>`: ''}</article>`;
  });
+ const own=hands[0];
+ const lesson=winner===0&&own.target?'Your tiles completed '+own.target.name+'.':G.isDeadHand(round,0)?'Before calling, check that the exposed group fits a card line with your earlier exposures.':own.target?'Your closest finish was '+own.target.name+'. Compare the groups you built with the extra tiles below.':'';
  const wall=round.wall;
  const wallReview=winner!=null&&Array.isArray(wall)?`
   <section class="review-hand review-wall" aria-labelledby="review-wall-title">
@@ -657,7 +725,7 @@ function roundReviewMarkup(round,action=''){
    </div>
    ${wall.length?`<div class="review-tiles">${faces([...wall].reverse())}</div>`:''}
   </section>`:'';
- return `<div class="round-result"><div class="round-result-head"><div><h2>${title}</h2>${source?`<p class="round-win-source">${esc(source)}</p>`:''}</div>${action}</div><div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
+ return `<div class="round-result"><div class="round-result-head"><div><h2>${title}</h2>${source?`<p class="round-win-source">${esc(source)}</p>`:''}</div>${action}</div>${guided&&lesson?`<p class="round-coach-note">${esc(lesson)}</p>`: ''}<div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
 }
 function renderSelection(){
  document.querySelectorAll('#rack [data-tile]').forEach(t=>{
@@ -665,7 +733,7 @@ function renderSelection(){
   t.classList.toggle('selected',active);t.setAttribute('aria-pressed',String(active));
  });
  if(pendingCallId!==null)renderYourExposures();
- renderActions();
+ renderActions();renderCoach();
 }
 function beginCall(){
  if(!claims.length||winningClaim||pendingCallId!==null)return false;
@@ -765,6 +833,14 @@ document.addEventListener('click',async e=>{
  else if(a==='show-discards'){showDiscards();}
  else if(a==='joker-choices'){showJokerChoices();}
  else if(a==='learn'||a==='hint'){showLearn();}
+ else if(a==='open-coach'){
+  s.guidedPlay=true;modal.close();render();
+  $('#play-coach').focus({preventScroll:true});$('#play-coach').scrollIntoView({block:'nearest'});
+ }
+ else if(a==='close-coach'){
+  s.guidedPlay=false;$('#coach-details').open=false;render();
+  $('.header-learn').focus({preventScroll:true});
+ }
  else if(a==='learn-hands'){modal.close();pickerOpen=true;render();}
  else if(a==='practice-again'){beginPractice();}
  else if(a==='return-game'){returnToGame();}
@@ -842,9 +918,9 @@ document.addEventListener('change',e=>{
   return;
  }
  if(e.target.name==='sound-toggle'){sound=e.target.checked;try{localStorage.setItem('parlor-sound',String(sound));}catch{}playSound();return;}
- if(e.target.name==='hide-concealed'){hideConcealed=e.target.checked;try{localStorage.setItem('parlor-hide-concealed',String(hideConcealed));}catch{}renderHands();return;}
+ if(e.target.name==='hide-concealed'){hideConcealed=e.target.checked;try{localStorage.setItem('parlor-hide-concealed',String(hideConcealed));}catch{}render();return;}
  if(e.target.name==='tile-style'){applyTileStyle(e.target.value);return;}
- if(e.target.id==='section-filter'){section=e.target.value;try{localStorage.setItem('parlor-card-section',section);}catch{}renderHands();updateBoardSpace();}
+ if(e.target.id==='section-filter'){section=e.target.value;try{localStorage.setItem('parlor-card-section',section);}catch{}render();}
 });
 modal.addEventListener('close',()=>{modal.classList.remove('tile-style-modal');scheduleBot();});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
