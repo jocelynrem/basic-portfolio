@@ -5,7 +5,7 @@ import {claimOptions,pass,secondCharleston,TARGETS,visibleTileCounts} from '../j
 import {currentLineMove,drawFromWall,passTiles,prepareTable} from '../js/table-actions.mjs';
 import {assessHand,recommendHands} from '../js/recommendations.mjs';
 import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from '../js/coaching.mjs';
-import {pivotReason,trackOutlook} from '../js/outlook.mjs';
+import {holdVerdict,pivotReason,trackOutlook} from '../js/outlook.mjs';
 
 function guided(){
  const game=practiceGame({dealer:0});
@@ -264,11 +264,11 @@ test('a White dragon call explains the size Line 5 needs, including the discard 
  const advice=(targets,selected=[])=>turnAdvice(game,targets.map(t=>assessHand(game.hands[0],[],t)),{
   ...options,claims:claimOptions(game,0),selected:new Set(selected),staging:selected.length>0
  });
- const pass='Pass on the White dragon. With it, you can expose 3 of the 4 needed for Consecutive Run · Line 5.';
+ const pass='Pass. That’s the first White dragon discarded. You need one more White dragon or joker on your rack to call a set of 4.';
  assert.equal(advice([target]).text,pass);
  const withAlternative=advice([target,alternative]);
  assert.equal(withAlternative.text,pass);
- assert.match(withAlternative.details[0],/Winds - Dragons · Line 2/);
+ assert.match(withAlternative.details.join(' '),/Winds - Dragons · Line 2/);
  game.hands[0][9].k='J';
  assert.equal(advice([target]).text,pass);
  game.hands[0][10].k='J';
@@ -276,9 +276,9 @@ test('a White dragon call explains the size Line 5 needs, including the discard 
  assert.match(advice([target],[8,9]).text,/Add 1 more tile to expose 4/);
  assert.match(advice([target],[8,9,10]).text,/call that White dragon/);
  const concealed=TARGETS.find(t=>t.concealed);
- assert.match(advice([concealed]).text,/must stay concealed/);
+ assert.match(advice([concealed]).text,/concealed/);
  const pair=TARGETS.find(t=>!t.concealed&&t.groups.some(([k,n])=>k==='H'&&n===2));
- assert.match(advice([pair]).text,/single or pair/);
+ assert.match(advice([pair]).text,/pair/);
 });
 
 test('a fourth Flower stays on the table when the player already holds the three the line needs',()=>{
@@ -318,7 +318,76 @@ test('calling compares the staged exposure and discarding previews the selected 
  assert.match(advice.details[0],/Consecutive Run/);
  assert.match(advice.details[0],/after discarding/);
  game.phase='discard';game.turn=0;
- assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/let the 9 Crak go/);
+ assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/9 Crak.*tied/);
  game.phase='draw';
  assert.match(turnAdvice(game,lines,options).text,/Take a tile from the wall/);
+});
+
+test('7 and 9 Bam are a real tradeoff for the 13579 backup, including after selecting a tile',()=>{
+ const {game}=guided();
+ game.phase='discard';game.turn=0;game.drawn=10;
+ game.hands[0]=['F','F','F','B1','B1','B2','B2','J','J','B7','B9'].map((k,id)=>({k,id}));
+ game.exposed[0]=[{k:'B3',tiles:[20,21,22].map(id=>({k:'B3',id}))}];
+ const rows=()=>recommendHands(game.hands[0],game.exposed[0],{visible:visibleTileCounts(game)}).slice(0,2);
+ assert.deepEqual(rows().map(r=>r.target.id),['run5','odd1']);
+ for(const id of [null,9,10]){
+  const tip=turnAdvice(game,rows(),{...options,selected:new Set(id==null?[]:[id])});
+  assert.match(tip.text,/Tough choice/);
+  for(const label of ['7 Bam','9 Bam','13579 · Line 1'])assert.ok(tip.text.includes(label));
+  assert.match(tip.text,/Either discard costs it a tile/);
+  assert.equal(tip.tile,undefined);
+  game.hands[0].reverse();
+ }
+ game.hands[0].find(t=>t.k==='B7').k='W';
+ assert.equal(turnAdvice(game,rows(),options).tile.k,'W');
+});
+
+test('the second missed Green dragon explains call readiness and the selected line still leads',()=>{
+ const {game}=guided(),target=TARGETS.find(t=>t.key==='run5-0');
+ game.phase='claim';game.turn=1;
+ game.exposed[0]=[{k:'B3',tiles:[20,21,22].map(id=>({k:'B3',id}))}];
+ game.hands[0]=['F','F','F','B1','B1','B2','B2','J','J','B7'].map((k,id)=>({k,id}));
+ game.discards=[{player:3,tile:{k:'G',id:40}},{player:1,tile:{k:'G',id:41}}];
+ const rows=recommendHands(game.hands[0],game.exposed[0],{visible:visibleTileCounts(game)}).slice(0,2);
+ assert.equal(rows[0].target.key,target.key);
+ for(const claims of [claimOptions(game,0),[]]){
+  const tip=turnAdvice(game,rows,{...options,claims});
+  assert.match(tip.text,/second Green dragon discarded.*one more Green dragon or joker.*set of 4/);
+  assert.match(tip.details[0],/2 in the discard pool · 0 exposed · 2 unseen/);
+  assert.equal(pivotReason(...rows,tip.scarceDiscard),'');
+  assert.equal(holdVerdict(...rows).title,'Stay');
+ }
+ // Another opponent's ordinary discard should not erase the notice before our draw.
+ game.phase='draw';game.turn=0;game.discards.push({player:3,tile:{k:'W',id:42}});
+ assert.match(turnAdvice(game,rows,options).text,/second Green dragon/);
+ game.hands[0].push({k:'G',id:43});game.drawn=43;game.phase='discard';
+ assert.equal(turnAdvice(game,rows,options).neededDiscard,undefined);
+ // The same discarded tile can warrant a pivot with a different rack.
+ game.phase='claim';game.turn=1;game.discards.pop();
+ game.hands[0]=['B5','B5','B1','B1','B7','B7','B9','B9','J','J'].map((k,id)=>({k,id}));
+ const visible=visibleTileCounts(game);
+ const ranked=recommendHands(game.hands[0],game.exposed[0],{visible});
+ const chosen=assessHand(game.hands[0],game.exposed[0],target,visible);
+ const tip=turnAdvice(game,[chosen,ranked[0]],{...options,claims:claimOptions(game,0)});
+ assert.equal(tip.scarceDiscard,'G');
+ assert.match(pivotReason(chosen,ranked[0],tip.scarceDiscard),/13579 · Line 1/);
+ assert.ok(pivotReason(ranked.find(r=>r.target.id===target.id),ranked[0],tip.scarceDiscard));
+});
+
+test('uncallable discards use the actual tile and group size, including a quint and a six-Flower set',()=>{
+ for(const [key,n] of [['B4',3],['C8',4],['D5',5],['F',6],['N',4]]){
+  const {game}=guided();
+  const target=TARGETS.find(t=>!t.concealed&&t.groups.some(([k,size])=>k===key&&size===n));
+  game.hands[0]=Array.from({length:n-2},(_,id)=>({id,k:id%2?'J':key}));
+  game.phase='draw';game.turn=0;
+  const previous={k:key,id:40};
+  game.discards=[{player:2,tile:previous,claimed:true},{player:3,tile:{k:key,id:41}}];
+  game.exposed[2]=[{k:key,tiles:[previous,{id:42,k:'J'},{id:43,k:'J'}]}];
+  const row=assessHand(game.hands[0],[],target,visibleTileCounts(game));
+  const tip=turnAdvice(game,[row],options);
+  assert.equal(tip.neededDiscard,key);
+  assert.match(tip.text,/second/);
+  assert.ok(tip.text.includes('set of '+n));
+  assert.ok(tip.details[0].includes('1 in the discard pool · 1 exposed'));
+ }
 });

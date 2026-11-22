@@ -56,12 +56,13 @@ export function trackOutlook(previous,game,row){
  return {...previous,last:now,status,note,history:[entry,...previous.history].slice(0,5)};
 }
 
-export function pivotReason(focus,other){
+export function pivotReason(focus,other,discardKey=null){
  if(!other||other.blocked||focus.away===0)return '';
  const a=focus.target.name,b=other.target.name;
  if(focus.incompatible)return 'Your exposure rules out '+a+'. '+b+' fits it.';
  const dead=focus.gaps.find(g=>g.blocked);
  if(dead)return a+' needs more natural copies of '+tileName(dead.key)+' than remain unseen. '+b+' is still open.';
+ if(!focus.usefulCopies&&other.usefulCopies)return a+' has no unseen improving draw. Consider '+b+'.';
  if(other.away>focus.away||other.jokerDebt>focus.jokerDebt||other.tight>focus.tight)return '';
  if(other.away+2<=focus.away&&other.naturalsNeeded<=focus.naturalsNeeded)return 'I’d give '+b+' a look. You’re much closer to it than '+a+'.';
  if(other.jokerDebt<focus.jokerDebt)return a+' relies on more jokers to finish its sets. '+b+' has more natural tiles available.';
@@ -69,9 +70,19 @@ export function pivotReason(focus,other){
   const gap=focus.gaps.find(g=>g.need===g.unseen);
   return a+' needs every unseen copy of '+tileName(gap.key)+'. '+b+' leaves more room to draw what you need.';
  }
- if(focus.scarceKey&&other.naturalsNeeded<=focus.naturalsNeeded&&
+ const scarce=focus.scarceKey??(Object.hasOwn(focus.helpful,discardKey)?discardKey:null);
+ if(scarce&&other.naturalsNeeded<=focus.naturalsNeeded&&
   other.usefulCopies>=focus.usefulCopies*1.5&&other.usefulCopies>=focus.usefulCopies+4){
-  return 'Visible '+tileName(focus.scarceKey)+' tiles narrow the draws for '+a+'. More unseen tiles can advance '+b+'.';
+  return 'More unseen tiles can advance '+b+'. The visible '+tileName(scarce)+' tiles leave fewer draws for '+a+'.';
  }
  return '';
+}
+
+// Called after a needed discard when the pivot checks find no strong reason to switch.
+export function holdVerdict(focus,other){
+ const name=focus.target.name;
+ if(!other||other.blocked)return {kind:'fit',title:'Stay',reason:name+' is still open.'};
+ if(focus.away<other.away)return {kind:'fit',title:'Stay',reason:name+' is still closer than '+other.target.name+'.'};
+ const reason=focus.away===other.away?' is just as close.':' is closer.';
+ return {kind:'even',title:'Close choice',reason:'I’d keep '+name+' for now. '+other.target.name+reason};
 }

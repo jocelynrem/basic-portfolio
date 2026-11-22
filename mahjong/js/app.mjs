@@ -3,8 +3,8 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,passTiles,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations,currentLineMove} from './table-actions.mjs?v=line-movement-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=call-progress-1';
-import {trackOutlook,pivotReason} from './outlook.mjs?v=line-movement-1';
+import {discardAdvice,handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=backup-discards-1';
+import {trackOutlook,pivotReason,holdVerdict} from './outlook.mjs?v=backup-discards-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
@@ -165,7 +165,7 @@ function renderActions(){
    const counts=claims.map(({n})=>n-1).sort((a,b)=>a-b);
    const remaining=counts.find(count=>count>selected.size)-selected.size;
    title='Build exposure';
-   description=option?.dead?'No matching lines. Exposing this set makes your hand dead.':
+   description=option?.dead?'Exposing '+option.n+' × '+G.tileName(key)+' here would make your hand dead.':
     option?'Ready to expose.':selected.size?`Add ${remaining} more ${remaining===1?'tile':'tiles'}.`:`Add ${counts.join(' or ')} matching tiles or jokers.`;
    actions=btn(option?`Expose ${option.label.split(' ')[0].toLowerCase()}`:'Expose','claim-confirm','outline small',!option)+
     btn('Cancel','cancel-call','outline small');
@@ -262,17 +262,21 @@ function showLearn(){
  const target=currentPlan()?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
  const advice=tileAdvice(s,target,count);
- if(playable.length&&!claims.length&&['pass','discard'].includes(advice.kind)){
-  const passing=advice.kind==='pass';
+ if(playable.length&&!claims.length&&advice.kind==='pass'){
   const optional=s.phase==='courtesy'||(s.phase==='charleston'&&s.passStep===2);
-  advice.tiles=optional?spareTiles(s.hands[0],s.exposed[0],playable):suggestTiles(s.hands[0],s.exposed[0],playable,passing?count:1,passing);
-  if(advice.tiles.length)advice.reasons=[selectionAdvice(s.hands[0],s.exposed[0],playable,advice.tiles,passing).text];
+  advice.tiles=optional?spareTiles(s.hands[0],s.exposed[0],playable):suggestTiles(s.hands[0],s.exposed[0],playable,count,true);
+  if(advice.tiles.length)advice.reasons=[selectionAdvice(s.hands[0],s.exposed[0],playable,advice.tiles,true).text];
+ }else if(playable.length&&!claims.length&&advice.kind==='discard'){
+  const hint=discardAdvice(s,playable);
+  advice.tiles=hint.tile?[hint.tile]:[];
+  advice.reasons=[hint.text];
  }
  hintIds=advice.tiles.map(t=>t.id);
  let body='';
  if(['ended','matchEnded'].includes(s.phase))body='<p>The round result shows the closest line for each player.</p>';
  else if(G.isDeadHand(s))body='<p>Your hand has been declared dead. The other players finish the round.</p>';
- else if(s.guidedPlay&&claims.length)body=`<p>${esc($('#coach-action').textContent)}</p>${winningClaim?btn('Declare Mahjong','learn-declare-discard','small'):''}`;
+ else if(s.guidedPlay&&(claims.length||advice.kind==='watch'&&$('#coach-action').textContent))body=`<p>${esc($('#coach-action').textContent)}</p>${winningClaim?btn('Declare Mahjong','learn-declare-discard','small'):''}`;
+ else if(advice.kind==='discard'&&!advice.tiles.length)body=`<p>${esc(advice.reasons[0])}</p>`;
  else if(advice.kind==='pass'&&!advice.tiles.length)body=`<p>${s.phase==='courtesy'?'Skip the courtesy exchange':'Pass the incoming packet blind'} to keep your hands intact.</p>`;
  else if(advice.kind==='choose')body=`<p>Choose a hand for advice about individual tiles.</p>${btn('Choose a hand','learn-hands','outline small')}`;
  else if(advice.kind==='pass'||advice.kind==='discard')body=`<p>${advice.kind==='pass'?'Consider passing':'Consider discarding'}:</p><div class="hint-tiles">${advice.tiles.map(t=>tile(t)).join('')}</div><ul class="hint-reasons">${advice.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${btn(advice.tiles.length===1?'Select this tile':'Select these tiles','use-hint','small')}`;
@@ -385,22 +389,24 @@ function renderCoach(){
  const dead=G.isDeadHand(s);
  const canDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
  const hasWin=winningClaim||canDeclare&&G.winning(s.hands[0],s.exposed[0]);
+ const playable=coachLines.filter(row=>!row.blocked);
+ const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine:s.outlook?.note?pinned:null,chosenLine:focus});
+ if(pinned&&focus&&claims.length&&advice.neededDiscard)s.outlook=trackOutlook(s.outlook,s,focus);
  const tracking=pinned&&focus&&!dead&&!hasWin&&s.outlook;
  const bestVariation=tracking&&rankedHands.find(row=>row.target.id===pinned);
- const pivot=tracking&&!hasWin&&!claims.length&&(!bestVariation||pivotReason(bestVariation,other))&&pivotReason(focus,other);
+ const pivot=tracking&&(!claims.length||advice.neededDiscard)&&(!bestVariation||pivotReason(bestVariation,other,advice.scarceDiscard))&&pivotReason(focus,other,advice.scarceDiscard);
  const comparison=hasWin?{kind:'fit',title:'Mahjong',reason:''}:dead?{title:'Watch',reason:'Your hand is out for this round.'}:
   !focus?{title:'No matching hand',reason:'Try changing the hand picker filters.'}:
-  pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:pinned?handComparison(focus,other):{title:'',reason:''};
- const playable=coachLines.filter(row=>!row.blocked);
- const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine:tracking?.note?pinned:null});
- const compareInDetails=claims.length>0&&pinned&&focus&&!focus.blocked&&!hasWin;
+  pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:tracking&&advice.neededDiscard&&!focus.blocked?holdVerdict(focus,other):
+  pinned?handComparison(focus,other):{title:'',reason:''};
+ const compareInDetails=claims.length>0&&pinned&&focus&&!focus.blocked&&!hasWin&&!advice.neededDiscard;
  $('#coach-tracker').hidden=!tracking;
  if(tracking){
   const status=tracking.status;
   setCoachText('#outlook-line',focus.target.name);
   setCoachText('#outlook-status',status);
   $('#coach-tracker').dataset.trend=status;
-  setCoachText('#outlook-note',tracking.note);
+  setCoachText('#outlook-note',advice.neededDiscard?'':tracking.note);
  }
  $('.coach-callout').hidden=!comparison.title||compareInDetails;
  $('#coach-mark').dataset.kind=comparison.kind||'';

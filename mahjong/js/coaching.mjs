@@ -1,5 +1,5 @@
-import {compatible,evaluate,tileName,winning} from './engine.mjs?v=win-source-1';
-import {compareFit} from './recommendations.mjs?v=hand-outlook-1';
+import {compatible,evaluate,TARGETS,tileName,unseenCopies,visibleTileCounts,winning} from './engine.mjs?v=win-source-1';
+import {assessHand,compareFit} from './recommendations.mjs?v=hand-outlook-1';
 
 const line=row=>row.target.name;
 function gapName(gap){
@@ -126,6 +126,89 @@ function newTileTip(hand,exposed,lines,ids){
  return '';
 }
 
+export function discardAdvice(s,lines,picked=null){
+ const hand=s.hands[0],exposed=s.exposed[0],visible=visibleTileCounts(s);
+ const [focus,backup]=lines;
+ // The backup is a card line. Either discard may favor a different suit variation.
+ const variations=backup?TARGETS.filter(t=>t.id===backup.target.id&&compatible(t,exposed))
+  .map(t=>assessHand(hand,exposed,t,visible)).filter(r=>!r.blocked&&r.away<=backup.away+1):[];
+ const choices=[];
+ for(const tile of new Map(hand.map(t=>[t.k,t])).values()){
+  const left=without(hand,[tile]);
+  const main=assessHand(left,exposed,focus.target,visible);
+  const next=variations.map(r=>assessHand(left,exposed,r.target,visible)).sort(compareFit)[0];
+  const score=[Number(main.blocked),main.away,Number(next?.blocked??false),next?.away??0,Number(tile.k==='J')];
+  choices.push({tile,score});
+ }
+ choices.sort((a,b)=>firstDifference(a.score,b.score)||a.tile.k.localeCompare(b.tile.k));
+ const best=choices[0];
+ const tied=choices.filter(c=>!firstDifference(c.score,best.score));
+ const chosen=picked&&choices.find(c=>c.tile.k===picked.k);
+ const preview=chosen??best;
+ const details=lines.map((row,i)=>line(row)+' after discarding '+tileName(preview.tile.k)+' · '+preview.score[2*i+1]+' tiles away.');
+ if(tied.length>1)details.push('Discards with the same distance for the compared lines · '+tied.map(c=>tileName(c.tile.k)).join(', ')+'.');
+ if(chosen&&firstDifference(chosen.score,best.score)>0){
+  const why=firstDifference(chosen.score.slice(0,2),best.score.slice(0,2))?'protect '+line(focus):
+   backup&&firstDifference(chosen.score.slice(2,4),best.score.slice(2,4))?'protect '+line(backup):'keep your joker';
+  const alternatives=tied.slice(0,2).map(c=>tileName(c.tile.k)).join(' or ');
+  return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',details};
+ }
+ if(tied.length>1){
+  const drawn=hand.find(t=>t.id===s.drawn);
+  const fitsBackup=c=>variations.some(r=>r.away===backup.away&&r.kept[c.tile.k]>0);
+  const examples=[...tied].sort((a,b)=>Number(b.tile.k===picked?.k)-Number(a.tile.k===picked?.k)||
+   Number(b.tile.k===drawn?.k)-Number(a.tile.k===drawn?.k)||Number(fitsBackup(b))-Number(fitsBackup(a))).slice(0,2);
+  const names=examples.map(c=>tileName(c.tile.k)).join(' and ');
+  const cost=best.score[1]>focus.away?line(focus):backup&&best.score[3]>backup.away?line(backup):null;
+  const text=cost?'Tough choice. '+names+' both help '+cost+'. Either discard costs it a tile.':
+   backup&&examples.every(fitsBackup)?names+' both fit '+line(backup)+'. Either discard leaves the same distance to each line.':
+   names+' are tied for this discard. Either leaves '+line(focus)+' the same distance from Mahjong.';
+  return {text,details};
+ }
+ const loss=best.score[1]>focus.away?focus:backup&&best.score[3]>backup.away?backup:null;
+ const text=loss?'Tough discard. Letting the '+tileName(best.tile.k)+' go costs a tile toward '+line(loss)+'.':
+  'You can let the '+tileName(best.tile.k)+' go and keep '+line(focus)+'.';
+ return {text,details,tile:best.tile};
+}
+
+// Keep an uncallable discard in view through the opponents' turns. A fresh draw
+// or a new call decision takes precedence over an earlier missed tile.
+function neededDiscard(s,row,activeCall){
+ if(!row||!['draw','claim','discard'].includes(s.phase)||s.phase==='discard'&&s.turn===0)return null;
+ const hand=s.hands[0],exposed=s.exposed[0],groups=compatible(row.target,exposed);
+ if(!groups)return null;
+ for(let i=s.discards.length-1;i>=0;i--){
+  const discard=s.discards[i],{k}=discard.tile;
+  if(discard.player===0||(activeCall&&i!==s.discards.length-1))break;
+  if(discard.claimed&&exposed.some(g=>g.tiles.some(t=>t.id===discard.tile.id)))break;
+  if(k==='J'||!Object.hasOwn(row.helpful,k))continue;
+  const matching=groups.filter(([key])=>key===k);
+  if(!matching.length)continue;
+  const sizes=matching.map(([,size])=>size).filter(size=>size>=3);
+  const required=Math.min(...sizes);
+  const onRack=hand.filter(t=>t.k===k||t.k==='J').length;
+  if(!row.target.concealed&&required<=onRack+1)continue;
+  const name=tileName(k);
+  const count=s.discards.slice(0,i+1).filter(d=>d.tile.k===k).length;
+  const ordinal=['','first','second','third','fourth','fifth','sixth','seventh','eighth'][count]??String(count);
+  const visible=visibleTileCounts(s),unseen=unseenCopies(visible,k);
+  const short=required-1-onRack;
+  const intro='That’s the '+ordinal+' '+name+' discarded. ';
+  let reason;
+  if(row.target.concealed)reason='Your concealed line can call it only for Mahjong.';
+  else if(!sizes.length)reason='Your line needs it for a '+(matching.some(([,n])=>n===2)?'pair':'single')+'. You can call it only for Mahjong.';
+  else if(!unseen)reason='Every copy is accounted for. Only jokers can fill the remaining slots in your set of '+required+'.';
+  else if(short===1)reason='You need one more '+name+' or joker on your rack to call a set of '+required+'.';
+  else reason='To call a set of '+required+', you need '+short+' more matching tiles or jokers on your rack.';
+  const inPool=s.discards.filter(d=>!d.claimed&&d.tile.k===k).length;
+  const showing=s.exposed.flat().reduce((total,g)=>total+g.tiles.filter(t=>t.k===k).length,0);
+  return {neededDiscard:k,scarceDiscard:count>=2&&unseen<=2?k:null,text:(activeCall?'Pass. ':'')+intro+reason,details:[
+   line(row)+' · '+name+' · '+inPool+' in the discard pool · '+showing+' exposed · '+unseen+' unseen.'+(sizes.length&&!row.target.concealed?' Your rack supplies '+onRack+' of the '+(required-1)+' tiles needed alongside the discard.':'')
+  ]};
+ }
+ return null;
+}
+
 function explainMissedCall(s,primary,key){
  const pass='Pass on the '+tileName(key)+'. ';
  const name=line(primary);
@@ -173,7 +256,7 @@ function callAdvice(s,lines,claims,picked,staging){
  const details=[];
  if(fit)details.push('Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away after discarding.');
  const choices=staged?claims.filter(c=>c.n===picked.length+1):claims;
- if(choices.length&&choices.every(c=>c.dead))details.push('This exposure fits no line on the card and would make your hand dead.');
+ if(choices.length&&choices.every(c=>c.dead))details.push('Exposing '+choices.map(c=>c.n).join(' or ')+' × '+tileName(tile.k)+' here would make your hand dead.');
  if(fit?.row!==primary)return {text:explainMissedCall(s,primary,tile.k),details};
  if(fit.away>=primary.away){
   const needed=compatible(primary.target,exposures).reduce((total,[key,n])=>total+(key===tile.k?n:0),0);
@@ -189,19 +272,24 @@ function callAdvice(s,lines,claims,picked,staging){
  return {text:'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.',details};
 }
 
-export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine}){
+export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine,chosenLine}){
  const rack=s.hands[0],exposed=s.exposed[0],picked=rack.filter(t=>selected.has(t.id));
  if(s.deadHand?.player===0)return {text:'Watch which exposed sets and discards reveal the other players’ hands.'};
  if(claims.some(c=>c.win))return callAdvice(s,lines,claims,picked,staging);
  const mayDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
  const win=mayDeclare&&winning(rack,exposed);
  if(win)return {text:'That’s '+win.name+'! Declare Mahjong.'};
+ const missed=neededDiscard(s,chosenLine??lines[0],claims.length>0);
+ if(missed){
+  if(claims.length&&lines.length)missed.details.push(...(callAdvice(s,lines,claims,picked,staging).details??[]));
+  return missed;
+ }
  if(!lines.length)return {text:'Choose a different card line to find a hand you can still build.'};
- const primary=lines[0];
  const arrivals=lines.filter(row=>row.target.id!==describedLine);
  if(claims.length)return callAdvice(s,lines,claims,picked,staging);
  const passing=s.phase==='charleston'||s.phase==='courtesy';
- if(picked.length&&(passing||s.phase==='discard'&&s.turn===0))return selectionAdvice(rack,exposed,lines,picked,passing);
+ if(picked.length&&passing)return selectionAdvice(rack,exposed,lines,picked,true);
+ if(picked.length&&s.phase==='discard'&&s.turn===0)return discardAdvice(s,lines,picked[0]);
  if(s.phase==='charlestonChoice'||s.phase==='courtesy'){
   const spares=spareTiles(rack,exposed,lines);
   const text=s.phase==='courtesy'?(spares.length?'Just send what you can spare.':'I’d sit this exchange out. You can use every tile.'):
@@ -215,9 +303,9 @@ export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,de
  if(s.turn!==0)return {text:''};
  if(s.phase==='draw')return {text:'Your draw. Take a tile from the wall.'};
  if(swaps.length)return {text:'You can exchange '+tileName(swaps[0].k)+' for an exposed joker before discarding.'};
- const candidate=suggestTiles(rack,exposed,lines,1,false)[0];
- const spared=candidate&&distances(without(rack,[candidate]),exposed,lines)[0]===primary.away?candidate:null;
+ const discard=discardAdvice(s,lines);
  const fresh=s.drawn!=null?new Set([s.drawn]):s.turns===0?receivedIds:new Set();
- const tip=newTileTip(rack,exposed,arrivals,fresh);
- return {text:tip+(spared?'I’d let the '+tileName(spared.k)+' go. '+line(primary)+' stays open.':'Which tile can you spare? Try a discard to see what it costs.')};
+ const discardingNew=discard.tile&&rack.some(t=>fresh.has(t.id)&&t.k===discard.tile.k);
+ const tip=discard.tile&&!discardingNew?newTileTip(rack,exposed,arrivals,fresh):'';
+ return {...discard,text:tip+discard.text};
 }
