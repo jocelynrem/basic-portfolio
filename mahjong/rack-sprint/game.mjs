@@ -8,9 +8,9 @@ const ROUND_MS = 20_000;
 const REVEAL_MS = 2_000;
 const timerKey = 'parlor-rack-sprint-timed';
 const tileNamesKey = 'parlor-show-tile-names';
+const timedControls = $('#timed-controls');
 const pauseButton = $('#pause-sprint');
 const pauseDialog = $('#pause-dialog');
-const levels = ['Warm-up', 'Steady', 'Challenge'];
 const correctReactions = ['That’s it!', 'You got it!', 'Nice pick!', 'Nailed it!', 'Right on!', 'That’s the one!'];
 let timed = true;
 try { timed = localStorage.getItem(timerKey) !== 'off'; } catch {}
@@ -92,7 +92,7 @@ function focusAt(selector) {
 }
 
 function drawClock() {
- pauseButton.hidden = !timed || !['pick','reveal'].includes(phase);
+ timedControls.hidden = !timed || !['pick','reveal'].includes(phase);
  $('#clock').hidden = !timed || phase !== 'pick';
  if (phase !== 'pick') return;
  const seconds = Math.ceil(remaining / 1000);
@@ -109,7 +109,7 @@ function pauseClock() {
 }
 
 function pauseSprint() {
- if (pauseButton.hidden || pauseDialog.open) return;
+ if (timedControls.hidden || pauseDialog.open) return;
  pauseClock();
  pauseDialog.showModal();
 }
@@ -143,7 +143,6 @@ function drawRound() {
  const index = history.length;
  round = dealSprintRound(index,history.map(entry => entry.round));
  $('#round-counter').textContent = (index + 1) + ' / ' + TOTAL_ROUNDS;
- $('#difficulty').textContent = levels[round.choices.length - 2];
  $('#score').textContent = total;
  $('#progress').innerHTML = Array.from({length:TOTAL_ROUNDS}, (_,i) =>
   `<span data-state="${i < index ? 'done' : i === index ? 'current' : 'to-go'}"></span>`).join('');

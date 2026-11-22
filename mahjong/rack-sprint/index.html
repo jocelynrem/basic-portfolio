@@ -8,8 +8,8 @@
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
  <link rel="stylesheet" href="../palette.css?v=neutral-page-1">
- <link rel="stylesheet" href="./style.css?v=sprint-pause-1">
- <script type="module" src="./game.mjs?v=sprint-pause-1"></script>
+ <link rel="stylesheet" href="./style.css?v=sprint-controls-1">
+ <script type="module" src="./game.mjs?v=sprint-controls-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -37,7 +37,7 @@
 
   <section id="play" class="play" aria-labelledby="play-heading" hidden>
    <header class="game-heading">
-    <div class="game-title"><h1 id="play-heading">Rack <em>Sprint</em></h1><span id="difficulty" class="difficulty"></span></div>
+    <h1 id="play-heading">Rack <em>Sprint</em></h1>
     <label class="timer-toggle"><input type="checkbox" data-timer-toggle checked><span class="switch" aria-hidden="true"></span>20s timer</label>
    </header>
    <div class="felt">
@@ -45,10 +45,12 @@
      <div class="round-label">Rack <strong id="round-counter"></strong></div>
      <div id="progress" class="progress" aria-hidden="true"></div>
      <div class="score-label">Score <strong id="score">0</strong></div>
-     <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
-      <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
+     <div id="timed-controls" class="timed-controls" hidden>
+      <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
+       <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
+      </div>
+      <button type="button" id="pause-sprint" class="pause-button" aria-haspopup="dialog"><span aria-hidden="true"></span>Pause</button>
      </div>
-     <button type="button" id="pause-sprint" class="pause-button" aria-haspopup="dialog" hidden><span aria-hidden="true"></span>Pause</button>
     </div>
     <div class="rack-tray">
      <div id="rack" class="rack" role="group" aria-label="Your rack"></div>
