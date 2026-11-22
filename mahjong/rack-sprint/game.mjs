@@ -8,6 +8,8 @@ const ROUND_MS = 20_000;
 const REVEAL_MS = 2_000;
 const timerKey = 'parlor-rack-sprint-timed';
 const tileNamesKey = 'parlor-show-tile-names';
+const pauseButton = $('#pause-sprint');
+const pauseDialog = $('#pause-dialog');
 const levels = ['Warm-up', 'Steady', 'Challenge'];
 const correctReactions = ['That’s it!', 'You got it!', 'Nice pick!', 'Nailed it!', 'Right on!', 'That’s the one!'];
 let timed = true;
@@ -90,6 +92,7 @@ function focusAt(selector) {
 }
 
 function drawClock() {
+ pauseButton.hidden = !timed || !['pick','reveal'].includes(phase);
  $('#clock').hidden = !timed || phase !== 'pick';
  if (phase !== 'pick') return;
  const seconds = Math.ceil(remaining / 1000);
@@ -105,6 +108,18 @@ function pauseClock() {
  clearInterval(interval);
 }
 
+function pauseSprint() {
+ if (pauseButton.hidden || pauseDialog.open) return;
+ pauseClock();
+ pauseDialog.showModal();
+}
+
+function resumeSprint() {
+ pauseDialog.close();
+ runClock();
+ pauseButton.focus({preventScroll:true});
+}
+
 function tick() {
  if (deadline === null) return;
  remaining = Math.max(0, deadline - performance.now());
@@ -118,7 +133,7 @@ function tick() {
 function runClock() {
  drawClock();
  const shouldRun = phase === 'reveal' || phase === 'pick' && timed;
- if (!shouldRun || document.hidden || deadline !== null) return;
+ if (!shouldRun || pauseDialog.open || document.hidden || deadline !== null) return;
  deadline = performance.now() + remaining;
  interval = setInterval(tick,100);
 }
@@ -142,7 +157,7 @@ function drawRound() {
 }
 
 function answer(index) {
- if (phase !== 'pick') return;
+ if (phase !== 'pick' || pauseDialog.open) return;
  pauseClock();
  if (timed && remaining === 0) index = null;
  phase = 'reveal';
@@ -239,12 +254,18 @@ window.addEventListener('pageshow',event => { if (event.persisted) restoreTileNa
 $('#hero-tiles').innerHTML = ['B5','F','D7'].map(key => tileFace(key)).join('');
 $('#start').addEventListener('click',start);
 $('#again').addEventListener('click',start);
+pauseButton.addEventListener('click',pauseSprint);
+$('#resume-sprint').addEventListener('click',resumeSprint);
+pauseDialog.addEventListener('cancel',event => {
+ event.preventDefault();
+ resumeSprint();
+});
 $('#choices').addEventListener('click',event => {
  const button = event.target.closest('.line-choice');
  if (button) answer(Number(button.dataset.index));
 });
 document.addEventListener('keydown',event => {
- if (phase !== 'pick' || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+ if (phase !== 'pick' || pauseDialog.open || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
  const key = event.key.toLowerCase();
  const index = /^[a-d]$/.test(key) ? key.charCodeAt(0) - 97 : /^[1-4]$/.test(key) ? Number(key) - 1 : -1;
  if (round.choices[index]) { event.preventDefault(); answer(index); }

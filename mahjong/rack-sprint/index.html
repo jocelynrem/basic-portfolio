@@ -3,13 +3,13 @@
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
- <meta name="theme-color" content="#244751">
+ <meta name="theme-color" content="#393d3f">
  <meta name="description" content="Race through 10 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
- <link rel="stylesheet" href="../palette.css?v=violet-flowers-1">
- <link rel="stylesheet" href="./style.css?v=sprint-refresh-3">
- <script type="module" src="./game.mjs?v=sprint-refresh-1"></script>
+ <link rel="stylesheet" href="../palette.css?v=neutral-page-1">
+ <link rel="stylesheet" href="./style.css?v=sprint-pause-1">
+ <script type="module" src="./game.mjs?v=sprint-pause-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -48,6 +48,7 @@
      <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
       <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
      </div>
+     <button type="button" id="pause-sprint" class="pause-button" aria-haspopup="dialog" hidden><span aria-hidden="true"></span>Pause</button>
     </div>
     <div class="rack-tray">
      <div id="rack" class="rack" role="group" aria-label="Your rack"></div>
@@ -81,5 +82,9 @@
   </section>
   <noscript><p>Rack Sprint needs JavaScript to deal the racks and score your choices.</p></noscript>
  </main>
+ <dialog id="pause-dialog" class="pause-dialog" aria-labelledby="pause-heading">
+  <h2 id="pause-heading">Sprint paused</h2>
+  <button type="button" id="resume-sprint" class="primary-button" autofocus>Resume <span aria-hidden="true">→</span></button>
+ </dialog>
 </body>
 </html>
