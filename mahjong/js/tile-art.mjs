@@ -1,5 +1,5 @@
 import {specialArt} from './special-art.mjs?v=cool-tiles-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=violet-flowers-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=charcoal-flower-1';
 export const STYLES={
  modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
  minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
@@ -9,7 +9,7 @@ export const STYLES={
  mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#166147',dot:'#154b75',crak:'#a83239'}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
-const flowerInk='var(--tile-flower-ink, #6b4080)';
+const flowerInk='var(--gunmetal, #393d3f)';
 const flowerMint='var(--parlor-mint-ink, #24634d)';
 const flowerCyan='var(--pacific-cyan, #62929e)';
 const flowerCenter='var(--white, #fdfdff)';

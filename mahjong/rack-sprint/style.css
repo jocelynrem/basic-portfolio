@@ -202,11 +202,6 @@ h2 { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.04
 [data-ink="dot"] { color: #2c5d83; }
 [data-ink="flower"] { color: #895321; }
 [data-ink="honor"] { color: #403647; }
-.line-choice[data-result="best"] { border-color: var(--parlor-pink-ink); background: var(--pink-wash); }
-.line-choice[data-result="picked"] { background: var(--parlor-paper); }
-.line-choice[data-result="best"] { animation: correct-pick .48s ease-out; }
-@keyframes correct-pick { 35% { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--pink), 0 5px 0 var(--pink); } }
-
 .feedback {
  position: relative; width: fit-content; max-width: 100%; margin: 12px auto 0; padding: 7px 8px 7px 14px;
  border: 1px solid var(--parlor-control); border-radius: 9px;

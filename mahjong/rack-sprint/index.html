@@ -7,9 +7,9 @@
  <meta name="description" content="Race through 10 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
- <link rel="stylesheet" href="../palette.css?v=neutral-page-1">
- <link rel="stylesheet" href="./style.css?v=sprint-controls-1">
- <script type="module" src="./game.mjs?v=sprint-controls-1"></script>
+ <link rel="stylesheet" href="../palette.css?v=charcoal-flower-1">
+ <link rel="stylesheet" href="./style.css?v=answer-feedback-1">
+ <script type="module" src="./game.mjs?v=answer-feedback-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -63,8 +63,10 @@
      <span id="feedback-points" class="feedback-points"></span>
     </div>
    </div>
-   <div id="choices" class="choices" role="group" aria-label="Choose a card line"></div>
-   <label class="names-toggle"><input type="checkbox" data-names-toggle> Show tile names</label>
+   <div id="answer-area" hidden>
+    <div id="choices" class="choices" role="group" aria-label="Choose a card line"></div>
+    <label class="names-toggle"><input type="checkbox" data-names-toggle> Show tile names</label>
+   </div>
   </section>
 
   <section id="results" class="results" aria-labelledby="results-heading" hidden>

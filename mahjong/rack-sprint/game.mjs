@@ -1,7 +1,7 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
 import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
-import { faceArt } from '../js/tile-art.mjs?v=violet-flowers-1';
+import { faceArt } from '../js/tile-art.mjs?v=charcoal-flower-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
@@ -148,6 +148,7 @@ function drawRound() {
   `<span data-state="${i < index ? 'done' : i === index ? 'current' : 'to-go'}"></span>`).join('');
  $('#rack').innerHTML = rackMarkup(round.rack);
  $('#choices').innerHTML = round.choices.map(choiceButton).join('');
+ $('#answer-area').hidden = false;
  $('#feedback').hidden = true;
  showScreen('play');
  focusAt('#round-counter');
@@ -167,10 +168,7 @@ function answer(index) {
  total += points;
  $('#score').textContent = total;
  const kind = !picked ? 'timeout' : points === 100 ? 'best' : points > 0 ? 'close' : 'miss';
- for (const button of $('#choices').children) {
-  button.disabled = true;
-  if (Number(button.dataset.index) === index) button.dataset.result = kind === 'best' ? 'best' : 'picked';
- }
+ $('#answer-area').hidden = true;
  const gap = picked ? picked.away - round.bestAway : 0;
  const closeReaction = gap === 1 ? 'So close!' : gap === 2 ? 'Almost!' : 'Not quite!';
  const reactions = { close:closeReaction, miss:'Missed it', timeout:'Time’s up' };
