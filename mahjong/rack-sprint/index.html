@@ -7,9 +7,9 @@
  <meta name="description" content="Race through 10 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
- <link rel="stylesheet" href="../palette.css?v=card-notation-1">
- <link rel="stylesheet" href="./style.css?v=cool-tiles-1">
- <script type="module" src="./game.mjs?v=cool-tiles-1"></script>
+ <link rel="stylesheet" href="../palette.css?v=violet-flowers-1">
+ <link rel="stylesheet" href="./style.css?v=sprint-refresh-1">
+ <script type="module" src="./game.mjs?v=sprint-refresh-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -45,18 +45,19 @@
      <div class="round-label">Rack <strong id="round-counter"></strong></div>
      <div id="progress" class="progress" aria-hidden="true"></div>
      <div class="score-label">Score <strong id="score">0</strong></div>
+     <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
+      <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
+     </div>
     </div>
     <div class="rack-tray">
      <div id="rack" class="rack" role="group" aria-label="Your rack"></div>
     </div>
    </div>
-   <div class="round-prompt">
-    <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
-     <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
-    </div>
-    <div id="feedback" class="feedback" hidden>
-     <div class="celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-     <strong id="feedback-title"></strong>
+   <div id="feedback" class="feedback" hidden>
+    <div class="celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div id="feedback-title" role="group">
+     <strong id="feedback-reaction"></strong>
+     <span id="feedback-points" class="feedback-points"></span>
     </div>
    </div>
    <div id="choices" class="choices" role="group" aria-label="Choose a card line"></div>

@@ -17,7 +17,7 @@ const windMarkers={
 };
 const windInk='var(--gunmetal, #393d3f)';
 const jokerInk='var(--parlor-link, #285763)';
-const flowerInk='var(--parlor-pink-ink, #a32146)';
+const flowerInk='var(--tile-flower-ink, #6b4080)';
 const markerInk='var(--pacific-cyan, #62929e)';
 const paper='var(--white, #fdfdff)';
 

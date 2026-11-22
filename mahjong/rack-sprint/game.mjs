@@ -1,7 +1,7 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
 import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
-import { faceArt } from '../js/tile-art.mjs?v=cool-tiles-1';
+import { faceArt } from '../js/tile-art.mjs?v=violet-flowers-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
@@ -9,6 +9,7 @@ const REVEAL_MS = 2_000;
 const timerKey = 'parlor-rack-sprint-timed';
 const tileNamesKey = 'parlor-show-tile-names';
 const levels = ['Warm-up', 'Steady', 'Challenge'];
+const correctReactions = ['That’s it!', 'You got it!', 'Nice pick!', 'Nailed it!', 'Right on!', 'That’s the one!'];
 let timed = true;
 try { timed = localStorage.getItem(timerKey) !== 'off'; } catch {}
 
@@ -43,8 +44,8 @@ function pattern(target) {
 }
 
 function choiceButton(choice,index) {
- return `<button type="button" class="line-choice" data-index="${index}">
-  <span class="choice-key" aria-hidden="true">${String.fromCharCode(65 + index)}</span>
+ const shortcuts = String.fromCharCode(65 + index) + ' ' + (index + 1);
+ return `<button type="button" class="line-choice" data-index="${index}" aria-keyshortcuts="${shortcuts}">
   <span class="choice-content"><span class="line-name">${choice.target.name}</span>${pattern(choice.target)}</span></button>`;
 }
 
@@ -158,8 +159,12 @@ function answer(index) {
  }
  const gap = picked ? picked.away - round.bestAway : 0;
  const closeReaction = gap === 1 ? 'So close!' : gap === 2 ? 'Almost!' : 'Not quite!';
- const reactions = { best:'Best fit!', close:closeReaction, miss:'Missed it', timeout:'Time’s up' };
- $('#feedback-title').textContent = reactions[kind] + ' · +' + points;
+ const reactions = { close:closeReaction, miss:'Missed it', timeout:'Time’s up' };
+ const wins = history.filter(entry => entry.points === 100).length;
+ const reaction = kind === 'best' ? correctReactions[(wins - 1) % correctReactions.length] : reactions[kind];
+ $('#feedback-reaction').textContent = reaction;
+ $('#feedback-points').textContent = '+' + points;
+ $('#feedback-title').setAttribute('aria-label',`${reaction} ${points} points`);
  $('#feedback').dataset.kind = kind;
  $('#feedback').hidden = false;
  remaining = REVEAL_MS;

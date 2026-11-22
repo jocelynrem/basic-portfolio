@@ -16,7 +16,7 @@ import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=cool-tiles-1';
+import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=violet-flowers-1';
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
@@ -617,7 +617,7 @@ function renderHands(){
   return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline"><button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
  }).join('');
  const heading=s.guidedPlay?'<h2 id="line-heading" tabindex="-1">Choose a line</h2>':
-  `<button type="button" id="lines-toggle" class="text-button lines-toggle" data-action="toggle-hands" aria-expanded="${open}" aria-controls="card-lines">${open?'Card lines':'See all lines'}<span aria-hidden="true"></span></button>`;
+  `<button type="button" id="lines-toggle" class="text-button lines-toggle" data-action="toggle-hands" aria-expanded="${open}" aria-controls="card-lines"><span aria-hidden="true"></span>${open?'Card lines':'See all lines'}</button>`;
  const filter=open?`<label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>`:'';
  const empty='<p class="empty-recommendations">'+(dead?'No matching lines.':'No hands match your current filters.')+'</p>';
  const list=`<div id="hand-list" class="ordered-hands ranked-hands">${contents||empty}</div>`;

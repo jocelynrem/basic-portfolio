@@ -733,8 +733,8 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 11px;
   min-height: 44px;
   padding: 4px 7px;
   color: var(--parlor-link);
@@ -743,6 +743,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   text-align: left;
 }
 .lines-toggle span {
+  flex: none;
   width: 7px;
   height: 7px;
   border: solid currentColor;
