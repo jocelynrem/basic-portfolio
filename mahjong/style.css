@@ -844,6 +844,15 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .learn-coach-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .learn-new-deal { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding-top: 12px; }
 .learn-new-deal small { color: #4c6657; }
+.learn-sprint { display: flex; align-items: center; gap: 12px; padding: 10px 14px; margin-top: 14px; border-radius: 8px; background: #174f4c; color: #fff7de; text-decoration: none; }
+.learn-sprint:hover { background: #103e3c; }
+.learn-sprint strong, .learn-sprint small { display: block; }
+.learn-sprint strong { font: 600 20px/1.1 var(--serif); }
+.learn-sprint small { margin-top: 3px; }
+.learn-sprint > span:last-child { margin-left: auto; font-size: 19px; }
+.learn-sprint-art { display: flex; align-items: center; padding-inline: 2px; }
+.learn-sprint-art svg { width: 22px; height: 31px; border-radius: 3px; background: #fff9e8; border-bottom: 3px solid #c1b591; font-family: Ranchers,sans-serif; transform: rotate(-12deg); }
+.learn-sprint-art svg + svg { margin-left: -5px; transform: rotate(9deg); }
 .coach-heading {
   margin: 0;
   font: inherit;

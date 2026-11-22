@@ -264,7 +264,8 @@ function showLearn(){
  const playing=!['ended','matchEnded'].includes(s.phase);
  const rackControls=playing?`<h3>This rack</h3><div class="learn-coach-controls">${btn(s.guidedPlay?'Show coach for this rack':'Coach me on this rack','open-coach','small')}${s.guidedPlay?btn('Turn off coaching for this rack','turn-off-coach','outline small'):''}</div>`:'';
  const practiceNote=s.practiceSession?'Replaces this practice rack.':'Your current game is saved while you practice.';
- const guide=`<section class="learn-guided">${rackControls}<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div></section>`;
+ const sprintLink=`<a class="learn-sprint" href="./rack-sprint/"><span class="learn-sprint-art" aria-hidden="true">${faceArt('B5','mobile')}${faceArt('F','mobile')}</span><span><strong>Rack Sprint</strong><small>Six racks. Pick the closest line.</small></span><span aria-hidden="true">↗</span></a>`;
+ const guide=`<section class="learn-guided">${rackControls}<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div>${sprintLink}</section>`;
  const playable=playableCoachLines();
  const target=currentPlan()?.target??playable[0]?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
