@@ -281,6 +281,32 @@ test('a White dragon call explains the size Line 5 needs, including the discard 
  assert.match(advice([pair]).text,/single or pair/);
 });
 
+test('a fourth Flower stays on the table when the player already holds the three the line needs',()=>{
+ const {game}=guided(),target=TARGETS.find(t=>t.key==='run5-0');
+ game.phase='claim';
+ game.exposed[0]=[{k:'B3',tiles:[30,31,32].map(id=>({k:'B3',id}))}];
+ game.hands[0]=['F','F','F','B1','B1','B2','B2','J','J','B7'].map((k,id)=>({k,id}));
+ game.discards=[{player:1,tile:{k:'F',id:50}}];
+ const advice=(ids=[])=>turnAdvice(game,[assessHand(game.hands[0],game.exposed[0],target)],{
+  ...options,claims:claimOptions(game,0),selected:new Set(ids),staging:ids.length>0
+ });
+ for(const selected of [[],[0],[0,1],[0,1,2]]){
+  const tip=advice(selected);
+  assert.match(tip.text,/^Pass.*3 Flowers.*concealed/);
+  assert.match(tip.details.join(' '),/2 → 2 tiles away after discarding/);
+ }
+ // Two Flowers and an off-line tile make the same discard a useful call.
+ game.hands[0][2].k='C9';
+ assert.match(advice().text,/call that Flower/i);
+ assert.match(advice().details[0],/3 → 2 tiles away after discarding/);
+ // Staging a joker instead of the second Flower ties it up in the exposure.
+ assert.match(advice([0,7]).text,/^Pass on the Flower/);
+ assert.match(advice([0,7]).details[0],/3 → 3 tiles away after discarding/);
+ // A joker can also usefully fill the missing Flower when only one natural is held.
+ game.hands[0][1].k='W';
+ assert.match(advice([0,7]).text,/call that Flower/i);
+});
+
 test('calling compares the staged exposure and discarding previews the selected tile',()=>{
  const {game,hand,lines}=guided();
  game.phase='claim';
@@ -290,7 +316,7 @@ test('calling compares the staged exposure and discarding previews the selected 
  const advice=turnAdvice(game,lines,{...options,claims,staging:true,selected:new Set(chosen.map(t=>t.id))});
  assert.match(advice.text,/Pass on the 4 Crak.*2468 · Line 2.*pair/);
  assert.match(advice.details[0],/Consecutive Run/);
- assert.match(advice.details[0],/before discarding/);
+ assert.match(advice.details[0],/after discarding/);
  game.phase='discard';game.turn=0;
  assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/let the 9 Crak go/);
  game.phase='draw';

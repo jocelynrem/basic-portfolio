@@ -126,7 +126,7 @@ function newTileTip(hand,exposed,lines,ids){
  return '';
 }
 
-function explainMissedCall(s,primary,key,claims,picked){
+function explainMissedCall(s,primary,key){
  const pass='Pass on the '+tileName(key)+'. ';
  const name=line(primary);
  if(primary.target.concealed)return pass+name+' must stay concealed until Mahjong.';
@@ -140,36 +140,53 @@ function explainMissedCall(s,primary,key,claims,picked){
  const required=Math.min(...sizes);
  const available=1+s.hands[0].filter(t=>t.k===key||t.k==='J').length;
  if(available<required)return pass+'With it, you can expose '+available+' of the '+required+' needed for '+name+'.';
- const option=claims.find(c=>!c.dead&&sizes.includes(c.n));
- if(picked.length&&option){
-  const change=option.n-1-picked.length;
-  const count=Math.abs(change);
-  return (change>0?'Add ':'Remove ')+count+' '+(change>0?'more ':'')+(count===1?'tile':'tiles')+' to expose '+option.n+' for '+name+'.';
- }
  return pass+'This exposure doesn’t fit '+name+'.';
 }
 
 function callAdvice(s,lines,claims,picked,staging){
  const tile=s.discards.at(-1).tile;
  if(claims.some(c=>c.win))return {text:'That '+tileName(tile.k)+' is your winning tile. Call it for Mahjong!'};
- const choices=staging&&picked.length?claims.filter(c=>c.n===picked.length+1):claims;
+ const hand=s.hands[0],exposures=s.exposed[0];
+ const staged=staging&&picked.length>0;
+ const selected=new Set(staged?picked.map(t=>t.id):[]);
+ // Preserve the player's selection when previewing a larger or smaller set.
+ const candidates=hand.filter(t=>t.k===tile.k||t.k==='J').sort((a,b)=>
+  Number(selected.has(b.id))-Number(selected.has(a.id))||Number(a.k==='J')-Number(b.k==='J'));
  const primary=lines[0];
  const projections=[];
- for(const choice of choices.filter(c=>!c.dead)){
-  const used=staging&&picked.length?picked:s.hands[0].filter(t=>choice.ids.includes(t.id));
-  const remaining=without(s.hands[0],used);
-  const exposed=[...s.exposed[0],{k:tile.k,tiles:[tile,...used]}];
+ for(const choice of claims.filter(c=>!c.dead)){
+  const used=candidates.slice(0,choice.n-1);
+  const remaining=without(hand,used);
+  if(!remaining.length)continue;
+  const exposed=[...exposures,{k:tile.k,tiles:[tile,...used]}];
   for(const row of lines){
-   if(compatible(row.target,exposed))projections.push({row,away:evaluate(remaining,exposed,row.target).missing,size:choice.n});
+   if(!compatible(row.target,exposed))continue;
+   const away=Math.min(...remaining.map(t=>evaluate(without(remaining,[t]),exposed,row.target).missing));
+   projections.push({row,away,size:choice.n,exact:!staged||choice.n===picked.length+1});
   }
  }
- const fit=projections.find(p=>p.row===primary&&p.away<primary.away)??projections.find(p=>p.row===primary)??projections[0];
+ // Prefer a useful call at the selected size, then a useful resize, then a pass.
+ projections.sort((a,b)=>a.away-b.away);
+ const focus=projections.filter(p=>p.row===primary);
+ const improving=focus.filter(p=>p.away<primary.away);
+ const fit=improving.find(p=>p.exact)??improving[0]??focus.find(p=>p.exact)??focus[0]??projections.find(p=>p.exact);
  const details=[];
- if(fit)details.push('Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away before discarding.');
+ if(fit)details.push('Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away after discarding.');
+ const choices=staged?claims.filter(c=>c.n===picked.length+1):claims;
  if(choices.length&&choices.every(c=>c.dead))details.push('This exposure fits no line on the card and would make your hand dead.');
- if(fit?.row!==primary)return {text:explainMissedCall(s,primary,tile.k,claims,picked),details};
- const text=fit.away<primary.away?'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.':'You can call for '+line(primary)+'. You’d still be just as far away.';
- return {text,details};
+ if(fit?.row!==primary)return {text:explainMissedCall(s,primary,tile.k),details};
+ if(fit.away>=primary.away){
+  const needed=compatible(primary.target,exposures).reduce((total,[key,n])=>total+(key===tile.k?n:0),0);
+  const held=hand.filter(t=>t.k===tile.k).length;
+  if(held>=needed)return {text:'Pass. You already have all '+needed+' '+tileName(tile.k)+'s you need. Keep them concealed.',details};
+  return {text:'Pass on the '+tileName(tile.k)+'. Exposing this set '+(fit.away===primary.away?'won’t bring you closer to Mahjong.':'would leave you farther from Mahjong.'),details};
+ }
+ if(!fit.exact){
+  const change=fit.size-1-picked.length;
+  const count=Math.abs(change);
+  return {text:(change>0?'Add ':'Remove ')+count+' '+(change>0?'more ':'')+(count===1?'tile':'tiles')+' to expose '+fit.size+' for '+line(primary)+'.',details};
+ }
+ return {text:'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.',details};
 }
 
 export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine}){
