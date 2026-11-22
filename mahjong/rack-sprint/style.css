@@ -105,13 +105,13 @@ main { width: min(100% - 40px, 1080px); margin: 0 auto; padding: clamp(16px, 3.5
 #hero-tiles { position: absolute; inset: 0; }
 .sprint-tile {
  display: inline-grid; place-items: center; min-width: 0; aspect-ratio: 60/78;
- vertical-align: middle; border: 1px solid #d1cdb6; border-radius: 7%;
- background: linear-gradient(115deg, #fffef8, #f9f4df);
- color: var(--ink); box-shadow: 0 3px 0 #b9ae8a, 0 5px 3px #0e2d2955;
+ vertical-align: middle; border: 1px solid var(--parlor-rule); border-radius: 7%;
+ background: linear-gradient(115deg, var(--white), var(--parlor-paper));
+ color: var(--ink); box-shadow: 0 3px 0 #8caab6, 0 5px 3px #25292b55;
 }
 .sprint-tile svg { display: block; width: 100%; height: 100%; font-family: Ranchers, "Arial Black", sans-serif; }
 #hero-tiles .sprint-tile {
- position: absolute; width: 29.5%; border-radius: 9%; box-shadow: 0 3px 0 #d4cba8, 0 8px 0 #b3a67c, 0 10px 0 #786f52, 0 15px 10px #433b2d44;
+ position: absolute; width: 29.5%; border-radius: 9%; box-shadow: 0 3px 0 var(--parlor-rule), 0 8px 0 #8caab6, 0 10px 0 var(--parlor-control), 0 15px 10px #25292b44;
  transform: rotate(var(--tilt)); animation: tile-arrive .5s cubic-bezier(.2,.8,.25,1.1) backwards;
 }
 #hero-tiles > :nth-child(1) { --tilt: -25deg; left: 11%; top: 40%; }

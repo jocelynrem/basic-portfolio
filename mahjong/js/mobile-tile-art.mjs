@@ -15,7 +15,11 @@ const windMarkers={
  W:'M5 7l4 3v-6Z',
  S:'M30 73l3-4h-6Z'
 };
-const windInk='#25384d',jokerInk='#66325f',flowerInk='#8d4c16',markerInk='#8f561e';
+const windInk='var(--gunmetal, #393d3f)';
+const jokerInk='var(--parlor-link, #285763)';
+const flowerInk='var(--parlor-pink-ink, #a32146)';
+const markerInk='var(--pacific-cyan, #62929e)';
+const paper='var(--white, #fdfdff)';
 
 function mark(name,x,y,size,ink){
  return `<path d="${marks[name]}" transform="translate(${x-size/2} ${y+size/2}) scale(${size/960})" fill="${ink}"/>`;
@@ -38,7 +42,7 @@ function mobileFace(k,p){
  }
  if(k==='F')return mark('flower',30,39,54,flowerInk);
  if(k==='J'){
-  return `<g data-joker="true">${mark('star',30,32,49,jokerInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,65,13,'#fffdf5')}</g>`;
+  return `<g data-joker="true">${mark('star',30,32,49,jokerInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,65,13,paper)}</g>`;
  }
  if(Object.hasOwn(windMarkers,k)){
   return `<g data-wind="${k}">${lettering(k,30,63,62,windInk)}<path d="${windMarkers[k]}" fill="${markerInk}"/></g>`;
