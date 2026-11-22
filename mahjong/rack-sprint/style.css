@@ -219,7 +219,7 @@ h2 { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.04
 #final-score { color: var(--pink); font: 400 clamp(68px, 10vw, 106px)/1.12 var(--display); font-variant-numeric: tabular-nums; }
 #best-count { margin: 0 0 16px; color: var(--parlor-cyan-wash); }
 .finish-art { position: relative; width: 80%; max-width: 210px; aspect-ratio: 1.2; justify-self: center; transform: rotate(-13deg); }
-.flag { position: absolute; left: 12%; top: 10%; width: 85%; height: 64%; transform: skewY(4deg); background: repeating-conic-gradient(var(--pink-wash) 0 25%, var(--deep) 0 50%) 0 0 / 25% 50%; border: 3px solid var(--pink-wash); }
+.flag { position: absolute; left: 12%; top: 10%; width: 85%; height: 64%; transform: skewY(4deg); background: repeating-conic-gradient(#fff4f7 0 25%, var(--deep) 0 50%) 0 0 / 25% 50%; border: 3px solid var(--pink-wash); }
 .flag::before { content: ""; position: absolute; top: -8px; bottom: -44%; left: -5px; width: 6px; border-radius: 4px; background: var(--pink); }
 .finish-art > span { position: absolute; right: 7%; bottom: -7%; color: var(--pink); font-size: clamp(30px, 5vw, 65px); line-height: 1; }
 .review-heading { margin: 25px 0 12px; }
