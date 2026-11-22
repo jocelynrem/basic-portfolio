@@ -1,5 +1,5 @@
 import {specialArt} from './special-art.mjs?v=origami-dragon-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=suit-frames-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=tile-corners-1';
 const suitInks={
  bam:'var(--tile-bam-ink, #2c6b52)',
  crak:'var(--tile-crak-ink, #ac4145)',
