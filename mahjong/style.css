@@ -225,7 +225,7 @@
 .discards .tile.mini{width:40px;height:56px}.discards .tile.mini .tile-number{font-size:14px}.discards .tile.latest-discard{width:44px;height:62px}
 @media(max-width:760px){.opponent-row .tile.opponent-tile{width:32px;height:46px}.opponent-row .tile.opponent-tile .tile-number{font-size:12px}.opponent-row .tile.opponent-tile svg.tile-art{top:16px;height:calc(100% - 20px)}.opponent-row .tile.opponent-tile:is(.honor,.flower,.joker) svg.tile-art{top:3px;height:calc(100% - 6px)}.discards .tile.mini{width:36px;height:50px}.discards .tile.mini .tile-number{font-size:13px}.discards .tile.latest-discard{width:40px;height:56px}}
 /* Fit the table and recommendations into the desktop viewport. */
-.site-header{height:50px;gap:20px}.header-actions{display:flex;align-items:center;gap:12px}.site-header .header-new-game{padding:8px 12px}main{padding-top:8px}
+.site-header{height:50px;gap:20px}.header-actions{display:flex;align-items:stretch;gap:12px}.site-header .header-new-game{padding:8px 12px}main{padding-top:8px}
 .table{height:calc(var(--opponent-zone-height,62px) + var(--rack-zone-height,155px) + var(--discard-zone-height,76px) + 36px)}
 .opponent-row{top:10px}.opponent-row .avatar{display:none}.opponent-row .seat-name{display:flex;align-items:center;gap:6px;line-height:18px}.opponent-row .seat-name small{margin-top:0}.opponent-row .bot-exposed{margin-top:4px}
 .player-zone{bottom:17px}
