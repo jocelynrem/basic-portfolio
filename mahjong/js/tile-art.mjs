@@ -1,5 +1,5 @@
-import {specialArt} from './special-art.mjs?v=cool-tiles-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=rose-flower-2';
+import {specialArt} from './special-art.mjs?v=origami-dragon-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=origami-dragon-1';
 const suitInks={
  bam:'var(--tile-bam-ink, #2c6b52)',
  crak:'var(--tile-crak-ink, #ac4145)',
@@ -17,17 +17,12 @@ export const STYLES={
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const flowerInk='var(--tile-flower-ink, #df456e)';
 const flowerMark=new URL('../icons/flower.svg#flower',import.meta.url).href;
+const dragonMark=new URL('../icons/origami-dragon.svg#dragon',import.meta.url).href;
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];
 function joker(style,p){
  if(style==='deco')return `<path d="M20 3L23 23L38 27L24 31L20 53L16 31L2 27L17 23Z" fill="${p.gold}" stroke="#a77f2b" stroke-width=".6"/><path d="M20 9V46M7 27H33" stroke="#f9e6a1" stroke-width="1"/>${[0,45,90,135,180,225,270,315].map(a=>`<path d="M20 6V12" transform="rotate(${a} 20 27)" stroke="${p.dot}" stroke-width="1.6"/>`).join('')}`;
  if(style==='coastal')return `${Array.from({length:10},(_,i)=>`<path d="M20 8Q25 4 21 0Q30 4 25 13" transform="rotate(${i*36} 20 28)" fill="${p.dot}"/>`).join('')}<circle cx="20" cy="28" r="13" fill="${p.gold}" stroke="#d8a832" stroke-width="1.2"/><path d="M13 27Q15 23 17 27M23 27Q25 23 27 27M15 32Q20 38 25 32" fill="none" stroke="${p.crak}" stroke-width="1.4" stroke-linecap="round"/>`;
  return `<path d="M4 46Q24 44 36 35M12 44Q2 34 2 29Q13 30 16 42M29 39Q28 28 37 26Q40 36 29 39" fill="${p.bam}" stroke="${p.bam}" stroke-width="1.1"/><path d="M11 39L7 48L19 42" fill="${p.dot}"/><ellipse cx="21" cy="30" rx="10" ry="13" fill="#87afc4"/><path d="M16 25Q28 24 24 39Q14 37 16 25" fill="${p.dot}"/><circle cx="26" cy="20" r="7" fill="#b6ced2"/><path d="M29 22L38 23L31 26Z" fill="${p.gold}"/><circle cx="28" cy="19" r="1.2" fill="#233b3d"/><path d="M10 1L11.5 6L17 7L12 9L10 15L8 9L3 7L8 6Z" fill="${p.gold}"/>`;
-}
-function dragon(k,style,p){
- const ink=k==='R'?p.crak:p.bam;
- if(style==='deco')return `<g data-dragon="${k}"><path d="M20 2L38 28L20 54L2 28Z" fill="none" stroke="${p.gold}" stroke-width="1.2"/><path d="M11 45H25L31 38V31L24 25H13L9 20V14L16 8H29L32 15L26 20H20" fill="none" stroke="${ink}" stroke-width="5" stroke-linejoin="miter"/><path d="M18 8L15 3M25 8L28 3M13 28L8 33M23 42L27 47" stroke="${p.gold}" stroke-width="2"/><path d="M29 12L37 14L29 18Z" fill="${ink}"/><circle cx="27" cy="12" r="1.3" fill="#fff8dc"/><path d="M11 45L5 49L9 40Z" fill="${ink}"/></g>`;
- if(style==='coastal')return `<g data-dragon="${k}"><path d="M8 43Q28 53 31 39Q34 28 18 28Q5 28 9 17Q12 9 26 12" fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round"/><path d="M21 11Q24 5 31 9L34 14L29 20L20 17Z" fill="${ink}"/><path d="M26 9L24 3L30 8M10 18L4 18L8 24M28 33L36 33L31 39M9 42L2 45L12 48" fill="${ink}"/><path d="M25 24Q34 24 36 19M21 35Q28 39 21 44" stroke="${p.gold}" stroke-width="1.5" fill="none"/><circle cx="29" cy="12" r="1.3" fill="#fffefa"/><path d="M33 16H38M5 52Q12 48 20 52T35 52" stroke="${ink}" stroke-width="1.4" fill="none"/></g>`;
- return `<g data-dragon="${k}"><path d="M9 46C34 54 36 32 20 30C2 28 5 12 24 14" fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round"/><path d="M20 13Q23 5 29 10L35 14L30 21L21 18Z" fill="${ink}"/><path d="M24 9Q18 2 18 7M27 10Q31 1 33 5" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M11 15Q3 5 3 15Q4 20 9 21M17 30Q9 35 8 28M29 39Q39 40 35 33M10 46L3 51L6 41Z" fill="${p.leaf}"/><path d="M12 39L17 40M20 44L25 43M12 23L17 25" stroke="#f3e7b8" stroke-width="1.2"/><circle cx="28" cy="13" r="1.3" fill="#fff9ec"/><path d="M33 17Q39 20 37 23" stroke="${ink}" stroke-width="1.2" fill="none"/></g>`;
 }
 function modernArt(k,p){
  const blue=p.dot,sky=p.sky,green=p.bam,red=p.crak,gold=p.gold,n=Number(k.slice(1));
@@ -50,7 +45,6 @@ function modernArt(k,p){
   return `<g fill="none" stroke="${red}" opacity=".65" stroke-width="1.1">${accents[(n-1)%3]}</g><text x="20" y="44" text-anchor="middle" fill="${red}" font-family="Arial,sans-serif" font-size="43" font-weight="400">${n}</text>`;
  }
  if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${blue}">JOKER</text><circle cx="22" cy="16" r="4" fill="${red}"/><path d="M9 22H19V43H9Z" fill="${sky}"/><path d="M19 22L34 49H19Z" fill="${blue}"/><path d="M19 22L4 49L10 28Z" fill="${red}"/><path d="M19 43L28 50H19Z" fill="${gold}"/><path d="M10 46H17V53H10Z" fill="${green}"/>`;
- if(k==='R'||k==='G'){const color=k==='R'?red:green;return `<g data-dragon="${k}"><path d="M9 47L3 36L13 28V15L23 9L32 15L28 23H20V28H30L36 37L30 49H20L26 42L25 36H15L10 41L15 51Z" fill="${color}"/><path d="M14 15L12 6L20 11M25 10L28 3L30 14M29 18H38L30 24M10 31L3 27L4 35" fill="${color}"/><path d="M15 33L23 38M22 44H28M17 17H22" fill="none" stroke="#fbf8eb" stroke-width="1"/><circle cx="27" cy="16" r="1.2" fill="#fbf8eb"/></g>`;}
  if(k==='H')return `<g data-dragon="H"><rect x="6" y="7" width="28" height="42" rx="1" fill="none" stroke="${sky}" stroke-width="1.6"/><path d="M6 7H14L6 15ZM34 7H26L34 15ZM6 49H14L6 41ZM34 49H26L34 41Z" fill="${sky}"/><path d="M14 7H26M14 49H26" stroke="${blue}" stroke-width=".8"/><circle cx="5" cy="28" r="2" fill="${red}"/><circle cx="35" cy="28" r="2" fill="${red}"/></g>`;
  const label={N:'NORTH',E:'EAST',S:'SOUTH',W:'WEST'}[k];
  const top=`<text x="20" y="9" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="${blue}">${label}</text>`;
@@ -72,7 +66,6 @@ function minimalArt(k,p){
  }
  if(k[0]==='C')return `<text x="20" y="43" text-anchor="middle" fill="${red}" font-family="Georgia,serif" font-size="43" font-weight="400">${n}</text><path d="M12 50H28" stroke="${red}" stroke-opacity=".65" stroke-width="1.6" stroke-linecap="round"/>`;
  if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${red}">JOKER</text><path d="M6 29L17 47L9 48Z" fill="${mint}"/><path d="M34 29L23 47L31 48Z" fill="${green}"/><path d="M20 27L31 49H9Z" fill="${pink}"/>${[[8,mint],[20,pink],[32,green]].map(([x,c])=>`<circle cx="${x}" cy="21" r="1.8" fill="${c}"/>`).join('')}`;
- if(k==='R'||k==='G'){const color=k==='R'?red:green;return `<g data-dragon="${k}"><path d="M6 17L15 9L20 15L25 9L34 17L34 34L26 27L24 38L20 27L16 38L14 27L6 34Z" fill="${color}"/><path d="M20 28L23 49L20 53L18 47Z" fill="${mint}"/><path d="M16 15L20 20L24 15" fill="none" stroke="#fffef7" stroke-width="1.2"/><circle cx="17" cy="19" r=".9" fill="${blue}"/><circle cx="23" cy="19" r=".9" fill="${blue}"/></g>`;}
  if(k==='H')return `<g data-dragon="H"><rect x="7" y="8" width="26" height="40" rx="4" fill="none" stroke="${mint}" stroke-width="1.5"/>${[[8,10],[32,10],[8,46],[32,46]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.3" fill="${pink}"/>`).join('')}<path d="M5 20Q0 24 5 28M5 30Q0 34 5 38M35 20Q40 24 35 28M35 30Q40 34 35 38" stroke="${green}" stroke-width="2" fill="none"/></g>`;
  const labels={N:'NORTH',E:'EAST',S:'SOUTH',W:'WEST'},label=labels[k];
  const top=`<text x="20" y="9" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#b15d76">${label}</text>`;
@@ -84,11 +77,16 @@ function minimalArt(k,p){
  };
  return label?`<g data-wind="${k}">${top}${shapes[k]}</g>`:'';
 }
+function emblemArt(style,emblem){
+ const artClass=style==='mobile'?'mobile-tile-art':'tile-art';
+ return `<svg class="${artClass}" viewBox="0 0 60 77" aria-hidden="true" focusable="false">${emblem}</svg>`;
+}
 export function faceArt(k,requestedStyle='modern'){
  const style=validStyle(requestedStyle),p=STYLES[style],n=Number(k.slice(1));let art='';
- if(k==='F'){
-  const artClass=style==='mobile'?'mobile-tile-art':'tile-art';
-  return `<svg class="${artClass}" viewBox="0 0 60 77" aria-hidden="true" focusable="false"><use href="${flowerMark}" x="6" y="14.5" width="48" height="48" fill="${flowerInk}"/></svg>`;
+ if(k==='F')return emblemArt(style,`<use href="${flowerMark}" x="6" y="14.5" width="48" height="48" fill="${flowerInk}"/>`);
+ if(k==='R'||k==='G'){
+  const ink=k==='R'?p.crak:p.bam;
+  return emblemArt(style,`<use data-dragon="${k}" href="${dragonMark}" x="2" y="18.5" width="56" height="40" fill="${ink}"/>`);
  }
  if(style==='mobile')return mobileTileArt(k,p);
  const special=specialArt(k,style,p);if(special)return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${special}</svg>`;
@@ -121,7 +119,7 @@ export function faceArt(k,requestedStyle='modern'){
   else if(style==='coastal')surround=`<circle cx="20" cy="27" r="18" fill="none" stroke="${p.dot}" stroke-width="1.1"/>${[0,90,180,270].map(a=>`<path d="M20 4L17 10H23Z" fill="${a===angle?p.crak:p.dot}" transform="rotate(${a} 20 27)"/>`).join('')}<path d="M10 48Q15 44 20 48T30 48" stroke="${p.bam}" stroke-width="1.4" fill="none"/>`;
   else surround=`<path d="M20 3L37 27L20 51L3 27Z" fill="none" stroke="${p.gold}" stroke-width="1.3"/><path d="M20 8L16 15H24Z" fill="${p.bam}" transform="rotate(${angle} 20 27)"/>`;
   art=`<g data-wind="${k}">${surround}<text x="20" y="38" text-anchor="middle" font-family="${style==='deco'?'Arial,sans-serif':'Georgia,serif'}" font-size="29" font-weight="${style==='coastal'?600:500}" fill="${style==='botanical'?p.bam:p.dot}">${k}</text></g>`;
- }else if(k==='R'||k==='G')art=dragon(k,style,p);
+ }
 
  return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${art}</svg>`;
 }
