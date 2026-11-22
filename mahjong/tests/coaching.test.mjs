@@ -342,6 +342,73 @@ test('7 and 9 Bam are a real tradeoff for the 13579 backup, including after sele
  assert.equal(turnAdvice(game,rows(),options).tile.k,'W');
 });
 
+test('a lone 5 Dot is a better discard than a 5 Bam with its 6 Bam single already on the rack',()=>{
+ const {game}=guided();
+ game.phase='discard';game.turn=0;game.drawn=13;
+ game.hands[0]=['F','B4','B4','B5','B6','B8','B8','B9','C5','C6','E','E','W','D5'].map((k,id)=>({k,id}));
+ const advice=selected=>{
+  const rows=recommendHands(game.hands[0],[],{visible:visibleTileCounts(game)}).slice(0,2);
+  assert.deepEqual(rows.map(r=>r.target.id),['even3','run2']);
+  return turnAdvice(game,rows,{...options,selected:new Set(selected)});
+ };
+ for(const selected of [[],[3],[13]]){
+  const tip=advice(selected);
+  assert.match(tip.text,/Discard (?:the )?5 Dot/i);
+  assert.match(tip.text,/5 and 6 in Bams and Craks/);
+  assert.match(tip.text,/7 Bam/);
+  assert.match(tip.text,/Consecutive Run · Line 2/);
+  assert.doesNotMatch(tip.text,/5 Dot and 5 Bam are tied/);
+  game.hands[0].reverse();
+ }
+ // A suit swap reverses the recommendation without changing the card line.
+ for(const tile of game.hands[0]){
+  if(tile.k.startsWith('B'))tile.k='D'+tile.k.slice(1);
+  else if(tile.k.startsWith('D'))tile.k='B'+tile.k.slice(1);
+ }
+ const swapped=advice([]).text;
+ assert.match(swapped,/Discard 5 Bam/);
+ assert.match(swapped,/5 and 6 in (Craks and Dots|Dots and Craks)/);
+ assert.match(swapped,/7 Dot/);
+ // Once all four 7 Dots are out, the Crak variation still works.
+ game.discards=[20,21,22,23].map(id=>({tile:{id,k:'D7'},player:1}));
+ const tip=advice([3]);
+ assert.doesNotMatch(tip.text,/Keep 5 Dot|Only 7 Dot/);
+ assert.match(tip.details.join(' '),/Equally ranked discards[^·]*·[^.]*5 Dot/);
+});
+
+test('the new 3 Bam lets both suits wait for their 7, and a forced split favors the 6 shared with 2468',()=>{
+ const {game}=guided();
+ game.phase='discard';game.turn=0;game.drawn=13;
+ game.hands[0]='F B4 B4 B4 B5 B6 B8 B8 C5 C6 E E W B3'.split(' ').map((k,id)=>({k,id}));
+ game.discards='C1 F B9 C3 C5 C5 C4 D4 C9 W D5 D3 D1 R D5 C2 D2 H B9 C2 S C2'.split(' ').map((k,i)=>({
+  tile:{k,id:20+i},player:1,claimed:i===0||i===7
+ }));
+ game.exposed[2]=[{k:'D4',tiles:[game.discards[7].tile,{k:'J',id:50},{k:'D4',id:51}]}];
+ game.exposed[3]=[{k:'C1',tiles:[game.discards[0].tile,{k:'C1',id:52},{k:'C1',id:53}]}];
+ const advice=selected=>{
+  const rows=recommendHands(game.hands[0],[],{hideConcealed:true,visible:visibleTileCounts(game)}).slice(0,2);
+  assert.deepEqual(rows.map(r=>r.target.id),['even3','run2']);
+  return turnAdvice(game,rows,{...options,selected:new Set(selected)});
+ };
+ for(const selected of [[],[13],[4],[8]]){
+  const tip=advice(selected);
+  assert.equal(tip.tile.k,'B3');
+  assert.match(tip.text,/Discard 3 Bam.*5 and 6 in Bams and Craks.*Consecutive Run · Line 2.*7 Bam or 7 Crak/);
+  assert.match(tip.details.join(' '),/6 Bam can serve either 2468 · Line 3 or Consecutive Run · Line 2/);
+  if(selected[0]===4)assert.match(tip.details.join(' '),/2 after discarding 3 Bam, 1 after discarding 5 Bam/);
+ }
+ // A useful draw for the main line now forces a suit decision.
+ game.hands[0][13].k='B2';
+ for(const selected of [[],[4],[8]]){
+  const tip=advice(selected);
+  assert.match(tip.text,/Discard (5 Crak or 6 Crak|6 Crak or 5 Crak).*Keep 5 Bam and 6 Bam/);
+  assert.match(tip.details.join(' '),/6 Bam can serve either 2468/);
+ }
+ // The shared 6 is only a tiebreaker while a natural 7 Bam is available.
+ game.discards.push(...[60,61,62,63].map(id=>({tile:{k:'B7',id},player:1})));
+ assert.doesNotMatch(advice([]).text,/Keep 5 Bam|7 Bam or 7 Crak/);
+});
+
 test('the second missed Green dragon explains call readiness and the selected line still leads',()=>{
  const {game}=guided(),target=TARGETS.find(t=>t.key==='run5-0');
  game.phase='claim';game.turn=1;

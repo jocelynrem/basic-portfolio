@@ -1,5 +1,6 @@
 import {compatible,evaluate,TARGETS,tileName,unseenCopies,visibleTileCounts,winning} from './engine.mjs?v=win-source-1';
 import {assessHand,compareFit} from './recommendations.mjs?v=hand-outlook-1';
+import {patternBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 
 const line=row=>row.target.name;
 function gapName(gap){
@@ -126,46 +127,129 @@ function newTileTip(hand,exposed,lines,ids){
  return '';
 }
 
+function compareDiscards(a,b){
+ return compareFit(a.main,b.main)||(a.next&&b.next?compareFit(a.next,b.next):0)||
+  Number(a.tile.k==='J')-Number(b.tile.k==='J')||b.routes.length-a.routes.length||b.shared-a.shared;
+}
+
+const listTiles=new Intl.ListFormat('en',{style:'long',type:'conjunction'});
+const eitherTile=new Intl.ListFormat('en',{style:'long',type:'disjunction'});
+
+function sharedNaturals(main,backup){
+ const keys=backup.target.groups.filter(([k,n])=>n<3&&backup.kept[k]&&main.kept[k]).map(([k])=>k);
+ return [...new Set(keys)];
+}
+
+function singleBlocks(row){
+ const blocks=[];
+ for(const indices of patternBlocks(row.target)){
+  const groups=indices.map(i=>row.target.groups[i]);
+  if(groups.length<2||groups.some(([,size])=>size!==1))continue;
+  const keys=groups.map(([key])=>key);
+  // A repeated tile elsewhere on a line can have its own natural requirement.
+  // Only describe this block when its missing singles are unambiguous.
+  if(keys.some(key=>row.target.groups.filter(([k,n])=>k===key&&n<=2).length!==1))continue;
+  const held=keys.filter(k=>!row.gaps.some(g=>g.key===k));
+  blocks.push({row,held,missing:keys.filter(k=>!held.includes(k))});
+ }
+ return blocks;
+}
+
+function singlesReason(rows,atRisk,discards){
+ const blocks=rows.flatMap(singleBlocks).filter(b=>!b.held.some(k=>discards.has(k)));
+ const first=blocks.find(b=>b.held.some(k=>atRisk.has(k)));
+ if(!first)return '';
+ const {row,held,missing}=first;
+ // Name alternate suits only when the same run needs exactly one single in each.
+ const keys=[...held,...missing];
+ if(held.length>=2&&missing.length===1&&keys.every(k=>/^[BCD][1-9]$/.test(k)&&k[0]===keys[0][0])){
+  const suits=new Map();
+  for(const b of blocks){
+   if(b.row.target.id!==row.target.id||b.held.length!==held.length||b.missing.length!==1)continue;
+   const sequence=[...b.held,...b.missing],suit=sequence[0][0];
+   if('BCD'.includes(suit)&&sequence.every((key,i)=>key===suit+keys[i][1]))suits.set(suit,b);
+  }
+  if(suits.size>1){
+   const runs=[...suits.values()];
+   const ranks=listTiles.format(held.map(k=>k[1]));
+   const suitNames=listTiles.format(runs.map(b=>tileName(b.held[0]).slice(2)+'s'));
+   const needed=eitherTile.format(runs.map(b=>tileName(b.missing[0])));
+   return 'Keep the '+ranks+' in '+suitNames+' for '+line(row)+'. '+needed+' completes its singles.';
+  }
+ }
+ const keep='Keep '+listTiles.format(held.map(tileName))+' for '+line(row)+'. ';
+ if(!missing.length)return keep+'Those singles are complete.';
+ if(missing.length===1)return keep+'Only '+tileName(missing[0])+' is missing from those singles.';
+ return keep+'You still need '+listTiles.format(missing.map(tileName))+' to finish those singles.';
+}
+
 export function discardAdvice(s,lines,picked=null){
  const hand=s.hands[0],exposed=s.exposed[0],visible=visibleTileCounts(s);
  const [focus,backup]=lines;
  // The backup is a card line. Either discard may favor a different suit variation.
  const variations=backup?TARGETS.filter(t=>t.id===backup.target.id&&compatible(t,exposed))
-  .map(t=>assessHand(hand,exposed,t,visible)).filter(r=>!r.blocked&&r.away<=backup.away+1):[];
+  .map(t=>assessHand(hand,exposed,t,visible)).filter(r=>!r.blocked):[];
  const choices=[];
  for(const tile of new Map(hand.map(t=>[t.k,t])).values()){
   const left=without(hand,[tile]);
   const main=assessHand(left,exposed,focus.target,visible);
-  const next=variations.map(r=>assessHand(left,exposed,r.target,visible)).sort(compareFit)[0];
-  const score=[Number(main.blocked),main.away,Number(next?.blocked??false),next?.away??0,Number(tile.k==='J')];
-  choices.push({tile,score});
+  const ranked=variations.map(r=>assessHand(left,exposed,r.target,visible)).sort(compareFit);
+  const next=ranked[0];
+  // Count distinct ways to supply the singles and pairs. Suit permutations
+  // that change only joker-eligible sets do not create another natural option.
+  const routes=new Map();
+  for(const r of ranked){
+   if(r.blocked||r.away!==next.away||r.jokerDebt!==next.jokerDebt||r.tight!==next.tight||r.naturalsNeeded!==next.naturalsNeeded)continue;
+   const naturals=r.target.groups.filter(([,n])=>n<3).map(([k,n])=>k+'='+n).sort().join(',');
+   if(!routes.has(naturals))routes.set(naturals,r);
+  }
+  const options=[...routes.values()];
+  // If a suit must go, favor the natural tiles that also serve the main line.
+  const shared=Math.max(0,...options.map(row=>sharedNaturals(main,row).length));
+  choices.push({tile,main,next,routes:options,shared});
  }
- choices.sort((a,b)=>firstDifference(a.score,b.score)||a.tile.k.localeCompare(b.tile.k));
+ choices.sort((a,b)=>compareDiscards(a,b)||a.tile.k.localeCompare(b.tile.k));
  const best=choices[0];
- const tied=choices.filter(c=>!firstDifference(c.score,best.score));
+ const tied=choices.filter(c=>!compareDiscards(c,best));
  const chosen=picked&&choices.find(c=>c.tile.k===picked.k);
- const preview=chosen??best;
- const details=lines.map((row,i)=>line(row)+' after discarding '+tileName(preview.tile.k)+' · '+preview.score[2*i+1]+' tiles away.');
- if(tied.length>1)details.push('Discards with the same distance for the compared lines · '+tied.map(c=>tileName(c.tile.k)).join(', ')+'.');
- if(chosen&&firstDifference(chosen.score,best.score)>0){
-  const why=firstDifference(chosen.score.slice(0,2),best.score.slice(0,2))?'protect '+line(focus):
-   backup&&firstDifference(chosen.score.slice(2,4),best.score.slice(2,4))?'protect '+line(backup):'keep your joker';
-  const alternatives=tied.slice(0,2).map(c=>tileName(c.tile.k)).join(' or ');
+ const drawn=hand.find(t=>t.id===s.drawn);
+ const fitsBackup=c=>variations.some(r=>r.away===backup.away&&r.kept[c.tile.k]>0);
+ const examples=[...tied].sort((a,b)=>Number(b.tile.k===picked?.k)-Number(a.tile.k===picked?.k)||
+  Number(b.tile.k===drawn?.k)-Number(a.tile.k===drawn?.k)||Number(fitsBackup(b))-Number(fitsBackup(a))).slice(0,2);
+ const names=examples.map(c=>tileName(c.tile.k));
+ const alternatives=names.join(' or ');
+ const preview=chosen??examples[0];
+ const details=[preview.main,preview.next].filter(Boolean).map(row=>line(row)+' after discarding '+tileName(preview.tile.k)+' · '+row.away+' tiles away · '+row.naturalsNeeded+' missing for singles and pairs.');
+ if(best.next){
+  const shared=sharedNaturals(best.main,best.next);
+  if(shared.length)details.push(listTiles.format(shared.map(tileName))+' can serve either '+line(focus)+' or '+line(backup)+'.');
+  if(preview.routes.length<best.routes.length)details.push(line(backup)+' · equally close arrangements of singles and pairs · '+best.routes.length+' after discarding '+tileName(best.tile.k)+', '+preview.routes.length+' after discarding '+tileName(preview.tile.k)+'.');
+ }
+ if(tied.length>1)details.push('Equally ranked discards for these lines · '+tied.map(c=>tileName(c.tile.k)).join(', ')+'.');
+ // Explain why a seemingly equal discard is weaker. Use the actual missing
+ // natural tiles in a viable variation, even if another suit masks the loss.
+ const weakerSelection=chosen&&!tied.includes(chosen);
+ const rivals=weakerSelection?[chosen]:choices.filter(c=>!tied.includes(c)&&c.main.away===best.main.away);
+ const atRisk=new Set(rivals.filter(c=>hand.filter(t=>t.k===c.tile.k).length===1).map(c=>c.tile.k));
+ if(atRisk.size){
+  const discards=new Set(examples.map(c=>c.tile.k));
+  const reason=singlesReason([examples[0].main,...examples[0].routes],atRisk,discards);
+  if(reason)return {text:'Discard '+alternatives+'. '+reason,details,tile:tied.length===1?best.tile:undefined};
+ }
+ if(weakerSelection){
+  const why=compareFit(chosen.main,best.main)?'protect '+line(focus):
+   backup&&(compareFit(chosen.next,best.next)||chosen.routes.length<best.routes.length||chosen.shared<best.shared)?'protect '+line(backup):'keep your joker';
   return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',details};
  }
  if(tied.length>1){
-  const drawn=hand.find(t=>t.id===s.drawn);
-  const fitsBackup=c=>variations.some(r=>r.away===backup.away&&r.kept[c.tile.k]>0);
-  const examples=[...tied].sort((a,b)=>Number(b.tile.k===picked?.k)-Number(a.tile.k===picked?.k)||
-   Number(b.tile.k===drawn?.k)-Number(a.tile.k===drawn?.k)||Number(fitsBackup(b))-Number(fitsBackup(a))).slice(0,2);
-  const names=examples.map(c=>tileName(c.tile.k)).join(' and ');
-  const cost=best.score[1]>focus.away?line(focus):backup&&best.score[3]>backup.away?line(backup):null;
-  const text=cost?'Tough choice. '+names+' both help '+cost+'. Either discard costs it a tile.':
-   backup&&examples.every(fitsBackup)?names+' both fit '+line(backup)+'. Either discard leaves the same distance to each line.':
-   names+' are tied for this discard. Either leaves '+line(focus)+' the same distance from Mahjong.';
+  const pair=names.join(' and ');
+  const cost=best.main.away>focus.away?line(focus):backup&&best.next.away>backup.away?line(backup):null;
+  const text=cost?'Tough choice. '+pair+' both help '+cost+'. Either discard costs it a tile.':
+   backup&&examples.every(fitsBackup)?pair+' both fit '+line(backup)+'. Either discard leaves the same distance to each line.':
+   pair+' are tied for this discard. Either leaves '+line(focus)+' the same distance from Mahjong.';
   return {text,details};
  }
- const loss=best.score[1]>focus.away?focus:backup&&best.score[3]>backup.away?backup:null;
+ const loss=best.main.away>focus.away?focus:backup&&best.next.away>backup.away?backup:null;
  const text=loss?'Tough discard. Letting the '+tileName(best.tile.k)+' go costs a tile toward '+line(loss)+'.':
   'You can let the '+tileName(best.tile.k)+' go and keep '+line(focus)+'.';
  return {text,details,tile:best.tile};
