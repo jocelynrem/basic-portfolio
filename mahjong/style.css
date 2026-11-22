@@ -187,17 +187,18 @@
   font-weight: 700;
 }
 .table-tools{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.table-tools:has(.table-discards:not([hidden]),.opponent-move:not(:empty,.is-play-start)){margin-bottom:5px}
+.table-tools:has(.table-buttons button:not([hidden]),.opponent-move:not(:empty,.is-play-start)){margin-bottom:5px}
 .opponent-move{
  margin:0;padding:7px 11px;min-width:0;
  border:1px solid #4f254a;border-radius:6px;background:#65335e;color:#fff8ff;
  font-size:14px;font-weight:700;line-height:1.25
 }
 .opponent-move:empty{padding:0;border:0}
-.table-discards{display:block;flex:none;margin-left:auto;min-height:32px;font-weight:600}
-.table-discards[hidden]{display:none}
+.table-buttons{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin-left:auto}
+.table-buttons button{min-height:32px;font-weight:600}
+.table-buttons button[hidden]{display:none}
 @media (max-width:760px), (orientation:landscape) and (max-width:1050px) and (max-height:500px), (pointer:coarse){
- .table-tools:not(:has(.table-discards:not([hidden]))){margin-bottom:0}
+ .table-tools:not(:has(.table-buttons button:not([hidden]))){margin-bottom:0}
  .opponent-move{
   position:fixed;z-index:9;
   left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
@@ -617,7 +618,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 /* Keep touch controls large without overlaying adjacent targets. */
 @media (max-width:760px), (orientation:landscape) and (min-width:500px) and (max-width:1050px) and (max-height:500px), (any-pointer:coarse){
  .site-header :is(.brand,.settings-button,.header-new-game),
- .table-discards,
+ .table-buttons button,
  .charleston-info .text-button,
  .player-zone .action-buttons .button,
  .call-filter,

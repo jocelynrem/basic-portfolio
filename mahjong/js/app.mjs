@@ -846,6 +846,7 @@ function updateBoardSpace(){
 function renderTableTools(){
  const passingTiles=['charleston','charlestonChoice','courtesyChoice','courtesy'].includes(s.phase);
  $('#charleston-info').hidden=!passingTiles;
+ $('#table-coach').hidden=s.guidedPlay||['ended','matchEnded'].includes(s.phase);
  $('#table-discards').hidden=s.phase==='matchEnded'||!s.discards.length;
  if(!passingTiles)return;
  applyCharlestonGuidePreference();
@@ -1045,7 +1046,9 @@ document.addEventListener('click',async e=>{
  else if(a==='joker-choices'){showJokerChoices();}
  else if(a==='learn'||a==='hint'){showLearn();}
  else if(a==='open-coach'){
-  s.guidedPlay=true;s.coachCollapsed=false;modal.close();render();
+  s.guidedPlay=true;s.coachCollapsed=false;
+  if(modal.open)modal.close();
+  render();
   $('#coach-toggle').focus();
  }
  else if(a==='turn-off-coach'){
