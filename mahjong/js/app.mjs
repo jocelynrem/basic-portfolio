@@ -267,11 +267,8 @@ function showJokerChoices(){
  modal.dataset.view='joker-choices';
 }
 function showLearn(){
- const playing=!['ended','matchEnded'].includes(s.phase);
- const rackControls=playing?`<h3>This rack</h3><div class="learn-coach-controls">${btn(s.guidedPlay?'Show coach for this rack':'Coach me on this rack','open-coach','small')}${s.guidedPlay?btn('Turn off coaching for this rack','turn-off-coach','outline small'):''}</div>`:'';
  const practiceNote=s.practiceSession?'Replaces this practice rack.':'Your current game is saved while you practice.';
- const sprintLink=`<a class="learn-sprint" href="./rack-sprint/"><span class="learn-sprint-art" aria-hidden="true">${faceArt('B5','mobile')}${faceArt('F','mobile')}</span><span><strong>Rack Sprint</strong><small>10 racks. Pick the closest line.</small></span><span aria-hidden="true">↗</span></a>`;
- const guide=`<section class="learn-guided">${rackControls}<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div>${sprintLink}</section>`;
+ const practice=`<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div>`;
  const playable=playableCoachLines();
  const target=currentPlan()?.target??playable[0]?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
@@ -300,7 +297,7 @@ function showLearn(){
  else if(advice.kind==='watch')body='<p>Draw before choosing a discard. Use this panel afterward for tile-specific advice.</p>';
  if(advice.blocked.length)body=`<div class="hint-warning">${advice.blocked.map(b=>`<p>You still need ${b.need} ${esc(G.tileName(b.k))}, but only ${b.unseen} ${b.unseen===1?'copy is':'copies are'} unseen. Jokers cannot fill that single or pair.</p>`).join('')}${btn('Change hand','learn-hands','outline small')}</div>`+body;
  const tileHelp=body?`<section class="learn-advice"><h3>Tile advice</h3>${body}</section>`:'';
- show('Learn',`${guide}${tileHelp}<div class="learn-options">${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn(regularReturn?'Resume saved game':'Start a regular game','return-game')}</div>`:''}`);modal.dataset.view='learn';
+ show('Learn',`${practice}${tileHelp}<div class="learn-options">${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn(regularReturn?'Resume saved game':'Start a regular game','return-game')}</div>`:''}`);modal.dataset.view='learn';
 }
 const formatScore=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
 function winSourceText(winType,discarder){
@@ -591,11 +588,11 @@ function renderHands(){
  const pinnedLine=targetHandDisplay==='line'&&!dead?targetFor(pinned,goalKey):null;
  const panel=$('#hands-panel');
  const open=showingLines();
- $('.side-panel').hidden=!open&&!pinnedLine;
- if(!open&&!pinnedLine){panel.replaceChildren();return;}
+ $('.side-panel').hidden=false;
  const oldScroll=s.guidedPlay?$('#hand-list')?.scrollTop||0:0;
  const focusedHand=panel.contains(document.activeElement)?document.activeElement.dataset.hand:null;
  const filterFocused=document.activeElement?.matches('#hands-panel [name="hide-concealed"]');
+ const toggleFocused=document.activeElement?.id==='lines-toggle';
  const hand=s.hands[0],exposed=s.exposed[0];
  const rows=open&&!dead?rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed)):[];
  if(s.guidedPlay&&pinned&&!dead){
@@ -617,18 +614,18 @@ function renderHands(){
    <span class="hand-patterns"><span class="suggestion-label">${pin?'<span class="target-line-label">Target hand</span>':''}<strong>${esc(target.name)}</strong>${target.variant?`<span>${esc(target.variant)}</span>`:''}${away<0?'<span>No matching variation</span>':''}${chosen&&!pin?'<span class="following-badge">Chosen</span>':''}</span>${targetNotation(target)}</span>
    <span class="hand-values"><strong class="line-distance">${distance}</strong>${blocked?'<span>Blocked</span>':''}${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<span class="card-points">${target.points} pt</span></span>
   </button>`;
-  return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline">${handPickerButton()}<button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
+  return pin?`<div class="pinned-line-row">${line}<div class="goal-actions-inline"><button class="text-button" data-action="clear-goal">Clear</button></div></div>`:line;
  }).join('');
- const filters=open?`<div class="card-intro">
-  ${s.guidedPlay?'<h2 id="line-heading" tabindex="-1">Choose a line</h2>':'<span class="card-year">2026</span>'}
-  <label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>
-  ${s.guidedPlay?'':'<button class="text-button picker-close" data-action="toggle-hands" aria-label="Close hand picker">×</button>'}
- </div>`:'';
+ const heading=s.guidedPlay?'<h2 id="line-heading" tabindex="-1">Choose a line</h2>':
+  `<button type="button" id="lines-toggle" class="text-button lines-toggle" data-action="toggle-hands" aria-expanded="${open}" aria-controls="card-lines">${open?'Card lines':'See all lines'}<span aria-hidden="true"></span></button>`;
+ const filter=open?`<label class="hide-concealed"><input name="hide-concealed" type="checkbox" ${hideConcealed?'checked':''}>Hide concealed hands</label>`:'';
  const empty='<p class="empty-recommendations">'+(dead?'No matching lines.':'No hands match your current filters.')+'</p>';
- panel.innerHTML=`${filters}<div id="hand-list" class="ordered-hands ranked-hands">${contents||empty}</div>`;
+ const list=`<div id="hand-list" class="ordered-hands ranked-hands">${contents||empty}</div>`;
+ panel.innerHTML=`<div class="card-intro">${heading}${filter}</div><div id="card-lines"${open?'':' hidden'}>${open?list:''}</div>${!open&&pinnedLine?list:''}`;
  if(oldScroll)$('#hand-list').scrollTop=oldScroll;
  if(focusedHand)panel.querySelector('[data-hand="'+CSS.escape(focusedHand)+'"]')?.focus({preventScroll:true});
  if(filterFocused)$('#hands-panel [name="hide-concealed"]')?.focus({preventScroll:true});
+ if(toggleFocused)$('#lines-toggle')?.focus({preventScroll:true});
 }
 function targetFor(id,key){return id?G.TARGETS.find(t=>t.id===id&&t.key===key)??G.best(s.hands[0],s.exposed[0],id)?.target:null;}
 function closestTargetVariations(){
@@ -651,15 +648,11 @@ function currentPlan(){
  const hand=s.hands[0],exposed=s.exposed[0];
  return {target,...matchHandTiles(hand,exposed,target,jokerPlacements(target)),away:G.evaluate(hand,exposed,target).missing};
 }
-function handPickerButton(){
- return showingLines()?'':'<button class="text-button" data-action="toggle-hands" aria-expanded="false" aria-controls="hands-panel">See all lines</button>';
-}
 function renderHandFocus(plan,variations=closestTargetVariations()){
- const el=$('#hand-focus');el.hidden=plan?targetHandDisplay==='line':showingLines()&&!G.isDeadHand(s);el.classList.toggle('empty-hand',!plan);el.classList.remove('is-preview');
- const picker=handPickerButton();
+ const el=$('#hand-focus');el.hidden=!plan||targetHandDisplay==='line';el.classList.remove('is-preview');
  if(!plan){
   delete el.dataset.handId;delete el.dataset.targetKey;
-  el.innerHTML=`<div class="hand-picker-empty">${G.isDeadHand(s)?'<span>No matching lines</span>':''}${picker}</div>`;
+  el.replaceChildren();
   return;
  }
  const {target}=plan;el.dataset.handId=target.id;el.dataset.targetKey=target.key;
@@ -680,7 +673,7 @@ function renderHandFocus(plan,variations=closestTargetVariations()){
  const previewLabel=`Preview ${position} of ${variations.length}`;
  const previewButton=position&&variations.length>1?`<button class="text-button goal-preview-next" data-action="next-goal-preview" aria-label="${previewLabel}. Show the next equally close variation.">${previewLabel} <span aria-hidden="true">›</span></button>`:'';
  $('.goal-heading').innerHTML=`<strong class="goal-state">Target hand</strong><span>${esc(targetLabel(target))}</span>${target.concealed?'<span class="concealed-badge">C · Concealed</span>':''}<strong class="goal-count">${plan.compatible?distanceMarkup(target.id,plan.away,currentLineMove(s)):'Conflicts with your exposures'}</strong>${previewButton}`;
- $('.goal-actions').innerHTML=`${picker}<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>`;
+ $('.goal-actions').innerHTML='<span class="goal-secondary"><button class="text-button" data-action="clear-goal">Clear</button></span>';
  $('.goal-pattern').innerHTML=pattern;
  const footer=$('.goal-footer');footer.hidden=jokerTargetGroup===null;
  footer.innerHTML=footer.hidden?'':'<span class="joker-instruction">Click a joker on your rack · Esc cancels</span>';
@@ -711,7 +704,7 @@ function clearHand(){
  delete s.outlook;
  render();
  const row=line?$('#hand-list [data-hand="'+CSS.escape(line)+'"]'):null;
- (row??$('#line-heading, #hand-focus [data-action="toggle-hands"], .card-intro .picker-close'))?.focus({preventScroll:true});
+ (row??$('#line-heading, #lines-toggle'))?.focus({preventScroll:true});
 }
 function showFinishedTable(phase,content){
  const board=$('#table');
@@ -768,7 +761,7 @@ function render(){
  if(completed){pinned=null;goalKey=null;selected.clear();try{localStorage.setItem('parlor-last-match',JSON.stringify(completed));}catch{}}
  document.documentElement.dataset.tileStyle=tileStyle;
  if(s.phase==='matchEnded'){renderMatchEnd();save();clearTimeout(botTimer);return;}
- const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?(regularReturn?'← Resume saved game':'Start a regular game'):'<span>＋</span> New game';
+ const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?(regularReturn?'<span aria-hidden="true">←</span> Resume saved game':'Start a regular game'):'<span aria-hidden="true">＋</span> New game';
  if(s.phase==='ended'){
   const next=s.practiceSession?btn('Deal a new practice rack','practice-again'):btn('Next round','next-round');
   showFinishedTable('ended',roundReviewMarkup(s,next));save();clearTimeout(botTimer);return;
@@ -855,7 +848,7 @@ function renderTableTools(){
  const coachButton=$('#table-coach');
  coachButton.hidden=['ended','matchEnded'].includes(s.phase);
  coachButton.dataset.action=s.guidedPlay?'turn-off-coach':'open-coach';
- setCoachText('#table-coach',s.guidedPlay?'Turn off coaching':'Coach me on this rack');
+ setCoachText('#table-coach',s.guidedPlay?'Turn off coaching':'Coach me');
  $('#table-discards').hidden=s.phase==='matchEnded'||!s.discards.length;
  if(!passingTiles)return;
  applyCharlestonGuidePreference();
@@ -1036,13 +1029,28 @@ $('#coach-resume').addEventListener('click',()=>{
  $('#coach-questions').open=false;
  $('#coach-questions summary').focus();
 });
+const menuButton=$('#game-menu-toggle'),gameMenu=$('#header-actions');
+const gameMenuOpen=()=>menuButton.getAttribute('aria-expanded')==='true';
+function closeGameMenu(restoreFocus=false){
+ if(!gameMenuOpen())return;
+ if(restoreFocus)menuButton.focus({preventScroll:true});
+ menuButton.setAttribute('aria-expanded','false');
+}
+menuButton.addEventListener('click',()=>menuButton.setAttribute('aria-expanded',String(!gameMenuOpen())));
+gameMenu.addEventListener('click',e=>{
+ if(e.target.closest('button,a'))closeGameMenu(true);
+});
+const compactGameMenu=matchMedia('(max-width: 820px), (orientation: landscape) and (max-width: 1050px) and (max-height: 500px)');
+compactGameMenu.addEventListener('change',()=>closeGameMenu());
 document.addEventListener('keydown',e=>{
  if(e.key!=='Escape')return;
+ if(gameMenuOpen()){closeGameMenu(true);e.preventDefault();return;}
  if(pendingCallId!==null&&!modal.open){cancelCall();return;}
  if(jokerTargetGroup!==null&&!(modal.open&&modal.dataset.view==='discards')){jokerTargetGroup=null;render();}
 });
 document.addEventListener('dblclick',e=>{const t=e.target.closest('#rack [data-tile]');if(!t||(mobileArrange&&touchRack()))return;e.preventDefault();try{discardTile(Number(t.dataset.tile));}catch(error){toast(error.message);}});
 document.addEventListener('click',async e=>{
+ if(!e.target.closest('#game-menu-toggle,#header-actions'))closeGameMenu();
  const t=e.target.closest('#rack [data-tile]');
  if(t&&!t.disabled){selectRackTile(Number(t.dataset.tile));return;}
  const hand=e.target.closest('[data-hand]');if(hand){chooseHand(hand.dataset.hand,hand.dataset.targetKey);return;}const a=e.target.closest('[data-action]')?.dataset.action;if(!a)return;
@@ -1056,15 +1064,13 @@ document.addEventListener('click',async e=>{
  else if(a==='learn'||a==='hint'){showLearn();}
  else if(a==='open-coach'){
   s.guidedPlay=true;s.coachCollapsed=false;
-  if(modal.open)modal.close();
   render();
   $('#coach-toggle').focus();
  }
  else if(a==='turn-off-coach'){
-  const returnFocus=modal.open?$('.header-learn'):$('#table-coach');
+  const returnFocus=document.activeElement===menuButton?menuButton:$('#table-coach');
   s.guidedPlay=false;s.coachCollapsed=false;
   $('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';
-  if(modal.open)modal.close();
   render();returnFocus.focus({preventScroll:true});
  }
  else if(a==='learn-hands'){modal.close();pickerOpen=true;render();}
@@ -1098,8 +1104,7 @@ document.addEventListener('click',async e=>{
  else if(a==='toggle-hands'){
   pickerOpen=!pickerOpen;
   render();
-  const control=pickerOpen?$('.card-intro .picker-close'):$('#hand-list .goal-actions-inline [data-action="toggle-hands"], #hand-focus [data-action="toggle-hands"]');
-  control?.focus();
+  $('#lines-toggle')?.focus({preventScroll:true});
  }
  else if(a==='close'||a==='play'){modal.close();modal.classList.remove('tile-style-modal');scheduleBot();}
  else if(a==='rules')rules();else if(a==='tiles')tileGuide();else if(a==='charleston-help')charlestonHelp();

@@ -134,7 +134,6 @@ function drawRound() {
  $('#rack').innerHTML = rackMarkup(round.rack);
  $('#choices').innerHTML = round.choices.map(choiceButton).join('');
  $('#feedback').hidden = true;
- $('#choice-prompt').hidden = false;
  showScreen('play');
  focusAt('#round-counter');
  remaining = ROUND_MS;
@@ -157,14 +156,15 @@ function answer(index) {
   button.disabled = true;
   if (Number(button.dataset.index) === index) button.dataset.result = kind === 'best' ? 'best' : 'picked';
  }
- const reactions = { best:'Best fit!', close:'Partial credit', miss:'Missed it', timeout:'Time’s up' };
+ const gap = picked ? picked.away - round.bestAway : 0;
+ const closeReaction = gap === 1 ? 'So close!' : gap === 2 ? 'Almost!' : 'Not quite!';
+ const reactions = { best:'Best fit!', close:closeReaction, miss:'Missed it', timeout:'Time’s up' };
  $('#feedback-title').textContent = reactions[kind] + ' · +' + points;
  $('#feedback').dataset.kind = kind;
- $('#choice-prompt').hidden = true;
  $('#feedback').hidden = false;
- focusAt('#feedback-title');
  remaining = REVEAL_MS;
  runClock();
+ focusAt('#feedback-title');
 }
 
 function reviewLine(label, choice) {

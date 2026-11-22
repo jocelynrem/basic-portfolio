@@ -8,8 +8,8 @@
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
  <link rel="stylesheet" href="../palette.css?v=card-notation-1">
- <link rel="stylesheet" href="./style.css?v=sprint-auto-1">
- <script type="module" src="./game.mjs?v=sprint-auto-1"></script>
+ <link rel="stylesheet" href="./style.css?v=pink-trim-1">
+ <script type="module" src="./game.mjs?v=pink-trim-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -51,18 +51,15 @@
     </div>
    </div>
    <div class="round-prompt">
-    <div id="choice-prompt" class="choice-heading">
-     <h2 id="choices-heading">Which line fits best?</h2>
-     <div id="clock" class="clock" role="timer" aria-label="Time remaining">
-      <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
-     </div>
+    <div id="clock" class="clock" role="timer" aria-label="Time remaining" hidden>
+     <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
     </div>
     <div id="feedback" class="feedback" hidden>
      <div class="celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
      <strong id="feedback-title"></strong>
     </div>
    </div>
-   <div id="choices" class="choices" role="group" aria-labelledby="choices-heading"></div>
+   <div id="choices" class="choices" role="group" aria-label="Choose a card line"></div>
    <label class="names-toggle"><input type="checkbox" data-names-toggle> Show tile names</label>
   </section>
 
