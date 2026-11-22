@@ -255,7 +255,7 @@
 }
 
 /* Show the selected hand; open other choices only when requested. */
-.side-panel[hidden]{display:none}.hand-focus.empty-hand{display:block;padding:8px 10px}.hand-picker-empty{display:flex;justify-content:space-between;align-items:center;min-height:18px}.hand-picker-empty .text-button,.goal-actions [data-action="toggle-hands"]{font-size:11px}.picker-close{font-size:21px!important;line-height:18px;margin-left:auto!important;padding:2px 5px}
+.side-panel[hidden]{display:none}.hand-focus.empty-hand:not([hidden]){display:block;padding:8px 10px}.hand-picker-empty{display:flex;justify-content:space-between;align-items:center;min-height:18px}.hand-picker-empty .text-button,.goal-actions [data-action="toggle-hands"]{font-size:11px}.picker-close{font-size:21px!important;line-height:18px;margin-left:auto!important;padding:2px 5px}
 
 
 
