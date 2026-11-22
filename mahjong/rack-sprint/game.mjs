@@ -1,13 +1,13 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
-import { targetBlocks, displaySymbols } from '../js/hand-groups.mjs?v=parlor-palette-1';
+import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
 import { faceArt } from '../js/tile-art.mjs?v=sprint-ten-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
 const REVEAL_MS = 2_000;
 const timerKey = 'parlor-rack-sprint-timed';
-const inks = { B:'bam', C:'crak', D:'dot', F:'flower', G:'bam', R:'crak', H:'dot' };
+const tileNamesKey = 'parlor-show-tile-names';
 const levels = ['Warm-up', 'Steady', 'Challenge'];
 let timed = true;
 try { timed = localStorage.getItem(timerKey) !== 'off'; } catch {}
@@ -34,15 +34,8 @@ function rackMarkup(rack, fit) {
 
 function pattern(target) {
  const spoken = target.groups.map(([k,n]) => `${n} × ${tileName(k)}`).join(', ');
- const blocks = targetBlocks(target).map(block => {
-  if (block.map(part => part.symbols).join('') === '2026') {
-   const ink = inks[target.groups[block[0].index][0][0]];
-   return `<span class="pattern-group" data-ink="${ink}" aria-hidden="true">2026</span>`;
-  }
-  const parts = block.map(({index,symbols}) => {
-   const ink = inks[target.groups[index][0][0]] || 'honor';
-   return `<span data-ink="${ink}">${displaySymbols(symbols,target.section)}</span>`;
-  });
+ const blocks = notationBlocks(target).map(block => {
+  const parts = block.map(({color,symbols}) => `<span data-ink="${color}">${symbols}</span>`);
   return `<span class="pattern-group" aria-hidden="true">${parts.join('')}</span>`;
  });
  const names = spoken.replaceAll('1 × ', '');
@@ -123,7 +116,8 @@ function tick() {
 
 function runClock() {
  drawClock();
- if (!timed || document.hidden || !['pick','reveal'].includes(phase) || deadline !== null) return;
+ const shouldRun = phase === 'reveal' || phase === 'pick' && timed;
+ if (!shouldRun || document.hidden || deadline !== null) return;
  deadline = performance.now() + remaining;
  interval = setInterval(tick,100);
 }
@@ -168,8 +162,7 @@ function answer(index) {
  $('#feedback').dataset.kind = kind;
  $('#choice-prompt').hidden = true;
  $('#feedback').hidden = false;
- $('#next').textContent = history.length === TOTAL_ROUNDS ? 'See score' : 'Next rack';
- focusAt('#next');
+ focusAt('#feedback-title');
  remaining = REVEAL_MS;
  runClock();
 }
@@ -223,17 +216,24 @@ for (const toggle of document.querySelectorAll('[data-timer-toggle]')) {
  });
 }
 const namesToggles = document.querySelectorAll('[data-names-toggle]');
+function setTileNames(show) {
+ document.documentElement.classList.toggle('show-tile-names',show);
+ for (const toggle of namesToggles) toggle.checked = show;
+}
+function restoreTileNames() {
+ try { setTileNames(localStorage.getItem(tileNamesKey) === 'true'); } catch {}
+}
+restoreTileNames();
 for (const toggle of namesToggles) {
- toggle.checked = false;
  toggle.addEventListener('change', () => {
-  document.body.classList.toggle('show-tile-names',toggle.checked);
-  for (const input of namesToggles) input.checked = toggle.checked;
+  setTileNames(toggle.checked);
+  try { localStorage.setItem(tileNamesKey,String(toggle.checked)); } catch {}
  });
 }
+window.addEventListener('pageshow',event => { if (event.persisted) restoreTileNames(); });
 $('#hero-tiles').innerHTML = ['B5','F','D7'].map(key => tileFace(key)).join('');
 $('#start').addEventListener('click',start);
 $('#again').addEventListener('click',start);
-$('#next').addEventListener('click',advance);
 $('#choices').addEventListener('click',event => {
  const button = event.target.closest('.line-choice');
  if (button) answer(Number(button.dataset.index));

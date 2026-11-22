@@ -28,10 +28,17 @@ export function displaySymbols(symbols,section){
  return symbols.replace(/H/g,section==='2026'?'0':'D').replace(/[RG]/g,'D');
 }
 
-export function notationSuit(key,section){
- const suit=key[0];
- if ('BCD'.includes(suit)) return suit;
- if (suit==='G') return 'B';
- if (suit==='R') return 'C';
- return suit==='H'&&section!=='2026'?'D':'';
+const notationColors={B:'bam',C:'crak',D:'dot',F:'flower',G:'bam',R:'crak',H:'dot'};
+
+export function notationBlocks(target){
+ return targetBlocks(target).map(block=>{
+  // A year group takes its suit from the numbers. Its zero is still a white dragon.
+  const year=block.map(part=>part.symbols).join('')==='2026';
+  const yearSuit=year?target.groups[block[0].index][0][0]:null;
+  return block.map(({index,symbols})=>{
+   const [key,count]=target.groups[index];
+   const color=notationColors[yearSuit??key[0]]??'honor';
+   return {key,count,color,symbols:displaySymbols(symbols,target.section)};
+  });
+ });
 }

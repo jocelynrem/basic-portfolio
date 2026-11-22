@@ -8,7 +8,7 @@ import {readTable} from './defense.mjs?v=coach-layout-1';
 import {naturalTradeoff} from './natural-outlook.mjs?v=coach-layout-1';
 import {answerCoachQuestion} from './coach-questions.mjs?v=coach-layout-1';
 import {trackOutlook,pivotReason,holdVerdict} from './outlook.mjs?v=backup-discards-1';
-import {displaySymbols,patternBlocks,targetBlocks,notationSuit} from './hand-groups.mjs?v=parlor-palette-1';
+import {patternBlocks,notationBlocks} from './hand-groups.mjs?v=card-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
 import {practiceGame,restorePracticeChoice} from './learning.mjs?v=hand-outlook-1';
@@ -24,6 +24,7 @@ const touchRack=()=>innerWidth<=760||landscapeLayout.matches||coarsePointer.matc
 const tileStylePreferenceKey='parlor-tile-style-choice';
 const legalCallsPreferenceKey='parlor-legal-calls-only';
 const targetHandDisplayKey='parlor-target-hand-display';
+const tileNamesKey='parlor-show-tile-names';
 let legalCallsOnly=false;
 let targetHandDisplay='tiles';
 let tileStyle=touchRack()?'mobile':'modern',hideConcealed=false,discardOrder='time',soundEnabled=false;
@@ -38,6 +39,7 @@ try{
  soundEnabled=localStorage.getItem('parlor-sound')==='true';
  legalCallsOnly=localStorage.getItem(legalCallsPreferenceKey)==='true';
  targetHandDisplay=localStorage.getItem(targetHandDisplayKey)==='line'?'line':'tiles';
+ document.documentElement.classList.toggle('show-tile-names',localStorage.getItem(tileNamesKey)==='true');
 }catch{}
 const difficultyNames={easy:'Easy',standard:'Standard',hard:'Hard'};
 const difficultyNotes={easy:'Bots play exposed hands.',standard:'Bots play all card lines, including concealed hands.',hard:'Bots play all card lines and use visible tiles to judge which hands are within reach.'};
@@ -229,6 +231,10 @@ function showSettings(){
    <label class="settings-check"><input id="legal-calls-only" type="checkbox" ${legalCallsOnly?'checked':''}>Only allow calls that fit the card</label>
    <button class="icon-button" type="button" data-action="call-rules-info" aria-label="About call rules">i</button>
   </div>
+  <div class="color-vision-setting">
+   <label class="settings-check"><input name="color-vision-support" type="checkbox" aria-describedby="color-vision-note" ${document.documentElement.classList.contains('show-tile-names')?'checked':''}>Color vision support</label>
+   <p id="color-vision-note">Show tile names below card patterns.</p>
+  </div>
   ${stylePicker()}
   <div class="settings-fields">
    <label>Target hand display<select name="target-hand-display"><option value="tiles" ${targetHandDisplay==='tiles'?'selected':''}>Tile preview</option><option value="line" ${targetHandDisplay==='line'?'selected':''}>Pin card line</option></select></label>
@@ -356,21 +362,19 @@ function returnToGame(){
 function declareDiscard(){const option=discardClaims(s).find(o=>o.win);if(!option)return;G.claim(s,0,option);selected.clear();render();}
 function jokerPlacements(target){return s.jokerPlacements?.[target?.key]||{};}
 const targetLabel=target=>[target.name,target.variant].filter(Boolean).join(' · ');
-const notationColors={B:'bam',C:'crak',D:'dot',F:'flower',G:'bam',R:'crak',H:'dot'};
 function targetNotation(target,extraClass='',highlightKey=null){
  const description=[];
- const groups=targetBlocks(target).map(block=>{
-  const parts=block.map(({index,symbols})=>{
-   const [key,count]=target.groups[index];
+ const groups=notationBlocks(target).map(block=>{
+  const parts=block.map(({key,count,color,symbols})=>{
    description.push(`${count} × ${G.tileName(key)}`);
-   const color=notationColors[key[0]]??'honor';
    const highlight=key===highlightKey?' preview-match':'';
-   const suit=notationSuit(key,target.section);
-   return `<span class="${color}${highlight}"${suit?' data-suit="'+suit+'"':''}>${esc(displaySymbols(symbols,target.section))}</span>`;
+   return `<span class="${color}${highlight}">${esc(symbols)}</span>`;
   });
   return `<span class="hand-group" aria-hidden="true">${parts.join('')}</span>`;
  }).join('');
- return `<span class="hand-tiles ${extraClass}" role="img" aria-label="${esc(description.join(', '))}">${groups}</span>`;
+ const spoken=description.join(', ');
+ const names=spoken.replaceAll('1 × ', '');
+ return `<span class="hand-tiles ${extraClass}" role="img" aria-label="${esc(spoken)}">${groups}<span class="line-tile-names" aria-hidden="true">${esc(names)}</span></span>`;
 }
 function updateCoachHands(plan){
  if(!s.guidedPlay){
@@ -1126,6 +1130,11 @@ $('#call-filter-toggle').addEventListener('click',()=>{
  render();
 });
 document.addEventListener('change',e=>{
+ if(e.target.name==='color-vision-support'){
+  document.documentElement.classList.toggle('show-tile-names',e.target.checked);
+  try{localStorage.setItem(tileNamesKey,String(e.target.checked));}catch{}
+  return;
+ }
  if(e.target.id==='legal-calls-only'){
   legalCallsOnly=e.target.checked;
   try{localStorage.setItem(legalCallsPreferenceKey,String(legalCallsOnly));}catch{}
@@ -1152,6 +1161,11 @@ document.addEventListener('change',e=>{
  if(e.target.id==='section-filter'){section=e.target.value;try{localStorage.setItem('parlor-card-section',section);}catch{}render();}
 });
 modal.addEventListener('close',()=>{modal.classList.remove('tile-style-modal');scheduleBot();});
+window.addEventListener('pageshow',e=>{
+ if(e.persisted){
+  try{document.documentElement.classList.toggle('show-tile-names',localStorage.getItem(tileNamesKey)==='true');}catch{}
+ }
+});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
 const charlestonToggle=$('#charleston-toggle'),charlestonGuide=$('#charleston-guide');
 let guidePreference;

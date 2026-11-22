@@ -23,11 +23,3 @@
   --parlor-control: #637c85;
   --parlor-focus: #163342;
 }
-
-.hand-group [data-suit]::after,
-.pattern-group [data-suit]::after {
-  content: attr(data-suit);
-  margin-inline: .12em .15em;
-  vertical-align: super;
-  font: 750 max(.54em, 9px)/0 system-ui, sans-serif;
-}

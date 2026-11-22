@@ -600,6 +600,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .call-rules-setting{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:12px}
 .call-rules-setting .settings-check{display:flex;align-items:center;gap:7px;cursor:pointer}
 .call-rules-setting .icon-button{flex:none;width:30px;height:30px;font-weight:700}
+.color-vision-setting{margin-bottom:16px}
+.color-vision-setting .settings-check{display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer}
+.color-vision-setting p{margin:0 0 0 23px}
 #modal .joker-choices .button{width:100%;min-height:44px;white-space:normal;text-align:left;justify-content:flex-start}
 .call-filter{
  display:inline-flex;align-items:center;justify-content:center;inline-size:9.5em;min-height:26px;padding:3px 7px;
@@ -794,6 +797,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .hand-group > .dot { color: #345b83; }
 .hand-group > .flower { color: #785020; }
 .hand-group > .honor { color: #395543; }
+.hand-tiles .line-tile-names { display: none; flex-basis: 100%; min-width: 0; color: var(--parlor-muted); font: 500 12px/1.4 var(--sans); overflow-wrap: anywhere; white-space: normal; }
+.show-tile-names .hand-tiles { flex-wrap: wrap; }
+.show-tile-names .hand-tiles .line-tile-names { display: block; }
 
 .goal-actions-inline {
   display: flex;
