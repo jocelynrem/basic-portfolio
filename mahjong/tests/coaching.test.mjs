@@ -253,6 +253,34 @@ test('winning calls and self-draws take priority even when another line is pinne
  assert.match(turnAdvice(game,[],{...options,claims:claimOptions(game,0)}).text,/Call it for Mahjong/);
 });
 
+test('a White dragon call explains the size Line 5 needs, including the discard and any jokers',()=>{
+ const {game}=guided();
+ game.phase='claim';
+ game.discards=[{player:1,tile:{k:'H',id:999}}];
+ const target=TARGETS.find(t=>t.id==='run5'&&t.groups.some(([k,n])=>k==='H'&&n===4));
+ const alternative=TARGETS.find(t=>t.id==='wind2'&&t.groups.some(([k,n])=>k==='H'&&n===3));
+ const rack=['F','F','D1','D1','D2','D2','D3','D3','H','H','E','B8','C9'];
+ game.hands[0]=rack.map((k,id)=>({k,id}));
+ const advice=(targets,selected=[])=>turnAdvice(game,targets.map(t=>assessHand(game.hands[0],[],t)),{
+  ...options,claims:claimOptions(game,0),selected:new Set(selected),staging:selected.length>0
+ });
+ const pass='Pass on the White dragon. With it, you can expose 3 of the 4 needed for Consecutive Run · Line 5.';
+ assert.equal(advice([target]).text,pass);
+ const withAlternative=advice([target,alternative]);
+ assert.equal(withAlternative.text,pass);
+ assert.match(withAlternative.details[0],/Winds - Dragons · Line 2/);
+ game.hands[0][9].k='J';
+ assert.equal(advice([target]).text,pass);
+ game.hands[0][10].k='J';
+ assert.match(advice([target]).text,/call that White dragon/);
+ assert.match(advice([target],[8,9]).text,/Add 1 more tile to expose 4/);
+ assert.match(advice([target],[8,9,10]).text,/call that White dragon/);
+ const concealed=TARGETS.find(t=>t.concealed);
+ assert.match(advice([concealed]).text,/must stay concealed/);
+ const pair=TARGETS.find(t=>!t.concealed&&t.groups.some(([k,n])=>k==='H'&&n===2));
+ assert.match(advice([pair]).text,/single or pair/);
+});
+
 test('calling compares the staged exposure and discarding previews the selected tile',()=>{
  const {game,hand,lines}=guided();
  game.phase='claim';
@@ -260,7 +288,8 @@ test('calling compares the staged exposure and discarding previews the selected 
  game.discards=[{player:1,tile:discard}];
  const claims=claimOptions(game,0),chosen=hand.filter(t=>t.k==='C4');
  const advice=turnAdvice(game,lines,{...options,claims,staging:true,selected:new Set(chosen.map(t=>t.id))});
- assert.match(advice.text,/call fits Consecutive Run/);
+ assert.match(advice.text,/Pass on the 4 Crak.*2468 · Line 2.*pair/);
+ assert.match(advice.details[0],/Consecutive Run/);
  assert.match(advice.details[0],/before discarding/);
  game.phase='discard';game.turn=0;
  assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/let the 9 Crak go/);

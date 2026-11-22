@@ -3,7 +3,7 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,passTiles,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations,currentLineMove} from './table-actions.mjs?v=line-movement-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=line-movement-1';
+import {handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=call-coach-1';
 import {trackOutlook,pivotReason} from './outlook.mjs?v=line-movement-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -393,6 +393,7 @@ function renderCoach(){
   pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:pinned?handComparison(focus,other):{title:'',reason:''};
  const playable=coachLines.filter(row=>!row.blocked);
  const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine:tracking?.note?pinned:null});
+ const compareInDetails=claims.length>0&&pinned&&focus&&!focus.blocked&&!hasWin;
  $('#coach-tracker').hidden=!tracking;
  if(tracking){
   const status=tracking.status;
@@ -401,12 +402,12 @@ function renderCoach(){
   $('#coach-tracker').dataset.trend=status;
   setCoachText('#outlook-note',tracking.note);
  }
- $('.coach-callout').hidden=!comparison.title;
+ $('.coach-callout').hidden=!comparison.title||compareInDetails;
  $('#coach-mark').dataset.kind=comparison.kind||'';
  setCoachText('#coach-mark',({blocked:'×',pivot:'⇄',fit:'✓'})[comparison.kind]||'');
  setCoachText('#coach-verdict',comparison.title);
  setCoachText('#coach-leader',comparison.leader&&comparison.leader===focus?.target.name?'Your line':comparison.leader||'');
- setCoachText('#coach-reason',comparison.reason);
+ setCoachText('#coach-reason',compareInDetails?'':comparison.reason);
  setCoachText('#coach-action',advice.text);
  const switchButton=$('[data-action="coach-switch"]');
  switchButton.hidden=!pivot;
@@ -417,6 +418,7 @@ function renderCoach(){
    `${row.away} tiles away · ${row.naturalsNeeded} missing for singles and pairs · ${row.target.points} card points`;
   return [label,row.target.name,description].filter(Boolean).join(' · ');
  }).concat(advice.details||[]);
+ if(compareInDetails&&comparison.reason)details.unshift(comparison.reason);
  if(tracking){
   if(tracking.start!==null&&!focus.incompatible)details.push('When chosen: '+distanceLabel(tracking.start)+'. Now: '+distanceLabel(focus.away)+'.');
   if(!focus.incompatible){

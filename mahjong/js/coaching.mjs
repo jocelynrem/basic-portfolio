@@ -24,10 +24,11 @@ export function handComparison(focus,alternative){
   return {kind:'even',title:'Even',reason:a+' and '+b+' are neck and neck.'+(shared?' Your '+tileName(shared)+' works for either.':'')};
  }
  let reason;
- if(!distance&&lead.jokerDebt<next.jokerDebt)reason='I’d lean toward '+line(lead)+'. '+line(next)+' is just as close and needs more jokers.';
- else if(!distance){
+ if(!distance){
+  const rival=lead.target.section===next.target.section?'Line '+next.target.line:line(next);
   const gap=next.gaps.find(g=>g.need===g.unseen)??next.gaps[0];
-  reason='I’d lean toward '+line(lead)+'. '+line(next)+' is just as close and still needs '+gapName(gap)+'.';
+  const need=lead.jokerDebt<next.jokerDebt?'more jokers':gapName(gap);
+  reason='I’d play '+line(lead)+'. '+rival+' still needs '+need+'.';
  }else{
   reason=lead.naturalsNeeded>next.naturalsNeeded?line(lead)+' still needs '+gapName(lead.gaps[0])+'. '+line(next)+' is further away.':'You’re closer to '+line(lead)+' than '+line(next)+'.';
  }
@@ -125,12 +126,33 @@ function newTileTip(hand,exposed,lines,ids){
  return '';
 }
 
+function explainMissedCall(s,primary,key,claims,picked){
+ const pass='Pass on the '+tileName(key)+'. ';
+ const name=line(primary);
+ if(primary.target.concealed)return pass+name+' must stay concealed until Mahjong.';
+ const groups=compatible(primary.target,s.exposed[0])??[];
+ const matching=groups.filter(([k])=>k===key);
+ const sizes=matching.map(([,size])=>size).filter(size=>size>=3);
+ if(!sizes.length){
+  if(matching.length)return pass+name+' uses it only in a single or pair. You can call it to win.';
+  return pass+'This variation of '+name+' has no set for that discard.';
+ }
+ const required=Math.min(...sizes);
+ const available=1+s.hands[0].filter(t=>t.k===key||t.k==='J').length;
+ if(available<required)return pass+'With it, you can expose '+available+' of the '+required+' needed for '+name+'.';
+ const option=claims.find(c=>!c.dead&&sizes.includes(c.n));
+ if(picked.length&&option){
+  const change=option.n-1-picked.length;
+  const count=Math.abs(change);
+  return (change>0?'Add ':'Remove ')+count+' '+(change>0?'more ':'')+(count===1?'tile':'tiles')+' to expose '+option.n+' for '+name+'.';
+ }
+ return pass+'This exposure doesn’t fit '+name+'.';
+}
+
 function callAdvice(s,lines,claims,picked,staging){
  const tile=s.discards.at(-1).tile;
  if(claims.some(c=>c.win))return {text:'That '+tileName(tile.k)+' is your winning tile. Call it for Mahjong!'};
  const choices=staging&&picked.length?claims.filter(c=>c.n===picked.length+1):claims;
- if(!choices.length)return {text:'Choose matching tiles or a joker to preview the exposure.'};
- if(choices.every(c=>c.dead))return {text:'Pass this discard. That exposure fits no line on the card.'};
  const primary=lines[0];
  const projections=[];
  for(const choice of choices.filter(c=>!c.dead)){
@@ -142,11 +164,12 @@ function callAdvice(s,lines,claims,picked,staging){
   }
  }
  const fit=projections.find(p=>p.row===primary&&p.away<primary.away)??projections.find(p=>p.row===primary)??projections[0];
- if(!fit)return {text:'Pass to keep '+line(primary)+'. Exposing '+tileName(tile.k)+' would rule out this variation.'};
- const fitsPrimary=fit.row===primary;
- const text=fitsPrimary?(fit.away<primary.away?'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.':'You can call for '+line(primary)+'. You’d still be just as far away.'):
-  'This call fits '+line(fit.row)+'. I’d pass to stay with '+line(primary)+'.';
- return {text,details:['Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away before discarding.']};
+ const details=[];
+ if(fit)details.push('Exposure of '+fit.size+' × '+tileName(tile.k)+' · '+line(fit.row)+': '+fit.row.away+' → '+fit.away+' tiles away before discarding.');
+ if(choices.length&&choices.every(c=>c.dead))details.push('This exposure fits no line on the card and would make your hand dead.');
+ if(fit?.row!==primary)return {text:explainMissedCall(s,primary,tile.k,claims,picked),details};
+ const text=fit.away<primary.away?'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.':'You can call for '+line(primary)+'. You’d still be just as far away.';
+ return {text,details};
 }
 
 export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine}){
