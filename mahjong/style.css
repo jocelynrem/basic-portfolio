@@ -849,16 +849,23 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 #coach-verdict { font: 600 18px/1.3 var(--serif); }
 .coach-feedback p { margin: 3px 0 0; font-size: 14px; line-height: 1.4; }
 #coach-action { color: #36513f; }
-#coach-details { grid-column: 1 / -1; }
-#coach-details summary, .round-coach-details summary {
+#coach-details, #coach-questions { grid-column: 1 / -1; }
+#coach-details summary, #coach-questions summary, .round-coach-details summary {
   width: fit-content;
   padding: 6px 0;
   cursor: pointer;
   font-size: 13px;
   font-weight: 650;
 }
-#coach-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-#coach-numbers { margin: 2px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+#play-coach summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+#coach-form { display: flex; gap: 6px; margin: 4px 0; }
+#coach-question { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 5px; padding: 8px; color: inherit; background: #fffdf7; font: inherit; }
+#coach-prompts { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+#coach-prompts button { padding: 4px 0; text-decoration: underline; font-size: 12px; }
+#coach-answer { margin: 6px 0; line-height: 1.45; }
+#coach-answer:empty { display: none; }
+#coach-numbers, #coach-opponents ul { margin: 2px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+#coach-opponents { margin-top: 7px; font-size: 13px; }
 .guided-layout:has(#coach-details:not([open])) .card-points { display: none; }
 .line-distance { color: #3d5746; font-size: 12px; font-variant-numeric: tabular-nums; }
 .distance-arrow { display: inline-block; font: 700 1.1em/1 var(--sans); }
@@ -892,7 +899,7 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .round-coach-note { margin: 4px 0 12px; line-height: 1.45; }
 @media (max-width: 760px) {
   .play-coach { padding: 9px 12px; }
-  #coach-details summary { min-height: 36px; }
+  #coach-details summary, #coach-questions summary { min-height: 36px; }
 }
 
 .guided-layout { display: flex; flex-direction: column; }

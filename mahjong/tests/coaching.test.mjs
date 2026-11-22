@@ -441,6 +441,22 @@ test('the second missed Green dragon explains call readiness and the selected li
  assert.ok(pivotReason(ranked.find(r=>r.target.id===target.id),ranked[0],tip.scarceDiscard));
 });
 
+test('an exposed opponent line breaks an otherwise genuine discard tie',()=>{
+ const {game}=guided();
+ game.phase='discard';game.turn=0;
+ game.hands[0]='E E B2 B2 B4 B4 B4 B6 B6 B8 W W D2 B9'.split(' ').map((k,id)=>({k,id}));
+ const focus=TARGETS.find(t=>t.key==='even3-0');
+ const advice=(selected=[])=>turnAdvice(game,[assessHand(game.hands[0],[],focus,visibleTileCounts(game))],{...options,selected:new Set(selected)});
+ assert.equal(advice().tile,undefined);
+ game.exposed[2]=[{k:'D4',tiles:['D4','J','D4'].map((k,i)=>({k,id:50+i}))},
+  {k:'C8',tiles:['C8','C8','J','C8'].map((k,i)=>({k,id:60+i}))}];
+ for(const selected of [[],[12],[13]]){
+  const tip=advice(selected);
+  assert.equal(tip.tile.k,'B9');
+  assert.match(tip.text,/Discard 9 Bam.*Rose could call 2 Dot.*2468 · Line 1/);
+ }
+});
+
 test('uncallable discards use the actual tile and group size, including a quint and a six-Flower set',()=>{
  for(const [key,n] of [['B4',3],['C8',4],['D5',5],['F',6],['N',4]]){
   const {game}=guided();

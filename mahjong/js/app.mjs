@@ -3,7 +3,10 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,passTiles,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations,currentLineMove} from './table-actions.mjs?v=line-movement-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {discardAdvice,handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=natural-singles-1';
+import {discardAdvice,handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=ask-coach-1';
+import {readTable} from './defense.mjs?v=table-reads-1';
+import {naturalTradeoff} from './natural-outlook.mjs?v=ask-coach-1';
+import {answerCoachQuestion} from './coach-questions.mjs?v=ask-coach-1';
 import {trackOutlook,pivotReason,holdVerdict} from './outlook.mjs?v=backup-discards-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -44,6 +47,8 @@ restorePracticeChoice(s);
 let selected=new Set(),pinned=G.CARD.some(c=>c.id===s.goalHandId)?s.goalHandId:null,goalKey=s.goalTargetKey||null,pickerOpen=localStorage.getItem('parlor-hand-picker-open')==='true',jokerTargetGroup=null,lastFreshKey='',matchingIds=new Set(),receivedIds=new Set(s.receivedIds||[]),neededDiscardKeys=new Set(),usableJokerIds=new Set(),winningJokerIds=new Set(),section=localStorage.getItem('parlor-card-section')||'All sections',sound=soundEnabled,passing=false,activePass=null,botTimer,toastTimer,wallLessonStep=0,mobileArrange=false,hintIds=[],lastDiscardShown=null;
 let claims=[],winningClaim=null,pendingCallId=null,swaps=[],swapMessage='';
 let rankedHands=[],coachLines=[];
+let coachTradeoff=null,coachTable=null,coachAdvice=null,submittedQuestion=null;
+let questionTurn='';
 const showingLines=()=>s.guidedPlay||pickerOpen;
 const hasJokersForCallFilter=()=>s.hands[0].some(tile=>tile.k==='J');
 const callFilterLine=()=>s.onlyChosenHandCalls?pinned:null;
@@ -258,8 +263,8 @@ function showJokerChoices(){
 function showLearn(){
  const playing=!['ended','matchEnded'].includes(s.phase);
  const guide=playing?`<section class="learn-guided"><h3>Guided play</h3><p>Get feedback as you choose a hand, pass, call, and discard in this game.</p>${btn(s.guidedPlay?'Return to guided play':'Start guided play','open-coach','small')}</section>`:'';
- const playable=coachLines.filter(row=>!row.blocked);
- const target=currentPlan()?.target;
+ const playable=playableCoachLines();
+ const target=currentPlan()?.target??playable[0]?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
  const advice=tileAdvice(s,target,count);
  if(playable.length&&!claims.length&&advice.kind==='pass'){
@@ -267,9 +272,9 @@ function showLearn(){
   advice.tiles=optional?spareTiles(s.hands[0],s.exposed[0],playable):suggestTiles(s.hands[0],s.exposed[0],playable,count,true);
   if(advice.tiles.length)advice.reasons=[selectionAdvice(s.hands[0],s.exposed[0],playable,advice.tiles,true).text];
  }else if(playable.length&&!claims.length&&advice.kind==='discard'){
-  const hint=discardAdvice(s,playable);
+  const hint=discardAdvice(s,playable,s.hands[0].find(t=>selected.has(t.id)),coachTable);
   advice.tiles=hint.tile?[hint.tile]:[];
-  advice.reasons=[hint.text];
+  advice.reasons=[hint.text,hint.defense].filter(Boolean);
  }
  hintIds=advice.tiles.map(t=>t.id);
  let body='';
@@ -364,6 +369,7 @@ function updateCoachHands(plan){
  if(!s.guidedPlay){
   rankedHands=pickerOpen?recommendHands(s.hands[0],s.exposed[0],{section,hideConcealed,chosenKey:goalKey,jokerPlacements:s.jokerPlacements}):[];
   coachLines=[];
+  coachTradeoff=coachTable=coachAdvice=submittedQuestion=null;
   return;
  }
  const visible=G.visibleTileCounts(s);
@@ -371,15 +377,37 @@ function updateCoachHands(plan){
  const allowed=rankedHands.filter(({target})=>(section==='All sections'||target.section===section)&&(!hideConcealed||!target.concealed));
  const focus=plan?assessHand(s.hands[0],s.exposed[0],plan.target,visible):allowed[0];
  coachLines=focus?[focus,...allowed.filter(row=>row.target.id!==focus.target.id).slice(0,1)]:[];
+ coachTable=readTable(s,visible);
+ coachTradeoff=naturalTradeoff(s,...coachLines);
  if(plan&&focus){
   // A callable discard is still on offer. Record its impact when the call resolves.
   if(!claims.length||s.outlook?.line!==pinned)s.outlook=trackOutlook(s.outlook,s,focus);
  }
  else delete s.outlook;
 }
+function playableCoachLines(){
+ const rows=coachLines.filter(row=>!row.blocked);
+ return !pinned&&coachTradeoff?.preferred===rows[1]&&rows.length===2?[rows[1],rows[0]]:rows;
+}
 function setCoachText(selector,value){
  const el=$(selector);
  if(el.textContent!==value)el.textContent=value;
+}
+function coachTurn(){
+ return [s.handNumber,s.phase,s.turn,s.turns,s.passRound,s.passStep,s.discards.length].join('/');
+}
+function questionPosition(){
+ return [coachTurn(),
+  s.hands[0].map(t=>t.id).sort((a,b)=>a-b).join(','),[...selected].join(','),coachLines.map(r=>r.target.key).join(',')].join('/');
+}
+function askCoach(question){
+ if(!s.guidedPlay||!question.trim())return;
+ const tile=s.hands[0].find(t=>selected.has(t.id))??coachAdvice?.tile;
+ submittedQuestion={text:question.trim(),position:questionPosition(),answer:answerCoachQuestion(s,coachLines,{
+  question,tileKey:tile?.k,table:coachTable,tradeoff:coachTradeoff,advice:coachAdvice
+ })};
+ $('#coach-question').value=submittedQuestion.text;
+ renderCoach();
 }
 function renderCoach(){
  const el=$('#play-coach');
@@ -389,15 +417,21 @@ function renderCoach(){
  const dead=G.isDeadHand(s);
  const canDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
  const hasWin=winningClaim||canDeclare&&G.winning(s.hands[0],s.exposed[0]);
- const playable=coachLines.filter(row=>!row.blocked);
- const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine:s.outlook?.note?pinned:null,chosenLine:focus});
+ const playable=playableCoachLines();
+ const describedLine=s.outlook?.note?pinned:coachTradeoff?.preferred?.target.id;
+ const advice=turnAdvice(s,playable,{selected,claims,staging:pendingCallId!==null,receivedIds,swaps,describedLine,chosenLine:focus,table:coachTable});
+ coachAdvice=advice;
  if(pinned&&focus&&claims.length&&advice.neededDiscard)s.outlook=trackOutlook(s.outlook,s,focus);
  const tracking=pinned&&focus&&!dead&&!hasWin&&s.outlook;
  const bestVariation=tracking&&rankedHands.find(row=>row.target.id===pinned);
- const pivot=tracking&&(!claims.length||advice.neededDiscard)&&(!bestVariation||pivotReason(bestVariation,other,advice.scarceDiscard))&&pivotReason(focus,other,advice.scarceDiscard);
+ const comparingLines=pinned||['draw','discard','claim'].includes(s.phase);
+ const tradeoff=comparingLines&&!dead&&!hasWin&&(!claims.length||advice.neededDiscard)&&coachTradeoff;
+ const pivot=tracking&&(!claims.length||advice.neededDiscard)&&(tradeoff?
+  tradeoff.preferred===other&&(!bestVariation||bestVariation.target.key===focus.target.key||naturalTradeoff(s,bestVariation,other)?.preferred===other):
+  (!bestVariation||pivotReason(bestVariation,other,advice.scarceDiscard))&&pivotReason(focus,other,advice.scarceDiscard));
  const comparison=hasWin?{kind:'fit',title:'Mahjong',reason:''}:dead?{title:'Watch',reason:'Your hand is out for this round.'}:
   !focus?{title:'No matching hand',reason:'Try changing the hand picker filters.'}:
-  pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:tracking&&advice.neededDiscard&&!focus.blocked?holdVerdict(focus,other):
+  tradeoff?tradeoff:pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:tracking&&advice.neededDiscard&&!focus.blocked?holdVerdict(focus,other):
   pinned?handComparison(focus,other):{title:'',reason:''};
  const compareInDetails=claims.length>0&&pinned&&focus&&!focus.blocked&&!hasWin&&!advice.neededDiscard;
  $('#coach-tracker').hidden=!tracking;
@@ -412,33 +446,50 @@ function renderCoach(){
  $('#coach-mark').dataset.kind=comparison.kind||'';
  setCoachText('#coach-mark',({blocked:'×',pivot:'⇄',fit:'✓'})[comparison.kind]||'');
  setCoachText('#coach-verdict',comparison.title);
- setCoachText('#coach-leader',comparison.leader&&comparison.leader===focus?.target.name?'Your line':comparison.leader||'');
+ setCoachText('#coach-leader',pinned&&!tradeoff&&comparison.leader&&comparison.leader===focus?.target.name?'Your line':comparison.leader||'');
  setCoachText('#coach-reason',compareInDetails?'':comparison.reason);
  setCoachText('#coach-action',advice.text);
+ setCoachText('#coach-defense',advice.defense||'');
+ const questions=$('#coach-questions');
+ if(questions.open&&questionTurn&&questionTurn!==coachTurn())questions.open=false;
+ $('#coach-resume').hidden=!(s.phase==='wallSetup'||s.phase==='wallPush'||(s.turn!==0&&['draw','discard'].includes(s.phase)));
+ const selectedTile=s.hands[0].find(t=>selected.has(t.id))??advice.tile;
+ $('#ask-tile').hidden=s.phase!=='discard'||s.turn!==0||!selectedTile||hasWin||dead;
+ if(!$('#ask-tile').hidden)setCoachText('#ask-tile','Why discard '+G.tileName(selectedTile.k)+'?');
+ if(submittedQuestion&&submittedQuestion.position!==questionPosition()){
+  if($('#coach-question').value===submittedQuestion.text)$('#coach-question').value='';
+  submittedQuestion=null;
+ }
+ setCoachText('#coach-answer',submittedQuestion?.answer.text||'');
  const switchButton=$('[data-action="coach-switch"]');
  switchButton.hidden=!pivot;
  if(pivot)setCoachText('[data-action="coach-switch"]','Switch to '+other.target.name);
- const details=dead||(!pinned&&!advice.text)?[]:coachLines.map(row=>{
+ const details=dead||(!pinned&&!advice.text&&!tradeoff)?[]:coachLines.map(row=>{
   const label=row===focus&&pinned?'Chosen hand':'';
   const description=row.incompatible?'Conflicts with your exposures':
    `${row.away} tiles away · ${row.naturalsNeeded} missing for singles and pairs · ${row.target.points} card points`;
   return [label,row.target.name,description].filter(Boolean).join(' · ');
- }).concat(advice.details||[]);
+ }).concat(tradeoff?.details||[],advice.details||[]);
+ if(submittedQuestion?.answer.details?.length)details.unshift(...submittedQuestion.answer.details);
  if(compareInDetails&&comparison.reason)details.unshift(comparison.reason);
  if(tracking){
   if(tracking.start!==null&&!focus.incompatible)details.push('When chosen: '+distanceLabel(tracking.start)+'. Now: '+distanceLabel(focus.away)+'.');
   if(!focus.incompatible){
    const copies=Object.entries(focus.helpful).map(([k,n])=>G.tileName(k)+' × '+n).join(', ');
    if(copies)details.push('Unseen tiles that improve this variation: '+copies+'. Total: '+focus.usefulCopies+'. These copies may be in the wall or another rack.');
-   for(const gap of focus.gaps)details.push(G.tileName(gap.key)+' for singles or pairs: '+gap.need+' needed, '+gap.unseen+' unseen.');
+   if(!tradeoff)for(const gap of focus.gaps)details.push(G.tileName(gap.key)+' for singles or pairs: '+gap.need+' needed, '+gap.unseen+' unseen.');
    if(focus.jokerDebt)details.push('Additional jokers needed even if you collect every available natural tile: '+focus.jokerDebt+'.');
   }
   for(const entry of tracking.history)details.push(entry.status+' · '+entry.note+(entry.away===null?'':' '+distanceLabel(entry.away)+'.'));
  }
  const disclosure=$('#coach-details');
- disclosure.hidden=!details.length;
+ const reads=coachTable.details;
+ $('#coach-opponents').hidden=!reads.length;
+ const readHtml=reads.map(read=>`<li>${esc(read)}</li>`).join('');
+ if($('#coach-opponents ul').innerHTML!==readHtml)$('#coach-opponents ul').innerHTML=readHtml;
+ disclosure.hidden=!details.length&&!reads.length;
  if(disclosure.hidden)disclosure.open=false;
- const html=details.map(detail=>`<li>${esc(detail)}</li>`).join('');
+ const html=[...new Set(details)].map(detail=>`<li>${esc(detail)}</li>`).join('');
  if($('#coach-numbers').innerHTML!==html)$('#coach-numbers').innerHTML=html;
 }
 const distanceLabel=n=>n===0?'Ready for Mahjong':n+' tile'+(n===1?'':'s')+' away';
@@ -725,7 +776,7 @@ function renderTableTools(){
   else label.removeAttribute('aria-current');
  }
 }
-function scheduleBot(){clearTimeout(botTimer);if(modal.open)return;if(s.phase==='wallSetup'){botTimer=setTimeout(()=>{if(s.setupStep<=s.wallIndex)s.setupStep++;else G.finishSetup(s);render();},s.setupStep===0?900:1800);return;}if(s.phase==='wallPush'){botTimer=setTimeout(()=>{finishWallPush(s);render();},1800);return;}if(s.turn!==0&&['draw','discard'].includes(s.phase))botTimer=setTimeout(()=>{G.botStep(s);selected.clear();playSound();render();},1100);}
+function scheduleBot(){clearTimeout(botTimer);if(modal.open||(s.guidedPlay&&$('#coach-questions').open))return;if(s.phase==='wallSetup'){botTimer=setTimeout(()=>{if(s.setupStep<=s.wallIndex)s.setupStep++;else G.finishSetup(s);render();},s.setupStep===0?900:1800);return;}if(s.phase==='wallPush'){botTimer=setTimeout(()=>{finishWallPush(s);render();},1800);return;}if(s.turn!==0&&['draw','discard'].includes(s.phase))botTimer=setTimeout(()=>{G.botStep(s);selected.clear();playSound();render();},1100);}
 function charlestonHelp(){show('Charleston rules',`<p>Everyone exchanges tiles at the same time. Your right is Mabel, across is Rose, and left is June. You keep the same number of tiles on your rack after every pass.</p><div class="lesson-sequence"><strong>1. First Charleston · required</strong><span>RIGHT → ACROSS → LEFT</span><p>Choose 3 unwanted tiles each time. The third pass (left) allows a blind pass.</p><strong>2. Second Charleston · optional</strong><span>LEFT → ACROSS → RIGHT</span><p>Any player can stop before this round begins. Once begun, complete all 3 passes. The final right pass allows a blind pass.</p><strong>3. Courtesy pass · optional</strong><span>ACROSS · 0, 1, 2, OR 3 TILES</span><p>You exchange with Rose across the table. Mabel and June make their own agreement. Here, Rose accepts your choice; Mabel and June agree on 3 each.</p></div><h3>What is a blind pass?</h3><p>On the first left or final right, you can keep more of your rack. Select fewer than 3 of your own tiles. The rest are taken from the packet coming to you and passed onward <strong>without looking</strong>. Select none to pass all 3 incoming tiles unseen.</p><p><strong>Never pass jokers.</strong> Our arrows show the route; received tiles have a small NEW marker. The next pass is ready automatically. Unseen tiles stay face down.</p><div class="modal-actions">${btn('Back to the table','close')}${btn('See card rules','card-rules','outline')}</div>`,'');}
 function rules(){show('How to play',`<p>Build a 14-tile hand that matches a line on your 2026 NMJL card. The table uses the 2026 card’s allowed hands, suit variations, and joker rules.</p><h3>First, the Charleston</h3><p>Pass right, across, left. A second round (left, across, right) is optional, followed by an optional courtesy pass across. Jokers stay on your rack.</p>${btn('Walk me through the Charleston','charleston-help','outline small')}<h3>Then, draw and discard</h3><p>East begins with 14 tiles and discards first. East rotates to the next player each hand. On later turns, draw a tile, consider a joker exchange, then discard.</p><h3>Calling a tile</h3><p>We pause when you can make an exposure or win on a discard. Settings lets you limit calls to exposures that fit the card. Singles and pairs can only be called for Mahjong. Concealed hands cannot have prior exposures.</p><p>Use the <strong>Calls</strong> button under your rack to switch between all eligible calls and calls that help the hand you’re going for. Winning calls always appear.</p><h3>Jokers and dragons</h3><p>Gold highlights show usable jokers while leaving them unassigned. To place one in your chosen hand, click a faded space in a group of three or more, then click the joker on your rack. Click its J badge to free it. Called exposures let you select your own tiles, including jokers. Jokers can fill identical groups of 3 or more, never singles or pairs. Replace a joker in an exposure with its natural tile on your turn. Bams match green dragons; craks match red; dots match white (soap). A zero is a white dragon, not a joker.</p><h3>Choose a hand to practice</h3><p>The hand list shows all card lines, starting with the closest. Each row shows one way to build the hand with your current tiles. Choose a row to highlight matching tiles and keep that target below your rack.</p><p>You have unlimited thinking time. A computer player calls your hand dead if you commit an exposure that fits no card line. The game scores four rounds before declaring a winner.</p><div class="modal-actions">${btn('Let’s play','close')}${btn('Read the rules','card-rules','outline')}</div>`,'AMERICAN MAHJONG · 2026');}
 function tileGuide(){show('Tile guide',`<p>A standard American set has 152 tiles: 108 suit tiles, 28 winds and dragons, 8 flowers, and 8 jokers.</p>${[['Bams',['B1','B2','B3','B4','B5','B6','B7','B8','B9']],['Craks',['C1','C2','C3','C4','C5','C6','C7','C8','C9']],['Dots',['D1','D2','D3','D4','D5','D6','D7','D8','D9']],['Winds',['E','S','W','N']],['Dragons',['G','R','H']],['Special',['F','J']]].map(([l,ks])=>`<div class="tile-guide-row"><label>${l}</label>${ks.map(k=>tile(k,'mini')).join('')}</div>`).join('')}<p><strong>White dragon = soap = 0.</strong> It can be a dragon or the zero in a year hand. Flowers are interchangeable; jokers have their own rules.</p>`,'THE TILE GUIDE');}
@@ -869,6 +920,22 @@ function swapExposedJoker(id){
 function arrangeTile(id,insertion){if(passing||s.phase==='wallSetup')return;if(moveRackTile(s.hands[0],id,insertion)){s.rackOrder=s.hands[0].map(t=>t.id);render();$('#rack [data-tile="'+id+'"]').focus({preventScroll:true});}}
 function discardTile(id){if(passing||s.turn!==0||s.phase!=='discard'||!s.hands[0].some(t=>t.id===id))return;G.discard(s,id);selected.clear();playSound();render();}
 installRackArrangement({rack:$('#rack'),canArrange:e=>!passing&&!['wallSetup','ended','matchEnded'].includes(s.phase)&&(e?.pointerType!=='touch'||mobileArrange),onMove:arrangeTile,onPause:()=>clearTimeout(botTimer),onResume:scheduleBot});
+$('#coach-form').addEventListener('submit',event=>{
+ event.preventDefault();
+ askCoach($('#coach-question').value);
+});
+$('#coach-prompts').addEventListener('click',event=>{
+ const button=event.target.closest('button');
+ if(button)askCoach(button.textContent);
+});
+$('#coach-questions').addEventListener('toggle',event=>{
+ questionTurn=event.currentTarget.open?coachTurn():'';
+ scheduleBot();
+});
+$('#coach-resume').addEventListener('click',()=>{
+ $('#coach-questions').open=false;
+ $('#coach-questions summary').focus();
+});
 document.addEventListener('keydown',e=>{
  if(e.key!=='Escape')return;
  if(pendingCallId!==null&&!modal.open){cancelCall();return;}
@@ -892,7 +959,7 @@ document.addEventListener('click',async e=>{
   $('#line-heading')?.focus({preventScroll:true});
  }
  else if(a==='close-coach'){
-  s.guidedPlay=false;$('#coach-details').open=false;render();
+  s.guidedPlay=false;$('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';render();
   $('.header-learn').focus({preventScroll:true});
  }
  else if(a==='learn-hands'){modal.close();pickerOpen=true;render();}

@@ -8,7 +8,7 @@
  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2324594e'/%3E%3Ctext x='20' y='29' text-anchor='middle' fill='%23fff8e8' font-size='30'%3E✿%3C/text%3E%3C/svg%3E">
  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
- <link rel="stylesheet" href="style.css?v=line-movement-1">
+ <link rel="stylesheet" href="style.css?v=ask-coach-1">
  <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
 </head>
 <body>
@@ -93,8 +93,15 @@
       <p id="coach-reason"></p>
       <button class="text-button" type="button" data-action="coach-switch" hidden></button>
       <p id="coach-action"></p>
+      <p id="coach-defense"></p>
      </div>
-     <details id="coach-details"><summary>Show details</summary><ul id="coach-numbers"></ul></details>
+     <details id="coach-questions"><summary>Ask the coach</summary>
+      <button id="coach-resume" class="text-button" type="button" hidden>Resume the table</button>
+      <form id="coach-form"><label class="sr-only" for="coach-question">Ask about this rack or the table</label><input id="coach-question" type="text" maxlength="240" placeholder="What if I discard the Flower?" required><button class="button small" type="submit">Ask</button></form>
+      <div id="coach-prompts"><button type="button" class="text-button" id="ask-tile">Why this discard?</button><button type="button" class="text-button">Should I pivot?</button><button type="button" class="text-button">What do the exposures tell me?</button></div>
+      <p id="coach-answer" role="status"></p>
+     </details>
+     <details id="coach-details"><summary>Show details</summary><ul id="coach-numbers"></ul><div id="coach-opponents" hidden><strong>Opponents’ exposures</strong><ul></ul></div></details>
     </section>
     </div>
 
@@ -108,6 +115,6 @@
  </footer>
  <div class="toast" id="toast" role="status" hidden></div>
  <dialog id="modal" aria-labelledby="modal-title"><div class="modal-top"><span class="eyebrow" id="modal-eyebrow"></span><button class="icon-button" data-action="close" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>
- <script type="module" src="js/app.mjs?v=natural-singles-1"></script>
+ <script type="module" src="js/app.mjs?v=ask-coach-1"></script>
 </body>
 </html>

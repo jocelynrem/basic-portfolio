@@ -1,6 +1,7 @@
 import {compatible,evaluate,TARGETS,tileName,unseenCopies,visibleTileCounts,winning} from './engine.mjs?v=win-source-1';
 import {assessHand,compareFit} from './recommendations.mjs?v=hand-outlook-1';
 import {patternBlocks} from './hand-groups.mjs?v=dragon-notation-1';
+import {readTable} from './defense.mjs?v=table-reads-1';
 
 const line=row=>row.target.name;
 function gapName(gap){
@@ -178,12 +179,12 @@ function singlesReason(rows,atRisk,discards){
   }
  }
  const keep='Keep '+listTiles.format(held.map(tileName))+' for '+line(row)+'. ';
- if(!missing.length)return keep+'Those singles are complete.';
+ if(!missing.length)return 'That keeps '+listTiles.format(held.map(tileName))+' together for '+line(row)+'.';
  if(missing.length===1)return keep+'Only '+tileName(missing[0])+' is missing from those singles.';
  return keep+'You still need '+listTiles.format(missing.map(tileName))+' to finish those singles.';
 }
 
-export function discardAdvice(s,lines,picked=null){
+export function discardAdvice(s,lines,picked=null,table=readTable(s)){
  const hand=s.hands[0],exposed=s.exposed[0],visible=visibleTileCounts(s);
  const [focus,backup]=lines;
  // The backup is a card line. Either discard may favor a different suit variation.
@@ -209,8 +210,11 @@ export function discardAdvice(s,lines,picked=null){
   choices.push({tile,main,next,routes:options,shared});
  }
  choices.sort((a,b)=>compareDiscards(a,b)||a.tile.k.localeCompare(b.tile.k));
- const best=choices[0];
- const tied=choices.filter(c=>!compareDiscards(c,best));
+ const offensiveBest=choices.filter(c=>!compareDiscards(c,choices[0]));
+ const risk=c=>table.risks.get(c.tile.k)?.rank??0;
+ const lowestRisk=Math.min(...offensiveBest.map(risk));
+ const tied=offensiveBest.filter(c=>risk(c)===lowestRisk);
+ const best=tied[0];
  const chosen=picked&&choices.find(c=>c.tile.k===picked.k);
  const drawn=hand.find(t=>t.id===s.drawn);
  const fitsBackup=c=>variations.some(r=>r.away===backup.away&&r.kept[c.tile.k]>0);
@@ -225,21 +229,30 @@ export function discardAdvice(s,lines,picked=null){
   if(shared.length)details.push(listTiles.format(shared.map(tileName))+' can serve either '+line(focus)+' or '+line(backup)+'.');
   if(preview.routes.length<best.routes.length)details.push(line(backup)+' · equally close arrangements of singles and pairs · '+best.routes.length+' after discarding '+tileName(best.tile.k)+', '+preview.routes.length+' after discarding '+tileName(preview.tile.k)+'.');
  }
+ const riskier=offensiveBest.filter(c=>risk(c)>lowestRisk);
+ const flagged=chosen&&risk(chosen)>0?chosen:riskier.sort((a,b)=>risk(b)-risk(a))[0];
+ const warning=flagged&&table.risks.get(flagged.tile.k).reason;
+ if(warning)details.push(warning);
+ const defense=chosen&&warning?warning:'';
  if(tied.length>1)details.push('Equally ranked discards for these lines · '+tied.map(c=>tileName(c.tile.k)).join(', ')+'.');
+ if(riskier.length&&(!chosen||offensiveBest.includes(chosen))){
+  const rival=riskier.includes(chosen)?chosen:riskier[0];
+  return {text:'Discard '+alternatives+'. '+table.risks.get(rival.tile.k).reason,details,tile:tied.length===1?best.tile:undefined};
+ }
  // Explain why a seemingly equal discard is weaker. Use the actual missing
  // natural tiles in a viable variation, even if another suit masks the loss.
  const weakerSelection=chosen&&!tied.includes(chosen);
- const rivals=weakerSelection?[chosen]:choices.filter(c=>!tied.includes(c)&&c.main.away===best.main.away);
+ const rivals=weakerSelection?[chosen]:choices.filter(c=>!offensiveBest.includes(c)&&c.main.away===best.main.away);
  const atRisk=new Set(rivals.filter(c=>hand.filter(t=>t.k===c.tile.k).length===1).map(c=>c.tile.k));
  if(atRisk.size){
   const discards=new Set(examples.map(c=>c.tile.k));
   const reason=singlesReason([examples[0].main,...examples[0].routes],atRisk,discards);
-  if(reason)return {text:'Discard '+alternatives+'. '+reason,details,tile:tied.length===1?best.tile:undefined};
+  if(reason)return {text:'Discard '+alternatives+'. '+reason,defense,details,tile:tied.length===1?best.tile:undefined};
  }
  if(weakerSelection){
   const why=compareFit(chosen.main,best.main)?'protect '+line(focus):
    backup&&(compareFit(chosen.next,best.next)||chosen.routes.length<best.routes.length||chosen.shared<best.shared)?'protect '+line(backup):'keep your joker';
-  return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',details};
+  return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',defense,details};
  }
  if(tied.length>1){
   const pair=names.join(' and ');
@@ -247,12 +260,12 @@ export function discardAdvice(s,lines,picked=null){
   const text=cost?'Tough choice. '+pair+' both help '+cost+'. Either discard costs it a tile.':
    backup&&examples.every(fitsBackup)?pair+' both fit '+line(backup)+'. Either discard leaves the same distance to each line.':
    pair+' are tied for this discard. Either leaves '+line(focus)+' the same distance from Mahjong.';
-  return {text,details};
+  return {text,defense,details};
  }
  const loss=best.main.away>focus.away?focus:backup&&best.next.away>backup.away?backup:null;
  const text=loss?'Tough discard. Letting the '+tileName(best.tile.k)+' go costs a tile toward '+line(loss)+'.':
   'You can let the '+tileName(best.tile.k)+' go and keep '+line(focus)+'.';
- return {text,details,tile:best.tile};
+ return {text,defense,details,tile:best.tile};
 }
 
 // Keep an uncallable discard in view through the opponents' turns. A fresh draw
@@ -356,7 +369,7 @@ function callAdvice(s,lines,claims,picked,staging){
  return {text:'I’d call that '+tileName(tile.k)+' for '+line(primary)+'.',details};
 }
 
-export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine,chosenLine}){
+export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,describedLine,chosenLine,table}){
  const rack=s.hands[0],exposed=s.exposed[0],picked=rack.filter(t=>selected.has(t.id));
  if(s.deadHand?.player===0)return {text:'Watch which exposed sets and discards reveal the other players’ hands.'};
  if(claims.some(c=>c.win))return callAdvice(s,lines,claims,picked,staging);
@@ -373,7 +386,7 @@ export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,de
  if(claims.length)return callAdvice(s,lines,claims,picked,staging);
  const passing=s.phase==='charleston'||s.phase==='courtesy';
  if(picked.length&&passing)return selectionAdvice(rack,exposed,lines,picked,true);
- if(picked.length&&s.phase==='discard'&&s.turn===0)return discardAdvice(s,lines,picked[0]);
+ if(picked.length&&s.phase==='discard'&&s.turn===0)return discardAdvice(s,lines,picked[0],table);
  if(s.phase==='charlestonChoice'||s.phase==='courtesy'){
   const spares=spareTiles(rack,exposed,lines);
   const text=s.phase==='courtesy'?(spares.length?'Just send what you can spare.':'I’d sit this exchange out. You can use every tile.'):
@@ -387,7 +400,7 @@ export function turnAdvice(s,lines,{selected,claims,staging,receivedIds,swaps,de
  if(s.turn!==0)return {text:''};
  if(s.phase==='draw')return {text:'Your draw. Take a tile from the wall.'};
  if(swaps.length)return {text:'You can exchange '+tileName(swaps[0].k)+' for an exposed joker before discarding.'};
- const discard=discardAdvice(s,lines);
+ const discard=discardAdvice(s,lines,null,table);
  const fresh=s.drawn!=null?new Set([s.drawn]):s.turns===0?receivedIds:new Set();
  const discardingNew=discard.tile&&rack.some(t=>fresh.has(t.id)&&t.k===discard.tile.k);
  const tip=discard.tile&&!discardingNew?newTileTip(rack,exposed,arrivals,fresh):'';
