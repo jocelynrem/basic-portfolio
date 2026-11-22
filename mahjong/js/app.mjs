@@ -16,7 +16,7 @@ import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=dragon-silhouette-1';
+import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=suit-frames-1';
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
@@ -27,7 +27,7 @@ const targetHandDisplayKey='parlor-target-hand-display';
 const tileNamesKey='parlor-show-tile-names';
 let legalCallsOnly=false;
 let targetHandDisplay='tiles';
-let tileStyle=touchRack()?'mobile':'modern',hideConcealed=false,discardOrder='time',soundEnabled=false;
+let tileStyle='mobile',hideConcealed=false,discardOrder='time',soundEnabled=false;
 try{
  const chosenStyle=localStorage.getItem(tileStylePreferenceKey);
  const legacyStyle=localStorage.getItem('parlor-tile-style');

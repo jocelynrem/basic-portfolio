@@ -1,12 +1,17 @@
-// Filled Material Symbols Rounded from Google Fonts. See assets/Material-Symbols-LICENSE.txt.
-const marks={
- bam:"M451.5-131.5Q440-143 440-160v-279q-64 0-123-24.5T213-533q-45-45-69-104t-24-123v-40q0-17 11.5-28.5T160-840h40q63 0 122 24.5T426-746q31 31 51.5 68t31.5 79q5-7 11-13.5t13-13.5q45-45 104-69.5T760-720h40q17 0 28.5 11.5T840-680v40q0 64-24.5 123T746-413q-45 45-103.5 69T520-320v160q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z",
- dot:"M495-155q-35-35-35-85t35-85q35-35 85-35t85 35q35 35 35 85t-35 85q-35 35-85 35t-85-35Zm9-309q-64-64-64-156t64-156q64-64 156-64t156 64q64 64 64 156t-64 156q-64 64-156 64t-156-64ZM280-240q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z",
- crak:"M453.5-151q-13.5-5-24.5-15-109-96-177-161.5t-106.5-115Q107-492 93.5-533T80-620q0-92 64-156t156-64q66 0 116 25.5t36 73.5l-37 130q-5 20 6.5 35.5T453-560h67l-26 254q-1 8 6.5 9t9.5-6l74-245q6-20-6-36t-32-16h-66l61-181q11-35 46-47t73-12q92 0 156 64t64 156q0 44-16 87t-55.5 95q-39.5 52-106 117.5T534-166q-11 10-25 15t-28 5q-14 0-27.5-5Z",
- star:"M480-269 314-169q-11 7-23 6t-21-8q-9-7-14-17.5t-2-23.5l44-189-147-127q-10-9-12.5-20.5T140-571q4-11 12-18t22-9l194-17 75-178q5-12 15.5-18t21.5-6q11 0 21.5 6t15.5 18l75 178 194 17q14 2 22 9t12 18q4 11 1.5 22.5T809-528L662-401l44 189q3 13-2 23.5T690-171q-9 7-21 8t-23-6L480-269Z"
+// Joker star from Google Material Symbols Rounded. See assets/Material-Symbols-LICENSE.txt.
+const starPath="M480-269 314-169q-11 7-23 6t-21-8q-9-7-14-17.5t-2-23.5l44-189-147-127q-10-9-12.5-20.5T140-571q4-11 12-18t22-9l194-17 75-178q5-12 15.5-18t21.5-6q11 0 21.5 6t15.5 18l75 178 194 17q14 2 22 9t12 18q4 11 1.5 22.5T809-528L662-401l44 189q3 13-2 23.5T690-171q-9 7-21 8t-23-6L480-269Z";
+const suits={B:'bam',C:'crak',D:'dot'};
+const dotPips=[
+ [17,13],[30,13],[43,13],
+ [8,25],[52,25],[8,38.5],[52,38.5],[8,52],[52,52],
+ [17,64],[30,64],[43,64]
+];
+const suitFrames={
+ bam:`<path d="M9 13V64M51 13V64M6 26h6m-6 24h6m36-24h6m-6 24h6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M10 17Q14 9 23 12Q20 18 10 17ZM50 60Q46 68 37 65Q40 59 50 60Z"/>`,
+ crak:`<path d="M8 27V16h5v-5h10m14 0h10v5h5v11M8 50v11h5v5h10m14 0h10v-5h5V50" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>`,
+ dot:dotPips.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.35"/>`).join('')
 };
 
-const suits={B:['bam',29],C:['crak',29],D:['dot',31]};
 const windMarkers={
  N:'M30 4l-3 4h6Z',
  E:'M55 7l-4-3v6Z',
@@ -18,8 +23,8 @@ const jokerInk='var(--parlor-link, #285763)';
 const markerInk='var(--pacific-cyan, #62929e)';
 const paper='var(--white, #fdfdff)';
 
-function mark(name,x,y,size,ink){
- return `<path d="${marks[name]}" transform="translate(${x-size/2} ${y+size/2}) scale(${size/960})" fill="${ink}"/>`;
+function star(x,y,size,ink){
+ return `<path d="${starPath}" transform="translate(${x-size/2} ${y+size/2}) scale(${size/960})" fill="${ink}"/>`;
 }
 function lettering(text,x,y,size,ink){
  return `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="${ink}">${text}</text>`;
@@ -27,14 +32,14 @@ function lettering(text,x,y,size,ink){
 function mobileFace(k,p){
  const suit=suits[k[0]];
  if(suit){
-  const [name,size]=suit,ink=p[name];
-  return `<g data-mark="${name}">${lettering(k[1],30,44,45,ink)}${mark(name,30,59,size,ink)}</g>`;
+  const ink=p[suit];
+  return `<g data-mark="${suit}" color="${ink}" fill="currentColor">${lettering(k[1],30,55,45,'currentColor')}${suitFrames[suit]}</g>`;
  }
  if(k==='H'){
   return `<rect data-dragon="H" x="13" y="16" width="34" height="43" rx="4" fill="none" stroke="${p.dot}" stroke-width="4"/>`;
  }
  if(k==='J'){
-  return `<g data-joker="true">${mark('star',30,32,49,jokerInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,65,13,paper)}</g>`;
+  return `<g data-joker="true">${star(30,32,49,jokerInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,65,13,paper)}</g>`;
  }
  if(Object.hasOwn(windMarkers,k)){
   return `<g data-wind="${k}">${lettering(k,30,63,62,windInk)}<path d="${windMarkers[k]}" fill="${markerInk}"/></g>`;

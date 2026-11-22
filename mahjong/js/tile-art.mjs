@@ -1,5 +1,5 @@
 import {specialArt} from './special-art.mjs?v=origami-dragon-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=origami-dragon-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=suit-frames-1';
 const suitInks={
  bam:'var(--tile-bam-ink, #2c6b52)',
  crak:'var(--tile-crak-ink, #ac4145)',
@@ -12,7 +12,7 @@ export const STYLES={
  botanical:{name:'Botanical',description:'Leafy bamboo branches, blue blossom dots, and leafy letter winds.',...suitInks,leaf:'#719771',gold:'#d3a543'},
  deco:{name:'Art Deco',description:'Architectural bamboo, spoke-wheel dots, and compass winds.',...suitInks,leaf:'#37936c',gold:'#c29936'},
  coastal:{name:'Coastal',description:'Glazed green bamboo, blue rosettes, and nautical winds.',...suitInks,leaf:'#58b8b0',gold:'#e8b83f'},
- mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',...suitInks}
+ mobile:{name:'Framed',description:'Large numerals framed by bamboo, pips, and stepped corners.',...suitInks}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const flowerInk='var(--tile-flower-ink, #df456e)';
