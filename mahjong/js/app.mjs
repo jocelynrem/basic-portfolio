@@ -846,7 +846,10 @@ function updateBoardSpace(){
 function renderTableTools(){
  const passingTiles=['charleston','charlestonChoice','courtesyChoice','courtesy'].includes(s.phase);
  $('#charleston-info').hidden=!passingTiles;
- $('#table-coach').hidden=s.guidedPlay||['ended','matchEnded'].includes(s.phase);
+ const coachButton=$('#table-coach');
+ coachButton.hidden=['ended','matchEnded'].includes(s.phase);
+ coachButton.dataset.action=s.guidedPlay?'turn-off-coach':'open-coach';
+ setCoachText('#table-coach',s.guidedPlay?'Turn off coaching':'Coach me on this rack');
  $('#table-discards').hidden=s.phase==='matchEnded'||!s.discards.length;
  if(!passingTiles)return;
  applyCharlestonGuidePreference();
@@ -1052,9 +1055,11 @@ document.addEventListener('click',async e=>{
   $('#coach-toggle').focus();
  }
  else if(a==='turn-off-coach'){
+  const returnFocus=modal.open?$('.header-learn'):$('#table-coach');
   s.guidedPlay=false;s.coachCollapsed=false;
-  $('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';modal.close();render();
-  $('.header-learn').focus({preventScroll:true});
+  $('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';
+  if(modal.open)modal.close();
+  render();returnFocus.focus({preventScroll:true});
  }
  else if(a==='learn-hands'){modal.close();pickerOpen=true;render();}
  else if(a==='practice-again'){beginPractice();}
