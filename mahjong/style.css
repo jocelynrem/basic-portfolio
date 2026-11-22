@@ -409,6 +409,8 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 .round-result-head h2{font:30px/1.1 var(--serif);color:var(--board-ink);margin:0}
 .round-win-source{margin:4px 0 0;font-size:12px;color:var(--board-ink)}
 .round-result-head .button{background:var(--board-ink);color:var(--board-felt)}
+.round-result-head .button:hover:not(:disabled){background:var(--parlor-cyan-wash)}
+.round-result-head .button:focus-visible{outline-color:var(--board-ink)}
 .round-hands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;text-align:left}
 .review-hand{min-width:0;background:var(--white);color:var(--ink);border:1px solid var(--parlor-rule);border-radius:7px;padding:10px 12px}
 .review-winner{border-color:var(--parlor-control)}
@@ -657,6 +659,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
  font-display:swap;
 }
 .tile[data-tile-style="mobile"]{color:#143d51;background:var(--white);border-color:#ccd9e1;border-bottom-color:#83a6ad}
+.tile.bam .tile-number{color:var(--tile-bam-ink)}
+.tile.crak .tile-number{color:var(--tile-crak-ink)}
+.tile.dot .tile-number{color:var(--tile-dot-ink)}
 .tile svg.mobile-tile-art{
  position:absolute;inset:0;width:100%;height:100%;margin:0;
  overflow:hidden;pointer-events:none;font:400 16px Ranchers,sans-serif;
@@ -867,15 +872,14 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-color: var(--parlor-ink);
-  background: var(--parlor-ink);
-  color: var(--white);
+  background: var(--parlor-cyan-wash);
+  color: var(--parlor-ink);
   text-align: center;
   text-decoration: none;
 }
 .header-sprint > span { font: 400 16px/1 Ranchers, "Arial Black", sans-serif; text-transform: uppercase; }
-.header-sprint em { display: inline-block; color: var(--bubblegum-pink); font-style: normal; transform: skewX(-8deg); }
-.settings-button.header-sprint:hover { background: var(--parlor-ink); text-decoration: underline; text-underline-offset: 3px; }
+.header-sprint em { display: inline-block; color: var(--parlor-pink-ink); font-style: normal; transform: skewX(-8deg); }
+.settings-button.header-sprint:hover { background: var(--white); text-decoration: underline; text-underline-offset: 3px; }
 .player-zone .action-buttons .button:not([data-action="second"]) { font-size: 12px; font-weight: 700; }
 .player-zone .action-buttons .button:disabled {
   opacity: 1;
@@ -915,7 +919,6 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
     text-align: left;
   }
   .header-actions :focus-visible { outline-offset: -3px; }
-  .header-sprint:focus-visible { outline: 2px solid var(--white); }
 }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--parlor-link); }
 input:focus-visible, select:focus-visible, summary:focus-visible {

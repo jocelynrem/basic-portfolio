@@ -1,12 +1,18 @@
 import {specialArt} from './special-art.mjs?v=cool-tiles-1';
 import {mobileTileArt} from './mobile-tile-art.mjs?v=rose-flower-2';
+const suitInks={
+ bam:'var(--tile-bam-ink, #2c6b52)',
+ crak:'var(--tile-crak-ink, #ac4145)',
+ dot:'var(--tile-dot-ink, #315f89)'
+};
+const dotAccent='#5c84a5';
 export const STYLES={
- modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
- minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
- botanical:{name:'Botanical',description:'Olive branches, pink blossom dots, and leafy letter winds.',bam:'#527b38',leaf:'#88a354',dot:'#b45c78',crak:'#bb5f6c',gold:'#d3a543'},
- deco:{name:'Art Deco',description:'Architectural bamboo, spoke-wheel dots, and compass winds.',bam:'#16684e',leaf:'#37936c',dot:'#214d7f',crak:'#bd4535',gold:'#c29936'},
- coastal:{name:'Coastal',description:'Glazed teal bamboo, cobalt rosettes, and nautical winds.',bam:'#078b8d',leaf:'#58b8b0',dot:'#164ba2',crak:'#cb6246',gold:'#e8b83f'},
- mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#166147',dot:'#154b75',crak:'#a83239'}
+ modern:{name:'Modern Garden',description:'Geometric bamboo stalks, two-tone blue dots, and angular Craks.',...suitInks,leaf:'#518266',gold:'#d7a52b',sky:dotAccent},
+ minimal:{name:'Minimal',description:'Simple bamboo strokes, blue rings, and delicate red numerals.',...suitInks,leaf:'#b0d8ba',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
+ botanical:{name:'Botanical',description:'Leafy bamboo branches, blue blossom dots, and leafy letter winds.',...suitInks,leaf:'#719771',gold:'#d3a543'},
+ deco:{name:'Art Deco',description:'Architectural bamboo, spoke-wheel dots, and compass winds.',...suitInks,leaf:'#37936c',gold:'#c29936'},
+ coastal:{name:'Coastal',description:'Glazed green bamboo, blue rosettes, and nautical winds.',...suitInks,leaf:'#58b8b0',gold:'#e8b83f'},
+ mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',...suitInks}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const flowerInk='var(--tile-flower-ink, #df456e)';
@@ -24,59 +30,57 @@ function dragon(k,style,p){
  return `<g data-dragon="${k}"><path d="M9 46C34 54 36 32 20 30C2 28 5 12 24 14" fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round"/><path d="M20 13Q23 5 29 10L35 14L30 21L21 18Z" fill="${ink}"/><path d="M24 9Q18 2 18 7M27 10Q31 1 33 5" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M11 15Q3 5 3 15Q4 20 9 21M17 30Q9 35 8 28M29 39Q39 40 35 33M10 46L3 51L6 41Z" fill="${p.leaf}"/><path d="M12 39L17 40M20 44L25 43M12 23L17 25" stroke="#f3e7b8" stroke-width="1.2"/><circle cx="28" cy="13" r="1.3" fill="#fff9ec"/><path d="M33 17Q39 20 37 23" stroke="${ink}" stroke-width="1.2" fill="none"/></g>`;
 }
 function modernArt(k,p){
- const ink=p.dot,sky=p.sky,olive=p.bam,coral=p.crak,gold=p.gold,n=Number(k.slice(1));
+ const blue=p.dot,sky=p.sky,green=p.bam,red=p.crak,gold=p.gold,n=Number(k.slice(1));
  if(k[0]==='B'){
   const coords=n===1?[[20,28]]:n===2?[[12,28],[28,28]]:n===3?[[8,28],[20,28],[32,28]]:points(n);
   const scale=n===1?1.8:n<=3?1.55:n>=7?.7:1;
-  return coords.map(([x,y],i)=>`<g data-mark="bam" transform="translate(${x} ${y}) scale(${scale})"><path d="M-2.8-10H2.8V10H-2.8Z" fill="${i%2?sky:olive}"/><path d="M-1.7-7V7" stroke="#fcf9e7" stroke-width=".45" stroke-dasharray="1 3"/><path d="M3-2Q8-7 8-3Q7 0 3 1Z" fill="${olive}"/></g>`).join('');
+  return coords.map(([x,y],i)=>`<g data-mark="bam" transform="translate(${x} ${y}) scale(${scale})"><path d="M-2.8-10H2.8V10H-2.8Z" fill="${i%2?p.leaf:green}"/><path d="M-1.7-7V7" stroke="#fcf9e7" stroke-width=".45" stroke-dasharray="1 3"/><path d="M3-2Q8-7 8-3Q7 0 3 1Z" fill="${green}"/></g>`).join('');
  }
  if(k[0]==='D'){
-  if(n===1)return `<g data-mark="dot"><circle cx="20" cy="28" r="16" fill="${sky}"/><circle cx="20" cy="28" r="10" fill="${ink}"/><circle cx="20" cy="28" r="11" fill="none" stroke="#faf7e9" stroke-width=".7"/></g>`;
-  const palette=n===2?[olive,coral]:n===3?[sky,ink,olive]:[ink,sky,olive,coral,sky,olive,ink,sky,ink];
+  if(n===1)return `<g data-mark="dot"><circle cx="20" cy="28" r="16" fill="${sky}"/><circle cx="20" cy="28" r="10" fill="${blue}"/><circle cx="20" cy="28" r="11" fill="none" stroke="#faf7e9" stroke-width=".7"/></g>`;
   const coords=points(n),r=n>=7?4.7:6;
-  return coords.map(([x,y],i)=>`<circle data-mark="dot" cx="${x}" cy="${y}" r="${r}" fill="${palette[i%palette.length]}"/>`).join('');
+  return coords.map(([x,y],i)=>`<circle data-mark="dot" cx="${x}" cy="${y}" r="${r}" fill="${i%2?sky:blue}"/>`).join('');
  }
  if(k[0]==='C'){
   const accents=[
-   `<path d="M5 19V5H35V43" stroke="${coral}"/><path d="M26 50H35" stroke="${sky}"/>`,
-   `<path d="M5 5V51M12 8H33V17" stroke="${sky}"/><path d="M27 49H35V43" stroke="${coral}"/>`,
-   `<path d="M5 15V5H17M23 51H35V39" stroke="${sky}"/><path d="M5 5H17L5 17Z" fill="${coral}"/>`
+   `<path d="M5 19V5H35V43M26 50H35"/>`,
+   `<path d="M5 5V51M12 8H33V17M27 49H35V43"/>`,
+   `<path d="M5 15V5H17M23 51H35V39"/><path d="M5 5H17L5 17Z" fill="${red}"/>`
   ];
-  return `<g fill="none" stroke-width="1.1">${accents[(n-1)%3]}</g><text x="20" y="44" text-anchor="middle" fill="${ink}" font-family="Arial,sans-serif" font-size="43" font-weight="400">${n}</text>`;
+  return `<g fill="none" stroke="${red}" opacity=".65" stroke-width="1.1">${accents[(n-1)%3]}</g><text x="20" y="44" text-anchor="middle" fill="${red}" font-family="Arial,sans-serif" font-size="43" font-weight="400">${n}</text>`;
  }
- if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${ink}">JOKER</text><circle cx="22" cy="16" r="4" fill="${coral}"/><path d="M9 22H19V43H9Z" fill="${sky}"/><path d="M19 22L34 49H19Z" fill="${ink}"/><path d="M19 22L4 49L10 28Z" fill="${coral}"/><path d="M19 43L28 50H19Z" fill="${gold}"/><path d="M10 46H17V53H10Z" fill="${olive}"/>`;
- if(k==='R'||k==='G'){const color=k==='R'?coral:olive;return `<g data-dragon="${k}"><path d="M9 47L3 36L13 28V15L23 9L32 15L28 23H20V28H30L36 37L30 49H20L26 42L25 36H15L10 41L15 51Z" fill="${color}"/><path d="M14 15L12 6L20 11M25 10L28 3L30 14M29 18H38L30 24M10 31L3 27L4 35" fill="${color}"/><path d="M15 33L23 38M22 44H28M17 17H22" fill="none" stroke="#fbf8eb" stroke-width="1"/><circle cx="27" cy="16" r="1.2" fill="#fbf8eb"/></g>`;}
- if(k==='H')return `<g data-dragon="H"><rect x="6" y="7" width="28" height="42" rx="1" fill="none" stroke="${sky}" stroke-width="1.6"/><path d="M6 7H14L6 15ZM34 7H26L34 15ZM6 49H14L6 41ZM34 49H26L34 41Z" fill="${sky}"/><path d="M14 7H26M14 49H26" stroke="${ink}" stroke-width=".8"/><circle cx="5" cy="28" r="2" fill="${coral}"/><circle cx="35" cy="28" r="2" fill="${coral}"/></g>`;
+ if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${blue}">JOKER</text><circle cx="22" cy="16" r="4" fill="${red}"/><path d="M9 22H19V43H9Z" fill="${sky}"/><path d="M19 22L34 49H19Z" fill="${blue}"/><path d="M19 22L4 49L10 28Z" fill="${red}"/><path d="M19 43L28 50H19Z" fill="${gold}"/><path d="M10 46H17V53H10Z" fill="${green}"/>`;
+ if(k==='R'||k==='G'){const color=k==='R'?red:green;return `<g data-dragon="${k}"><path d="M9 47L3 36L13 28V15L23 9L32 15L28 23H20V28H30L36 37L30 49H20L26 42L25 36H15L10 41L15 51Z" fill="${color}"/><path d="M14 15L12 6L20 11M25 10L28 3L30 14M29 18H38L30 24M10 31L3 27L4 35" fill="${color}"/><path d="M15 33L23 38M22 44H28M17 17H22" fill="none" stroke="#fbf8eb" stroke-width="1"/><circle cx="27" cy="16" r="1.2" fill="#fbf8eb"/></g>`;}
+ if(k==='H')return `<g data-dragon="H"><rect x="6" y="7" width="28" height="42" rx="1" fill="none" stroke="${sky}" stroke-width="1.6"/><path d="M6 7H14L6 15ZM34 7H26L34 15ZM6 49H14L6 41ZM34 49H26L34 41Z" fill="${sky}"/><path d="M14 7H26M14 49H26" stroke="${blue}" stroke-width=".8"/><circle cx="5" cy="28" r="2" fill="${red}"/><circle cx="35" cy="28" r="2" fill="${red}"/></g>`;
  const label={N:'NORTH',E:'EAST',S:'SOUTH',W:'WEST'}[k];
- const top=`<text x="20" y="9" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="${ink}">${label}</text>`;
- if(k==='E')return `<g data-wind="E">${top}<path d="M4 31A16 16 0 0 1 36 31Z" fill="${coral}"/><path d="M4 35H36M7 40H33M12 45H28" stroke="${ink}" stroke-width="2"/></g>`;
- if(k==='S')return `<g data-wind="S">${top}<path d="M3 32A17 17 0 0 1 37 32L20 39Z" fill="${coral}"/>${[-60,-30,0,30,60].map(a=>`<path d="M20 37V16" stroke="#faf7e9" stroke-width=".7" transform="rotate(${a} 20 37)"/>`).join('')}<circle cx="20" cy="42" r="4" fill="${ink}"/></g>`;
- if(k==='W')return `<g data-wind="W">${top}<path d="M4 31A16 16 0 0 1 36 31Z" fill="${gold}"/><path d="M4 33H36V43H4Z" fill="${ink}"/><path d="M4 46H36" stroke="${sky}" stroke-width="2"/></g>`;
- if(k==='N')return `<g data-wind="N">${top}<path d="M5 17H35V47H5Z" fill="${ink}"/><path d="M12 24H28V40H12Z" fill="${sky}"/><path d="M17 29H23V35H17Z" fill="#faf7e9"/></g>`;
+ const top=`<text x="20" y="9" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="${blue}">${label}</text>`;
+ if(k==='E')return `<g data-wind="E">${top}<path d="M4 31A16 16 0 0 1 36 31Z" fill="${red}"/><path d="M4 35H36M7 40H33M12 45H28" stroke="${blue}" stroke-width="2"/></g>`;
+ if(k==='S')return `<g data-wind="S">${top}<path d="M3 32A17 17 0 0 1 37 32L20 39Z" fill="${red}"/>${[-60,-30,0,30,60].map(a=>`<path d="M20 37V16" stroke="#faf7e9" stroke-width=".7" transform="rotate(${a} 20 37)"/>`).join('')}<circle cx="20" cy="42" r="4" fill="${blue}"/></g>`;
+ if(k==='W')return `<g data-wind="W">${top}<path d="M4 31A16 16 0 0 1 36 31Z" fill="${gold}"/><path d="M4 33H36V43H4Z" fill="${blue}"/><path d="M4 46H36" stroke="${sky}" stroke-width="2"/></g>`;
+ if(k==='N')return `<g data-wind="N">${top}<path d="M5 17H35V47H5Z" fill="${blue}"/><path d="M12 24H28V40H12Z" fill="${sky}"/><path d="M17 29H23V35H17Z" fill="#faf7e9"/></g>`;
  return '';
 }
 function minimalArt(k,p){
- const mint=p.mint,pink=p.pink,orange=p.crak,green=p.bam,ink=p.dot,n=Number(k.slice(1));
+ const mint=p.mint,pink=p.pink,red=p.crak,green=p.bam,blue=p.dot,n=Number(k.slice(1));
  if(k[0]==='B'){
-  if(n===1)return `<g data-mark="bam"><path d="M7 31Q6 17 20 18Q34 19 32 34L24 42H11Z" fill="${green}"/><path d="M16 18H35Q34 31 24 30Z" fill="${pink}"/><path d="M9 20L2 25H11Z" fill="${orange}"/><path d="M7 46Q15 41 22 45T35 45" stroke="${mint}" stroke-width="3" fill="none"/><circle cx="12" cy="21" r="1.2" fill="${ink}"/></g>`;
-  return points(n).map(([x,y])=>`<g data-mark="bam" transform="translate(${x} ${y})"><path d="M0-7V7" stroke="${mint}" stroke-width="2.8" stroke-linecap="round"/><path d="M-2-3H2M-2 3H2" stroke="${p.bam}" stroke-width="1.1"/></g>`).join('');
+  if(n===1)return `<g data-mark="bam"><path d="M7 31Q6 17 20 18Q34 19 32 34L24 42H11Z" fill="${green}"/><path d="M16 18H35Q34 31 24 30Z" fill="${pink}"/><path d="M9 20L2 25H11Z" fill="${red}"/><path d="M7 46Q15 41 22 45T35 45" stroke="${mint}" stroke-width="3" fill="none"/><circle cx="12" cy="21" r="1.2" fill="${blue}"/></g>`;
+  return points(n).map(([x,y])=>`<g data-mark="bam" transform="translate(${x} ${y})"><path d="M0-7V7" stroke="${green}" stroke-width="2.8" stroke-linecap="round"/><path d="M-2-3H2M-2 3H2" stroke="${mint}" stroke-width="1.1"/></g>`).join('');
  }
  if(k[0]==='D'){
-  if(n===1)return `<g data-mark="dot">${[14,10,6].map(r=>`<circle cx="20" cy="28" r="${r}" fill="none" stroke="${orange}" stroke-width="1.7"/>`).join('')}<circle cx="20" cy="28" r="2" fill="${orange}"/></g>`;
-  const colors=n===2?[green,orange]:n===3?[green,green,green]:[green,orange,pink,mint,pink,mint,orange,green,pink];
-  return points(n).map(([x,y],i)=>`<g data-mark="dot"><circle cx="${x}" cy="${y}" r="${n>=7?4.5:6.3}" fill="${colors[i%colors.length]}"/>${n>=5?`<circle cx="${x}" cy="${y}" r="1.5" fill="#fffef7" fill-opacity=".65"/>`:''}</g>`).join('');
+  if(n===1)return `<g data-mark="dot">${[14,10,6].map(r=>`<circle cx="20" cy="28" r="${r}" fill="none" stroke="${blue}" stroke-width="1.7"/>`).join('')}<circle cx="20" cy="28" r="2" fill="${blue}"/></g>`;
+  return points(n).map(([x,y],i)=>`<g data-mark="dot"><circle cx="${x}" cy="${y}" r="${n>=7?4.5:6.3}" fill="${i%2?dotAccent:blue}"/>${n>=5?`<circle cx="${x}" cy="${y}" r="1.5" fill="#fffef7" fill-opacity=".65"/>`:''}</g>`).join('');
  }
- if(k[0]==='C')return `<text x="20" y="43" text-anchor="middle" fill="${orange}" font-family="Georgia,serif" font-size="43" font-weight="400">${n}</text><path d="M12 50H28" stroke="${mint}" stroke-width="1.6" stroke-linecap="round"/>`;
- if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${orange}">JOKER</text><path d="M6 29L17 47L9 48Z" fill="${mint}"/><path d="M34 29L23 47L31 48Z" fill="${green}"/><path d="M20 27L31 49H9Z" fill="${pink}"/>${[[8,mint],[20,pink],[32,green]].map(([x,c])=>`<circle cx="${x}" cy="21" r="1.8" fill="${c}"/>`).join('')}`;
- if(k==='R'||k==='G'){const color=k==='R'?orange:green;return `<g data-dragon="${k}"><path d="M6 17L15 9L20 15L25 9L34 17L34 34L26 27L24 38L20 27L16 38L14 27L6 34Z" fill="${color}"/><path d="M20 28L23 49L20 53L18 47Z" fill="${mint}"/><path d="M16 15L20 20L24 15" fill="none" stroke="#fffef7" stroke-width="1.2"/><circle cx="17" cy="19" r=".9" fill="${ink}"/><circle cx="23" cy="19" r=".9" fill="${ink}"/></g>`;}
+ if(k[0]==='C')return `<text x="20" y="43" text-anchor="middle" fill="${red}" font-family="Georgia,serif" font-size="43" font-weight="400">${n}</text><path d="M12 50H28" stroke="${red}" stroke-opacity=".65" stroke-width="1.6" stroke-linecap="round"/>`;
+ if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${red}">JOKER</text><path d="M6 29L17 47L9 48Z" fill="${mint}"/><path d="M34 29L23 47L31 48Z" fill="${green}"/><path d="M20 27L31 49H9Z" fill="${pink}"/>${[[8,mint],[20,pink],[32,green]].map(([x,c])=>`<circle cx="${x}" cy="21" r="1.8" fill="${c}"/>`).join('')}`;
+ if(k==='R'||k==='G'){const color=k==='R'?red:green;return `<g data-dragon="${k}"><path d="M6 17L15 9L20 15L25 9L34 17L34 34L26 27L24 38L20 27L16 38L14 27L6 34Z" fill="${color}"/><path d="M20 28L23 49L20 53L18 47Z" fill="${mint}"/><path d="M16 15L20 20L24 15" fill="none" stroke="#fffef7" stroke-width="1.2"/><circle cx="17" cy="19" r=".9" fill="${blue}"/><circle cx="23" cy="19" r=".9" fill="${blue}"/></g>`;}
  if(k==='H')return `<g data-dragon="H"><rect x="7" y="8" width="26" height="40" rx="4" fill="none" stroke="${mint}" stroke-width="1.5"/>${[[8,10],[32,10],[8,46],[32,46]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.3" fill="${pink}"/>`).join('')}<path d="M5 20Q0 24 5 28M5 30Q0 34 5 38M35 20Q40 24 35 28M35 30Q40 34 35 38" stroke="${green}" stroke-width="2" fill="none"/></g>`;
  const labels={N:'NORTH',E:'EAST',S:'SOUTH',W:'WEST'},label=labels[k];
  const top=`<text x="20" y="9" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#b15d76">${label}</text>`;
  const shapes={
   N:`<path d="M7 20L15 16V45L7 49Z" fill="${mint}"/><path d="M15 16L25 40V49L15 25Z" fill="${pink}"/><path d="M25 20L33 16V45L25 49Z" fill="${green}"/>`,
-  E:`<path d="M6 18H34L28 26H6Z" fill="${mint}"/><path d="M28 26L12 40H5L19 26Z" fill="${orange}"/><path d="M5 40H34L28 48H5Z" fill="${mint}"/>`,
-  S:`<path d="M9 21L29 15L33 22L13 29Z" fill="${green}"/><path d="M9 21L31 35L27 43L6 29Z" fill="${orange}"/><path d="M27 43L14 51L9 45L20 38Z" fill="${mint}"/>`,
-  W:`<path d="M5 19L14 23L19 48L9 43Z" fill="${mint}"/><path d="M14 23L20 43L26 23Z" fill="${orange}"/><path d="M26 23L35 19L31 43L21 48Z" fill="${green}"/>`
+  E:`<path d="M6 18H34L28 26H6Z" fill="${mint}"/><path d="M28 26L12 40H5L19 26Z" fill="${red}"/><path d="M5 40H34L28 48H5Z" fill="${mint}"/>`,
+  S:`<path d="M9 21L29 15L33 22L13 29Z" fill="${green}"/><path d="M9 21L31 35L27 43L6 29Z" fill="${red}"/><path d="M27 43L14 51L9 45L20 38Z" fill="${mint}"/>`,
+  W:`<path d="M5 19L14 23L19 48L9 43Z" fill="${mint}"/><path d="M14 23L20 43L26 23Z" fill="${red}"/><path d="M26 23L35 19L31 43L21 48Z" fill="${green}"/>`
  };
  return label?`<g data-wind="${k}">${top}${shapes[k]}</g>`:'';
 }
@@ -102,7 +106,7 @@ export function faceArt(k,requestedStyle='modern'){
  }else if(k[0]==='D'){
   const coords=n===3&&style==='coastal'?[[20,12],[10,39],[30,39]]:points(n);
   art=coords.map(([x,y])=>{const r=n===1?13:n>=7?4.5:5.7;let medallion='';
-   if(style==='botanical')medallion=`<circle r="${r}" fill="#f9e6e9" stroke="${p.bam}" stroke-width=".7"/>${Array.from({length:5},(_,i)=>`<ellipse cx="0" cy="-${r*.34}" rx="${r*.32}" ry="${r*.44}" transform="rotate(${i*72})" fill="${p.dot}"/>`).join('')}<circle r="${r*.2}" fill="${p.gold}"/>`;
+   if(style==='botanical')medallion=`<circle r="${r}" fill="var(--parlor-cyan-wash, #e6f0f3)" stroke="${p.dot}" stroke-width=".7"/>${Array.from({length:5},(_,i)=>`<ellipse cx="0" cy="-${r*.34}" rx="${r*.32}" ry="${r*.44}" transform="rotate(${i*72})" fill="${p.dot}"/>`).join('')}<circle r="${r*.2}" fill="${p.gold}"/>`;
    else if(style==='coastal')medallion=`${Array.from({length:8},(_,i)=>`<circle cx="0" cy="-${r*.72}" r="${r*.29}" transform="rotate(${i*45})" fill="${p.dot}"/>`).join('')}<circle r="${r*.83}" fill="${p.dot}"/><circle r="${r*.64}" fill="#fffdf3"/>${Array.from({length:4},(_,i)=>`<ellipse cx="0" cy="-${r*.3}" rx="${r*.15}" ry="${r*.3}" transform="rotate(${i*90})" fill="${p.dot}"/>`).join('')}<circle r="${r*.16}" fill="${p.gold}"/>`;
    else medallion=`<circle r="${r}" fill="${p.dot}" stroke="${p.gold}" stroke-width=".8"/>${Array.from({length:8},(_,i)=>`<path d="M0 0V-${r-1}" transform="rotate(${i*45})" stroke="#eee3b9" stroke-width=".65"/>`).join('')}<circle r="${r*.23}" fill="${p.gold}"/>`;
    return `<g data-mark="dot" transform="translate(${x} ${y})">${medallion}</g>`;
