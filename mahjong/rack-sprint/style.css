@@ -140,12 +140,15 @@ main { width: min(100% - 40px, 1080px); margin: 0 auto; padding: clamp(16px, 3.5
 .rack-tray { padding: 6px 4px 9px; border-bottom: 5px solid var(--pacific-cyan); border-radius: 3px; box-shadow: 0 3px 0 var(--parlor-focus); }
 .rack, .review-rack { display: flex; justify-content: center; align-items: center; gap: clamp(2px, .45vw, 6px); }
 .rack .sprint-tile { flex: 0 1 60px; }
-.sprint-tile[data-fit="yes"] { position: relative; outline: 2px solid var(--bubblegum-pink); outline-offset: -1px; }
+.sprint-tile[data-fit="yes"] {
+ position: relative; border-color: var(--parlor-mint-ink);
+ background: linear-gradient(145deg, var(--white), var(--parlor-mint-wash));
+ box-shadow: 0 2px 0 var(--parlor-rule);
+}
 .sprint-tile[data-fit="yes"]::after {
- content: '✓'; position: absolute; right: -1px; bottom: -4px;
- display: grid; place-items: center; width: 16px; height: 16px;
- border-radius: 4px; background: var(--parlor-ink); color: #a0efc3;
- font: 800 13px/1 system-ui, sans-serif;
+ content: ''; position: absolute; left: 50%; bottom: -13px;
+ width: 5px; height: 8px; border: solid var(--parlor-mint-ink); border-width: 0 2px 2px 0;
+ transform: translateX(-50%) rotate(45deg);
 }
 .sprint-tile[data-fit="no"] { background: var(--parlor-cyan-wash); box-shadow: none; }
 h2 { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.04em; }
@@ -234,8 +237,8 @@ h2 { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.04
 .review-label, .review-points { font-weight: 700; font-size: 14px; }
 .review-points { white-space: nowrap; }
 .review-body { padding: 1px clamp(12px, 2.2vw, 24px) 15px; }
-.review-rack { justify-content: flex-start; flex-wrap: wrap; gap: 7px 4px; padding: 12px; background: var(--parlor-mat); border-radius: 6px; }
-.review-rack .sprint-tile { flex: 0 1 clamp(24px, 4vw, 39px); }
+.review-rack { justify-content: flex-start; flex-wrap: wrap; gap: 7px 5px; width: fit-content; max-width: 100%; padding: 10px 12px; background: var(--parlor-paper); border: 1px solid var(--parlor-rule); border-radius: 7px; }
+.review-rack .sprint-tile { flex: 0 0 clamp(24px, 4vw, 39px); margin-bottom: 14px; }
 .review-comparisons { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(225px,100%), 1fr)); gap: 12px; margin: 10px 0; }
 .review-line { display: grid; gap: 4px; justify-items: start; align-content: start; }
 .review-line small, .review-line .away { font-weight: 670; font-size: 12px; color: var(--muted); }
