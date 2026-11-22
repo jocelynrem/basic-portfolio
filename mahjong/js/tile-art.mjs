@@ -1,12 +1,12 @@
 import {specialArt} from './special-art.mjs?v=wind-letter-size-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=parlor-palette-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=sprint-ten-1';
 export const STYLES={
- modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, mint, and rose.',bam:'#24634d',leaf:'#65b891',dot:'#294f78',crak:'#a32146',gold:'#996819',sky:'#62929e'},
- minimal:{name:'Minimal',description:'Airy mint strokes, folded winds, and simple floral shapes.',bam:'#24634d',leaf:'#b0d8ba',dot:'#28585b',crak:'#a32146',gold:'#996819',mint:'#70bcb5',pink:'#df9bab'},
- botanical:{name:'Botanical',description:'Leafy branches, pink blossom dots, and leafy letter winds.',bam:'#3d642f',leaf:'#88a354',dot:'#98415e',crak:'#963649',gold:'#996819'},
+ modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
+ minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
+ botanical:{name:'Botanical',description:'Olive branches, pink blossom dots, and leafy letter winds.',bam:'#527b38',leaf:'#88a354',dot:'#b45c78',crak:'#bb5f6c',gold:'#d3a543'},
  deco:{name:'Art Deco',description:'Architectural bamboo, spoke-wheel dots, and compass winds.',bam:'#16684e',leaf:'#37936c',dot:'#214d7f',crak:'#bd4535',gold:'#c29936'},
- coastal:{name:'Coastal',description:'Glazed teal bamboo, cobalt rosettes, and nautical winds.',bam:'#14656a',leaf:'#58b8b0',dot:'#164ba2',crak:'#a23d34',gold:'#996819'},
- mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#24634d',dot:'#294f78',crak:'#a32146'}
+ coastal:{name:'Coastal',description:'Glazed teal bamboo, cobalt rosettes, and nautical winds.',bam:'#078b8d',leaf:'#58b8b0',dot:'#164ba2',crak:'#cb6246',gold:'#e8b83f'},
+ mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#166147',dot:'#154b75',crak:'#a83239'}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];

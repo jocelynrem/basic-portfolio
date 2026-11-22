@@ -5,11 +5,15 @@ import {recommendHands} from './recommendations.mjs?v=hand-outlook-1';
 // Start with a recognizable core. Later racks mix in more unrelated tiles
 // and the answer choices get closer together.
 const levels=[
+ {core:11,gaps:[4]},
  {core:11,gaps:[3]},
  {core:11,gaps:[2]},
  {core:10,gaps:[3,2]},
+ {core:10,gaps:[2,2]},
  {core:9,gaps:[2,1]},
+ {core:9,gaps:[1,1]},
  {core:8,gaps:[2,1,1]},
+ {core:8,gaps:[1,1,1]},
  {core:8,gaps:[1,1,0]}
 ];
 export const TOTAL_ROUNDS=levels.length;
@@ -57,7 +61,7 @@ export function dealSprintRound(index,previousRounds=[]){
  const previousRacks=new Set(previousRounds.map(round=>signature(round.rack)));
  const previousBest=new Set(previousRounds.flatMap(round=>round.choices
   .filter(choice=>choice.away===round.bestAway).map(choice=>choice.target.id)));
- const lines=shuffle((index<2?starterLines:CARD).filter(line=>!previousBest.has(line.id)));
+ const lines=shuffle((level.gaps.length===1?starterLines:CARD).filter(line=>!previousBest.has(line.id)));
  let candidate;
  for(const [attempt,line] of lines.entries()){
   if(candidate&&attempt>=4)break;

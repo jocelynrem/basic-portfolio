@@ -14,6 +14,7 @@ test('each rack is a legal partial hand and every answer uses its closest card v
  const keysById=new Map(deck().map(tile=>[tile.id,tile.k]));
  t.mock.method(Math,'random',seededRandom(20261122));
  const rounds=[];
+ assert.equal(TOTAL_ROUNDS,10);
  for(let index=0;index<TOTAL_ROUNDS;index++){
   const round=dealSprintRound(index,rounds);
   rounds.push(round);
@@ -21,7 +22,7 @@ test('each rack is a legal partial hand and every answer uses its closest card v
   assert.equal(new Set(round.rack.map(tile=>tile.id)).size,13);
   for(const tile of round.rack)assert.equal(keysById.get(tile.id),tile.k);
 
-  assert.equal(round.choices.length,2+Math.floor(index/2));
+  assert.equal(round.choices.length,index<3?2:index<7?3:4);
   assert.equal(new Set(round.choices.map(choice=>choice.target.id)).size,round.choices.length);
   assert.ok(round.bestAway>=2);
   assert.equal(round.bestAway,best(round.rack).missing);

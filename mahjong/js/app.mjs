@@ -16,7 +16,7 @@ import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=parlor-palette-1';
+import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=sprint-ten-1';
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
@@ -264,7 +264,7 @@ function showLearn(){
  const playing=!['ended','matchEnded'].includes(s.phase);
  const rackControls=playing?`<h3>This rack</h3><div class="learn-coach-controls">${btn(s.guidedPlay?'Show coach for this rack':'Coach me on this rack','open-coach','small')}${s.guidedPlay?btn('Turn off coaching for this rack','turn-off-coach','outline small'):''}</div>`:'';
  const practiceNote=s.practiceSession?'Replaces this practice rack.':'Your current game is saved while you practice.';
- const sprintLink=`<a class="learn-sprint" href="./rack-sprint/"><span class="learn-sprint-art" aria-hidden="true">${faceArt('B5','mobile')}${faceArt('F','mobile')}</span><span><strong>Rack Sprint</strong><small>Six racks. Pick the closest line.</small></span><span aria-hidden="true">↗</span></a>`;
+ const sprintLink=`<a class="learn-sprint" href="./rack-sprint/"><span class="learn-sprint-art" aria-hidden="true">${faceArt('B5','mobile')}${faceArt('F','mobile')}</span><span><strong>Rack Sprint</strong><small>10 racks. Pick the closest line.</small></span><span aria-hidden="true">↗</span></a>`;
  const guide=`<section class="learn-guided">${rackControls}<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div>${sprintLink}</section>`;
  const playable=playableCoachLines();
  const target=currentPlan()?.target??playable[0]?.target;

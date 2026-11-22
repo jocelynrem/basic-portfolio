@@ -4,12 +4,12 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <meta name="theme-color" content="#244751">
- <meta name="description" content="Race through six Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
+ <meta name="description" content="Race through 10 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/mahjong-192.png">
  <link rel="stylesheet" href="../palette.css?v=parlor-palette-1">
- <link rel="stylesheet" href="./style.css?v=parlor-palette-1">
- <script type="module" src="./game.mjs?v=parlor-palette-1"></script>
+ <link rel="stylesheet" href="./style.css?v=sprint-ten-1">
+ <script type="module" src="./game.mjs?v=sprint-ten-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -20,7 +20,7 @@
   <section id="intro" class="intro" aria-labelledby="intro-heading">
    <div class="intro-copy">
     <h1 id="intro-heading" class="poster-title">Rack <em>Sprint</em></h1>
-    <p>Six racks. Pick the line that needs the fewest tiles. Close picks earn points, too.</p>
+    <p>10 racks. Pick the line that needs the fewest tiles. Close picks earn points, too.</p>
     <div class="start-actions">
      <button type="button" id="start" class="primary-button">Start sprint <span aria-hidden="true">→</span></button>
      <label class="timer-toggle"><input type="checkbox" data-timer-toggle checked><span class="switch" aria-hidden="true"></span>20s timer</label>
@@ -50,31 +50,36 @@
      <div id="rack" class="rack" role="group" aria-label="Your rack"></div>
     </div>
    </div>
-   <div class="choice-heading">
-    <h2 id="choices-heading">Which line fits best?</h2>
-    <div id="clock" class="clock" role="timer" aria-label="Time remaining">
-     <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
+   <div class="round-prompt">
+    <div id="choice-prompt" class="choice-heading">
+     <h2 id="choices-heading">Which line fits best?</h2>
+     <div id="clock" class="clock" role="timer" aria-label="Time remaining">
+      <span class="clock-track" aria-hidden="true"></span><span id="time-left"></span>
+     </div>
+    </div>
+    <div id="feedback" class="feedback" hidden>
+     <div class="celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+     <strong id="feedback-title"></strong>
+     <button type="button" class="next-button" id="next" aria-describedby="feedback-title">Next rack</button>
     </div>
    </div>
    <div id="choices" class="choices" role="group" aria-labelledby="choices-heading"></div>
-   <div id="feedback" class="feedback" hidden>
-    <div class="celebration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="feedback-copy" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-note"></p></div>
-    <button type="button" class="next-button" id="next">Next rack</button>
-   </div>
+   <label class="names-toggle"><input type="checkbox" data-names-toggle> Show tile names</label>
   </section>
 
   <section id="results" class="results" aria-labelledby="results-heading" hidden>
    <div class="scorecard">
     <div class="scorecard-content">
      <h1 id="results-heading">Sprint complete</h1>
-     <p class="score-total"><strong id="final-score"></strong><span> / 600 pts</span></p>
+     <p class="score-total"><strong id="final-score"></strong><span> / 1,000 pts</span></p>
      <p id="best-count"></p>
      <button type="button" id="again" class="primary-button">Play again <span aria-hidden="true">↻</span></button>
     </div>
     <div class="finish-art" aria-hidden="true"><div class="flag"></div><span>✦</span></div>
    </div>
-   <div class="review-heading"><h2>Your racks</h2><p>100 points for the closest line. 25 fewer for each extra tile away.</p></div>
+   <div class="review-heading"><h2>Your racks</h2><p>100 points for the closest line. 25 fewer for each extra tile away.</p>
+    <label class="names-toggle"><input type="checkbox" data-names-toggle> Show tile names</label>
+   </div>
    <div id="review" class="review"></div>
   </section>
   <noscript><p>Rack Sprint needs JavaScript to deal the racks and score your choices.</p></noscript>

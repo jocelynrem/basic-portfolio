@@ -1,11 +1,11 @@
-import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs';
+import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
-import { targetBlocks, displaySymbols, notationSuit } from '../js/hand-groups.mjs?v=parlor-palette-1';
-import { faceArt } from '../js/tile-art.mjs?v=parlor-palette-1';
+import { targetBlocks, displaySymbols } from '../js/hand-groups.mjs?v=parlor-palette-1';
+import { faceArt } from '../js/tile-art.mjs?v=sprint-ten-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
-const REVEAL_MS = 3_000;
+const REVEAL_MS = 2_000;
 const timerKey = 'parlor-rack-sprint-timed';
 const inks = { B:'bam', C:'crak', D:'dot', F:'flower', G:'bam', R:'crak', H:'dot' };
 const levels = ['Warm-up', 'Steady', 'Challenge'];
@@ -35,22 +35,24 @@ function rackMarkup(rack, fit) {
 function pattern(target) {
  const spoken = target.groups.map(([k,n]) => `${n} × ${tileName(k)}`).join(', ');
  const blocks = targetBlocks(target).map(block => {
+  if (block.map(part => part.symbols).join('') === '2026') {
+   const ink = inks[target.groups[block[0].index][0][0]];
+   return `<span class="pattern-group" data-ink="${ink}" aria-hidden="true">2026</span>`;
+  }
   const parts = block.map(({index,symbols}) => {
-   const key = target.groups[index][0];
-   const ink = inks[key[0]] || 'honor';
-   const suit = notationSuit(key,target.section);
-   return `<span data-ink="${ink}"${suit ? ' data-suit="' + suit + '"' : ''}>${displaySymbols(symbols,target.section)}</span>`;
+   const ink = inks[target.groups[index][0][0]] || 'honor';
+   return `<span data-ink="${ink}">${displaySymbols(symbols,target.section)}</span>`;
   });
   return `<span class="pattern-group" aria-hidden="true">${parts.join('')}</span>`;
  });
- return `<span class="line-pattern" role="img" aria-label="${spoken}">${blocks.join('')}</span>`;
+ const names = spoken.replaceAll('1 × ', '');
+ return `<span class="line-pattern" role="img" aria-label="${spoken}">${blocks.join('')}</span><span class="line-tile-names" aria-hidden="true">${names}</span>`;
 }
 
 function choiceButton(choice,index) {
  return `<button type="button" class="line-choice" data-index="${index}">
   <span class="choice-key" aria-hidden="true">${String.fromCharCode(65 + index)}</span>
-  <span class="choice-content"><span class="line-name">${choice.target.name}</span>${pattern(choice.target)}</span>
-  <span class="choice-result"></span></button>`;
+  <span class="choice-content"><span class="line-name">${choice.target.name}</span>${pattern(choice.target)}</span></button>`;
 }
 
 function distance(number) {
@@ -86,7 +88,7 @@ function showScreen(id) {
 
 function focusAt(selector) {
  const el = $(selector);
- el.tabIndex = -1;
+ if (el.tabIndex < 0) el.tabIndex = -1;
  el.focus({preventScroll:true});
  if (el.getBoundingClientRect().top < 0 || el.getBoundingClientRect().bottom > innerHeight) {
   el.scrollIntoView({block:'nearest',behavior:'instant'});
@@ -131,14 +133,14 @@ function drawRound() {
  const index = history.length;
  round = dealSprintRound(index,history.map(entry => entry.round));
  $('#round-counter').textContent = (index + 1) + ' / ' + TOTAL_ROUNDS;
- $('#difficulty').textContent = levels[Math.floor(index / 2)];
+ $('#difficulty').textContent = levels[round.choices.length - 2];
  $('#score').textContent = total;
  $('#progress').innerHTML = Array.from({length:TOTAL_ROUNDS}, (_,i) =>
   `<span data-state="${i < index ? 'done' : i === index ? 'current' : 'to-go'}"></span>`).join('');
  $('#rack').innerHTML = rackMarkup(round.rack);
  $('#choices').innerHTML = round.choices.map(choiceButton).join('');
  $('#feedback').hidden = true;
- delete $('#feedback').dataset.kind;
+ $('#choice-prompt').hidden = false;
  showScreen('play');
  focusAt('#round-counter');
  remaining = ROUND_MS;
@@ -156,26 +158,18 @@ function answer(index) {
  history.push({round,index,best,points});
  total += points;
  $('#score').textContent = total;
- $('#rack').innerHTML = rackMarkup(round.rack,best);
- for (const button of $('#choices').children) {
-  const i = Number(button.dataset.index);
-  const choice = round.choices[i];
-  const closest = choice.away === round.bestAway;
-  button.disabled = true;
-  button.dataset.result = closest ? 'best' : i === index ? 'picked' : 'other';
-  button.dataset.picked = String(i === index);
-  button.querySelector('.choice-result').textContent = (closest ? '✓ Best fit · ' : i === index ? 'Your pick · ' : '') + distance(choice.away);
- }
  const kind = !picked ? 'timeout' : points === 100 ? 'best' : points > 0 ? 'close' : 'miss';
- const gap = picked ? picked.away - round.bestAway : 0;
- const title = !picked ? 'Time’s up' : !gap ? 'Best fit!' : gap === 1 ? 'Just one tile off!' : gap + ' tiles off';
- $('#feedback-title').textContent = title + ' · +' + points;
- $('#feedback-note').textContent = picked ? fitNote(best,picked) : `${best.target.name} is ${distance(best.away)}.`;
+ for (const button of $('#choices').children) {
+  button.disabled = true;
+  if (Number(button.dataset.index) === index) button.dataset.result = kind === 'best' ? 'best' : 'picked';
+ }
+ const reactions = { best:'Best fit!', close:'Partial credit', miss:'Missed it', timeout:'Time’s up' };
+ $('#feedback-title').textContent = reactions[kind] + ' · +' + points;
  $('#feedback').dataset.kind = kind;
+ $('#choice-prompt').hidden = true;
  $('#feedback').hidden = false;
  $('#next').textContent = history.length === TOTAL_ROUNDS ? 'See score' : 'Next rack';
- $('#next').focus({preventScroll:true});
- if ($('#next').getBoundingClientRect().bottom > innerHeight) $('#next').scrollIntoView({block:'nearest',behavior:'instant'});
+ focusAt('#next');
  remaining = REVEAL_MS;
  runClock();
 }
@@ -226,6 +220,14 @@ for (const toggle of document.querySelectorAll('[data-timer-toggle]')) {
   for (const input of document.querySelectorAll('[data-timer-toggle]')) input.checked = timed;
   try { localStorage.setItem(timerKey,timed ? 'on' : 'off'); } catch {}
   runClock();
+ });
+}
+const namesToggles = document.querySelectorAll('[data-names-toggle]');
+for (const toggle of namesToggles) {
+ toggle.checked = false;
+ toggle.addEventListener('change', () => {
+  document.body.classList.toggle('show-tile-names',toggle.checked);
+  for (const input of namesToggles) input.checked = toggle.checked;
  });
 }
 $('#hero-tiles').innerHTML = ['B5','F','D7'].map(key => tileFace(key)).join('');
