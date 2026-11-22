@@ -17,7 +17,7 @@ export const STYLES={
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
 const flowerInk='var(--tile-flower-ink, #df456e)';
 const flowerMark=new URL('../icons/flower.svg#flower',import.meta.url).href;
-const dragonMark=new URL('../icons/origami-dragon.svg#dragon',import.meta.url).href;
+const dragonMark=new URL('../icons/dragon.svg#dragon',import.meta.url).href;
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];
 function joker(style,p){
  if(style==='deco')return `<path d="M20 3L23 23L38 27L24 31L20 53L16 31L2 27L17 23Z" fill="${p.gold}" stroke="#a77f2b" stroke-width=".6"/><path d="M20 9V46M7 27H33" stroke="#f9e6a1" stroke-width="1"/>${[0,45,90,135,180,225,270,315].map(a=>`<path d="M20 6V12" transform="rotate(${a} 20 27)" stroke="${p.dot}" stroke-width="1.6"/>`).join('')}`;
@@ -86,7 +86,7 @@ export function faceArt(k,requestedStyle='modern'){
  if(k==='F')return emblemArt(style,`<use href="${flowerMark}" x="6" y="14.5" width="48" height="48" fill="${flowerInk}"/>`);
  if(k==='R'||k==='G'){
   const ink=k==='R'?p.crak:p.bam;
-  return emblemArt(style,`<use data-dragon="${k}" href="${dragonMark}" x="2" y="18.5" width="56" height="40" fill="${ink}"/>`);
+  return emblemArt(style,`<use data-dragon="${k}" href="${dragonMark}" x="6" y="14.5" width="48" height="48" fill="${ink}"/>`);
  }
  if(style==='mobile')return mobileTileArt(k,p);
  const special=specialArt(k,style,p);if(special)return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${special}</svg>`;
