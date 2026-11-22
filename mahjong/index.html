@@ -8,7 +8,7 @@
  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2324594e'/%3E%3Ctext x='20' y='29' text-anchor='middle' fill='%23fff8e8' font-size='30'%3E✿%3C/text%3E%3C/svg%3E">
  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
- <link rel="stylesheet" href="style.css?v=ask-coach-1">
+ <link rel="stylesheet" href="style.css?v=coach-layout-1">
  <link rel="stylesheet" href="../assets/portfolio-return.css?v=3">
 </head>
 <body>
@@ -86,22 +86,35 @@
      <div id="hands-panel"></div>
     </aside>
     <section id="play-coach" class="play-coach" aria-labelledby="coach-heading" hidden>
-     <div class="coach-heading"><h2 id="coach-heading">Learn · Guided play</h2><button class="text-button" data-action="close-coach" aria-label="Close guided play">Close</button></div>
+     <h2 class="coach-heading" aria-labelledby="coach-heading"><button type="button" id="coach-toggle" aria-expanded="true" aria-controls="coach-body"><span id="coach-heading">Learn · Guided play</span> <span id="coach-toggle-label">Hide coach</span></button></h2>
+     <div id="coach-body">
      <div class="coach-feedback" aria-live="polite" aria-atomic="true">
-      <div id="coach-tracker" hidden><div class="outlook-heading"><strong id="outlook-line"></strong><span id="outlook-status"></span></div><p id="outlook-note"></p></div>
-      <div class="coach-callout" hidden><span id="coach-mark" aria-hidden="true"></span><strong id="coach-verdict"></strong><span id="coach-leader"></span></div>
-      <p id="coach-reason"></p>
-      <button class="text-button" type="button" data-action="coach-switch" hidden></button>
-      <p id="coach-action"></p>
-      <p id="coach-defense"></p>
+      <section id="coach-hand" class="coach-section" aria-labelledby="coach-hand-heading" hidden>
+       <h3 id="coach-hand-heading">Hand</h3>
+       <div class="coach-callout" hidden>
+        <span class="coach-rating"><span id="coach-mark" aria-hidden="true"></span> <span id="coach-verdict"></span></span>
+        <strong id="coach-leader"></strong>
+       </div>
+       <p id="coach-reason"></p>
+       <div id="coach-tracker" hidden><div class="outlook-heading"><strong id="outlook-line"></strong> <span id="outlook-status"></span></div><p id="outlook-note"></p></div>
+       <button class="text-button" type="button" data-action="coach-switch" hidden></button>
+      </section>
+      <section id="coach-move" class="coach-section" aria-labelledby="coach-move-heading" hidden>
+       <h3 id="coach-move-heading"></h3>
+       <p id="coach-action"><strong id="coach-move-choice"></strong> <span id="coach-move-reason"></span></p>
+       <p id="coach-defense"></p>
+       <details id="coach-preview" class="coach-preview" hidden></details>
+      </section>
      </div>
      <details id="coach-questions"><summary>Ask the coach</summary>
       <button id="coach-resume" class="text-button" type="button" hidden>Resume the table</button>
-      <form id="coach-form"><label class="sr-only" for="coach-question">Ask about this rack or the table</label><input id="coach-question" type="text" maxlength="240" placeholder="What if I discard the Flower?" required><button class="button small" type="submit">Ask</button></form>
-      <div id="coach-prompts"><button type="button" class="text-button" id="ask-tile">Why this discard?</button><button type="button" class="text-button">Should I pivot?</button><button type="button" class="text-button">What do the exposures tell me?</button></div>
+      <form id="coach-form"><label class="sr-only" for="coach-question">Ask about this rack or the table</label><input id="coach-question" type="text" maxlength="240" placeholder="Ask about your rack or the table" required><button class="button small" type="submit">Ask</button></form>
+      <div id="coach-prompts"><button type="button" class="text-button" id="ask-tile" hidden></button><button type="button" class="text-button">Should I pivot?</button><button type="button" class="text-button" id="ask-table">What do the exposures tell me?</button></div>
       <p id="coach-answer" role="status"></p>
+      <details id="coach-answer-preview" class="coach-preview" hidden></details>
      </details>
      <details id="coach-details"><summary>Show details</summary><ul id="coach-numbers"></ul><div id="coach-opponents" hidden><strong>Opponents’ exposures</strong><ul></ul></div></details>
+     </div>
     </section>
     </div>
 
@@ -114,7 +127,16 @@
   <a class="portfolio-return" href="../">jocelynrem.com<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5M4 9h10a5 5 0 0 1 0 10h-3"/></svg></a>
  </footer>
  <div class="toast" id="toast" role="status" hidden></div>
+ <template id="coach-preview-template">
+  <summary></summary>
+  <div class="coach-preview-pattern">
+   <strong class="coach-preview-line"></strong>
+   <div class="coach-preview-tiles"></div>
+   <p class="coach-preview-note"></p>
+   <button class="coach-preview-next text-button" type="button" hidden></button>
+  </div>
+ </template>
  <dialog id="modal" aria-labelledby="modal-title"><div class="modal-top"><span class="eyebrow" id="modal-eyebrow"></span><button class="icon-button" data-action="close" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>
- <script type="module" src="js/app.mjs?v=ask-coach-1"></script>
+ <script type="module" src="js/app.mjs?v=coach-layout-1"></script>
 </body>
 </html>

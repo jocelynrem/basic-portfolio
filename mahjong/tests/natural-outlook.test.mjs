@@ -102,3 +102,22 @@ test('a single line can explain its natural waits without a competing line',()=>
  assert.match(naturalWaitDetails(game,row('even3-0')).join(' '),/Next wall draw.*helpful copies/);
  assert.deepEqual(naturalWaitDetails(game,row('run2-27')),[]);
 });
+
+test('equally close 13579 lines explain which pair is missing and how many natural tiles it needs',()=>{
+ const {game,tiles}=table();
+ game.hands[0]=tiles('B1 B1 B3 B3 B5 B5 B7 B9 B9 E W H F');
+ const seven=game.hands[0].find(t=>t.k==='B7');
+ const row=key=>assessHand(game.hands[0],[],TARGETS.find(t=>t.key===key),visibleTileCounts(game));
+ for(const held of [true,false]){
+  if(!held)seven.k='B2';
+  const one=row('odd1-0'),sevenLine=row('odd7-0');
+  assert.equal(one.away,sevenLine.away);
+  for(const order of [[one,sevenLine],[sevenLine,one]]){
+   const tip=naturalTradeoff(game,...order);
+   const need=held?'a natural 7 Bam':'two natural 7 Bams';
+   assert.equal(tip.leader,'13579 · Line 1');
+   assert.equal(tip.reason,'Both lines are equally close. Line 1’s pairs are complete. Line 7 still needs '+need+' for its pair.');
+   assert.match(tip.details[0],new RegExp('7 Bam · pair · '+(held?1:2)+' needed'));
+  }
+ }
+});

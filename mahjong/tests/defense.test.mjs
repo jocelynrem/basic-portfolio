@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readTable} from '../js/defense.mjs';
+import {TARGETS} from '../js/engine.mjs';
 
 function table(){
  let id=0;
@@ -70,4 +71,34 @@ test('unexposed and declared-dead opponents supply no discard read',()=>{
  game.exposed[3]=[group('D4','D4','D4','D4'),group('C8','C8','C8','C8','C8')];
  game.deadHand={player:3};
  assert.deepEqual(readTable(game),{risks:new Map(),details:[]});
+});
+
+test('June’s Flower warning previews the two-suit Line 5 matching her actual exposures',()=>{
+ const {game,tiles,group}=table();
+ game.hands[0]=tiles('D3','D3','D3','D6','D6','B6','B6','B6','C9','C9','C9','C9','F','B5');
+ game.exposed[3]=[group('C4','C4','J','C4'),group('G','G','G','G','G')];
+ const {risks}=readTable(game),flower=risks.get('F');
+ assert.match(flower.reason,/June could call Flower for a set on Consecutive Run · Line 5/);
+ assert.deepEqual(flower.preview,{player:3,tileKey:'F',lineName:'Consecutive Run · Line 5',
+  targets:[TARGETS.find(t=>t.key==='run5-14')]});
+ assert.deepEqual(flower.preview.targets[0].groups,[['F',3],['C2',2],['B3',2],['C4',3],['G',4]]);
+ assert.equal(risks.has('B5'),false);
+});
+
+test('each warning previews only its live variations and its own discard role',()=>{
+ const {game,tiles,group,discard}=table();
+ game.hands[0]=tiles('F','C3');
+ game.exposed[3]=[group('C2','C2','C2','C2','C2'),group('C6','C6','C6','C6','C6')];
+ const keys=k=>readTable(game).risks.get(k).preview.targets.map(t=>t.key);
+ assert.deepEqual(keys('F'),['run2-10','run2-14','run2-15']);
+ assert.deepEqual(keys('C3'),['run2-10']);
+ assert.match(readTable(game).risks.get('C3').reason,/Mahjong.*single/);
+ discard('B4','B4','B4','B4');
+ assert.deepEqual(keys('F'),['run2-10','run2-15']);
+ // A general warning that fits several lines must not appear to identify one.
+ game.exposed[3]=[group('H','H','H','H'),group('C2','C2','C2','C2','C2')];
+ game.hands[0]=tiles('D2');
+ const general=readTable(game).risks.get('D2');
+ assert.match(general.reason,/set that fits the exposures/);
+ assert.equal(general.preview,undefined);
 });

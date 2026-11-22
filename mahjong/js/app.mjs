@@ -3,10 +3,10 @@ import {displayDiscards,handSignals,exposureChoice} from './discard-view.mjs?v=w
 import {finalizeRound,reviewRoundHands,scoringMode} from './rounds.mjs?v=tournament-score-1';
 import {canDrawWall,discardClaims,prepareDiscardClaims,passDiscard,passTiles,drawFromWall,finishWallPush,exchangeJoker,prepareTable,lineVariations,currentLineMove} from './table-actions.mjs?v=line-movement-1';
 import {recommendHands,assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {discardAdvice,handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=ask-coach-1';
-import {readTable} from './defense.mjs?v=table-reads-1';
-import {naturalTradeoff} from './natural-outlook.mjs?v=ask-coach-1';
-import {answerCoachQuestion} from './coach-questions.mjs?v=ask-coach-1';
+import {discardAdvice,handComparison,selectionAdvice,spareTiles,suggestTiles,turnAdvice} from './coaching.mjs?v=coach-layout-1';
+import {readTable} from './defense.mjs?v=coach-layout-1';
+import {naturalTradeoff} from './natural-outlook.mjs?v=coach-layout-1';
+import {answerCoachQuestion} from './coach-questions.mjs?v=coach-layout-1';
 import {trackOutlook,pivotReason,holdVerdict} from './outlook.mjs?v=backup-discards-1';
 import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
@@ -262,7 +262,9 @@ function showJokerChoices(){
 }
 function showLearn(){
  const playing=!['ended','matchEnded'].includes(s.phase);
- const guide=playing?`<section class="learn-guided"><h3>Guided play</h3><p>Get feedback as you choose a hand, pass, call, and discard in this game.</p>${btn(s.guidedPlay?'Return to guided play':'Start guided play','open-coach','small')}</section>`:'';
+ const rackControls=playing?`<h3>This rack</h3><div class="learn-coach-controls">${btn(s.guidedPlay?'Show coach for this rack':'Coach me on this rack','open-coach','small')}${s.guidedPlay?btn('Turn off coaching for this rack','turn-off-coach','outline small'):''}</div>`:'';
+ const practiceNote=s.practiceSession?'Replaces this practice rack.':'Your current game is saved while you practice.';
+ const guide=`<section class="learn-guided">${rackControls}<div class="learn-new-deal">${btn('Deal a new practice rack','practice-again','outline small')}<small>${practiceNote}</small></div></section>`;
  const playable=playableCoachLines();
  const target=currentPlan()?.target??playable[0]?.target;
  const count=s.phase==='courtesy'?(selected.size||3):3;
@@ -280,7 +282,7 @@ function showLearn(){
  let body='';
  if(['ended','matchEnded'].includes(s.phase))body='<p>The round result shows the closest line for each player.</p>';
  else if(G.isDeadHand(s))body='<p>Your hand has been declared dead. The other players finish the round.</p>';
- else if(s.guidedPlay&&(claims.length||advice.kind==='watch'&&$('#coach-action').textContent))body=`<p>${esc($('#coach-action').textContent)}</p>${winningClaim?btn('Declare Mahjong','learn-declare-discard','small'):''}`;
+ else if(s.guidedPlay&&(claims.length||advice.kind==='watch'&&coachAdvice?.text))body=`<p>${esc(coachAdvice?.text||'')}</p>${winningClaim?btn('Declare Mahjong','learn-declare-discard','small'):''}`;
  else if(advice.kind==='discard'&&!advice.tiles.length)body=`<p>${esc(advice.reasons[0])}</p>`;
  else if(advice.kind==='pass'&&!advice.tiles.length)body=`<p>${s.phase==='courtesy'?'Skip the courtesy exchange':'Pass the incoming packet blind'} to keep your hands intact.</p>`;
  else if(advice.kind==='choose')body=`<p>Choose a hand for advice about individual tiles.</p>${btn('Choose a hand','learn-hands','outline small')}`;
@@ -291,7 +293,7 @@ function showLearn(){
 
  else body='<p>Draw before choosing a discard. Use this panel afterward for tile-specific advice.</p>';
  if(advice.blocked.length)body=`<div class="hint-warning">${advice.blocked.map(b=>`<p>You still need ${b.need} ${esc(G.tileName(b.k))}, but only ${b.unseen} ${b.unseen===1?'copy is':'copies are'} unseen. Jokers cannot fill that single or pair.</p>`).join('')}${btn('Change hand','learn-hands','outline small')}</div>`+body;
- show('Learn',`${guide}<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn(s.practiceSession?'Practice again':'Guided practice','practice-again','outline')}${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn('Back to game','return-game')}</div>`:''}`);modal.dataset.view='learn';
+ show('Learn',`${guide}<section class="learn-advice"><h3>Tile advice</h3>${body}</section><div class="learn-options">${btn('Charleston','charleston-help','outline')}${btn('How to play','rules','outline')}${btn('Tile guide','tiles','outline')}</div><details class="card-credit"><summary>2026 card &amp; copyright</summary><p>The 2026 Official Standard Hands and Rules card is published and copyrighted by the National Mah Jongg League, Inc. Mahjong Parlor is an independent practice game. Suggestions use Mahjong Parlor’s tile art and wording. Use your official card as the reference for each section and line.</p><p><a href="https://www.nationalmahjonggleague.org/store.aspx" target="_blank" rel="noopener">Get the official 2026 card ↗</a></p></details>${s.practiceSession?`<div class="modal-actions">${btn(regularReturn?'Resume saved game':'Start a regular game','return-game')}</div>`:''}`);modal.dataset.view='learn';
 }
 const formatScore=n=>n>0?`+${n}`:n<0?`−${Math.abs(n)}`:'0';
 function winSourceText(winType,discarder){
@@ -329,6 +331,8 @@ function showDiscards(){
 }
 function useGame(game){
  $('#coach-details').open=false;
+ $('#coach-questions').open=false;
+ submittedQuestion=null;$('#coach-question').value='';
  game.guidedPlay??=Boolean(game.practiceSession);
  clearTimeout(tableNoticeTimer);
  tableNoticeTimer=null;
@@ -352,14 +356,15 @@ function declareDiscard(){const option=discardClaims(s).find(o=>o.win);if(!optio
 function jokerPlacements(target){return s.jokerPlacements?.[target?.key]||{};}
 const targetLabel=target=>[target.name,target.variant].filter(Boolean).join(' · ');
 const notationColors={B:'bam',C:'crak',D:'dot',F:'flower',G:'bam',R:'crak',H:'dot'};
-function targetNotation(target,extraClass=''){
+function targetNotation(target,extraClass='',highlightKey=null){
  const description=[];
  const groups=targetBlocks(target).map(block=>{
   const parts=block.map(({index,symbols})=>{
    const [key,count]=target.groups[index];
    description.push(`${count} × ${G.tileName(key)}`);
    const color=notationColors[key[0]]??'honor';
-   return `<span class="${color}">${esc(displaySymbols(symbols,target.section))}</span>`;
+   const highlight=key===highlightKey?' preview-match':'';
+   return `<span class="${color}${highlight}">${esc(displaySymbols(symbols,target.section))}</span>`;
   });
   return `<span class="hand-group" aria-hidden="true">${parts.join('')}</span>`;
  }).join('');
@@ -402,17 +407,84 @@ function questionPosition(){
 }
 function askCoach(question){
  if(!s.guidedPlay||!question.trim())return;
- const tile=s.hands[0].find(t=>selected.has(t.id))??coachAdvice?.tile;
+ const packet=selected.size>1&&(s.phase==='charleston'||s.phase==='courtesy');
+ const tile=packet?null:s.hands[0].find(t=>selected.has(t.id))??coachAdvice?.tile;
  submittedQuestion={text:question.trim(),position:questionPosition(),answer:answerCoachQuestion(s,coachLines,{
-  question,tileKey:tile?.k,table:coachTable,tradeoff:coachTradeoff,advice:coachAdvice
+  question,tileKey:tile?.k,selectedIds:[...selected],table:coachTable,tradeoff:coachTradeoff,advice:coachAdvice
  })};
  $('#coach-question').value=submittedQuestion.text;
  renderCoach();
+}
+function renderCoachPrompts(advice,canAskTile){
+ const tile=s.hands[0].find(t=>selected.has(t.id))??advice.tile;
+ let action='',followup='What do the exposures tell me?',example='Ask about your rack or the table';
+ if(s.phase==='charlestonChoice'){
+  action='Should I start the second Charleston?';
+  followup='';
+  example='Should I stop the Charleston?';
+ }else if(s.phase==='charleston'||s.phase==='courtesy'){
+  const courtesy=s.phase==='courtesy';
+  action=courtesy?'How many tiles should I pass?':'Which tiles should I pass?';
+  if(selected.size===1&&tile)action='Should I pass '+G.tileName(tile.k)+'?';
+  if(selected.size>1)action='Should I pass these tiles?';
+  followup=courtesy?'Can I skip the courtesy pass?':s.passStep===2?'Should I pass blind?':'';
+  example=courtesy?'Ask about your courtesy pass':'Ask about your Charleston pass';
+ }else if(s.phase==='discard'&&s.turn===0){
+  if(tile)action='Why discard '+G.tileName(tile.k)+'?';
+  example='What if I discard the Flower?';
+ }
+ $('#coach-question').placeholder=example;
+ $('#ask-tile').hidden=!action||!canAskTile;
+ if(action)setCoachText('#ask-tile',action);
+ $('#ask-table').hidden=!followup;
+ if(followup)setCoachText('#ask-table',followup);
+}
+function coachMoveHeading(advice,hasWin,dead){
+ if(hasWin)return 'Mahjong';
+ if(dead)return 'Table watch';
+ if(claims.length)return 'Call';
+ if(advice.neededDiscard)return 'Last discard';
+ if(s.phase==='discard'&&swaps.length&&!selected.size)return 'Joker exchange';
+ const headings={charleston:'Pass',courtesy:'Courtesy pass',charlestonChoice:'Second Charleston',discard:'Discard',draw:'Draw'};
+ return headings[s.phase]||'Your move';
+}
+function renderCoachPreview(panel,preview,next=false){
+ const targets=preview?.targets;
+ const key=targets?.length?[questionPosition(),preview.player,preview.tileKey,...targets.map(t=>t.key)].join('|'):'';
+ if(panel.dataset.key===key&&!next)return;
+ if(panel.dataset.key!==key){
+  panel.dataset.key=key;
+  panel.dataset.index='0';
+  panel.open=false;
+ }
+ panel.hidden=!key;
+ if(!key)return;
+ if(!panel.firstElementChild)panel.append($('#coach-preview-template').content.cloneNode(true));
+ if(next)panel.dataset.index=String((Number(panel.dataset.index)+1)%targets.length);
+ const index=Number(panel.dataset.index),target=targets[index];
+ const name=G.NAMES[preview.player];
+ panel.querySelector('summary').textContent='See '+name+'’s possible hand';
+ panel.querySelector('.coach-preview-line').textContent=targetLabel(target);
+ panel.querySelector('.coach-preview-tiles').innerHTML=targetNotation(target,'',preview.tileKey);
+ const groups=G.compatible(target,s.exposed[preview.player])??[];
+ const sizes=[...new Set(groups.filter(([k])=>k===preview.tileKey).map(([,n])=>n))];
+ const groupTypes=['','single','pair','pung','kong','quint','sextet'];
+ const roles=sizes.map(n=>n<groupTypes.length?'a '+groupTypes[n]:'a group of '+n);
+ panel.querySelector('.coach-preview-note').textContent=roles.length?G.tileName(preview.tileKey)+' fits '+roles.join(' or ')+'.':'';
+ const button=panel.querySelector('.coach-preview-next');
+ button.hidden=targets.length<2;
+ if(!button.hidden){
+  button.textContent='Example '+(index+1)+' of '+targets.length+' ›';
+  button.setAttribute('aria-label','Show next example of '+preview.lineName+', currently '+(index+1)+' of '+targets.length);
+ }
 }
 function renderCoach(){
  const el=$('#play-coach');
  el.hidden=!s.guidedPlay;
  if(el.hidden)return;
+ $('#coach-body').hidden=Boolean(s.coachCollapsed);
+ $('#coach-toggle').setAttribute('aria-expanded',String(!s.coachCollapsed));
+ setCoachText('#coach-toggle-label',s.coachCollapsed?'Show coach':'Hide coach');
  const [focus,other]=coachLines;
  const dead=G.isDeadHand(s);
  const canDeclare=s.phase==='discard'&&s.turn===0||s.phase==='charleston'&&s.dealer===0&&s.passRound===1&&s.passStep===0;
@@ -434,33 +506,40 @@ function renderCoach(){
   tradeoff?tradeoff:pivot?{kind:'pivot',title:'Consider switching',reason:pivot}:tracking&&advice.neededDiscard&&!focus.blocked?holdVerdict(focus,other):
   pinned?handComparison(focus,other):{title:'',reason:''};
  const compareInDetails=claims.length>0&&pinned&&focus&&!focus.blocked&&!hasWin&&!advice.neededDiscard;
+ const showChoice=Boolean(comparison.title)&&!compareInDetails&&!hasWin&&!dead;
+ const namedLine=comparison.leader||(pivot?other?.target.name:['fit','blocked'].includes(comparison.kind)?focus?.target.name:'');
+ $('#coach-hand').hidden=!showChoice&&!tracking;
+ $('.coach-callout').hidden=!showChoice;
+ setCoachText('#coach-leader',namedLine||'');
+ setCoachText('#coach-verdict',comparison.title);
+ $('#coach-mark').dataset.kind=comparison.kind||'';
+ $('#coach-mark').hidden=!comparison.kind;
+ setCoachText('#coach-mark',({blocked:'×',pivot:'⇄',fit:'✓'})[comparison.kind]||'');
+ setCoachText('#coach-reason',showChoice?comparison.reason:'');
  $('#coach-tracker').hidden=!tracking;
  if(tracking){
   const status=tracking.status;
-  setCoachText('#outlook-line',focus.target.name);
+  setCoachText('#outlook-line',showChoice&&namedLine===focus.target.name?'Your line':'Your line · '+focus.target.name);
   setCoachText('#outlook-status',status);
   $('#coach-tracker').dataset.trend=status;
   setCoachText('#outlook-note',advice.neededDiscard?'':tracking.note);
  }
- $('.coach-callout').hidden=!comparison.title||compareInDetails;
- $('#coach-mark').dataset.kind=comparison.kind||'';
- setCoachText('#coach-mark',({blocked:'×',pivot:'⇄',fit:'✓'})[comparison.kind]||'');
- setCoachText('#coach-verdict',comparison.title);
- setCoachText('#coach-leader',pinned&&!tradeoff&&comparison.leader&&comparison.leader===focus?.target.name?'Your line':comparison.leader||'');
- setCoachText('#coach-reason',compareInDetails?'':comparison.reason);
- setCoachText('#coach-action',advice.text);
+ $('#coach-move').hidden=(!advice.text&&!advice.defense)||(!focus&&showChoice&&!claims.length);
+ setCoachText('#coach-move-heading',coachMoveHeading(advice,hasWin,dead));
+ setCoachText('#coach-move-choice',advice.headline||'');
+ setCoachText('#coach-move-reason',advice.headline?advice.reason||'':advice.text);
  setCoachText('#coach-defense',advice.defense||'');
+ renderCoachPreview($('#coach-preview'),advice.preview);
  const questions=$('#coach-questions');
  if(questions.open&&questionTurn&&questionTurn!==coachTurn())questions.open=false;
  $('#coach-resume').hidden=!(s.phase==='wallSetup'||s.phase==='wallPush'||(s.turn!==0&&['draw','discard'].includes(s.phase)));
- const selectedTile=s.hands[0].find(t=>selected.has(t.id))??advice.tile;
- $('#ask-tile').hidden=s.phase!=='discard'||s.turn!==0||!selectedTile||hasWin||dead;
- if(!$('#ask-tile').hidden)setCoachText('#ask-tile','Why discard '+G.tileName(selectedTile.k)+'?');
+ renderCoachPrompts(advice,!hasWin&&!dead);
  if(submittedQuestion&&submittedQuestion.position!==questionPosition()){
   if($('#coach-question').value===submittedQuestion.text)$('#coach-question').value='';
   submittedQuestion=null;
  }
  setCoachText('#coach-answer',submittedQuestion?.answer.text||'');
+ renderCoachPreview($('#coach-answer-preview'),submittedQuestion?.answer.preview);
  const switchButton=$('[data-action="coach-switch"]');
  switchButton.hidden=!pivot;
  if(pivot)setCoachText('[data-action="coach-switch"]','Switch to '+other.target.name);
@@ -683,9 +762,9 @@ function render(){
  if(completed){pinned=null;goalKey=null;selected.clear();try{localStorage.setItem('parlor-last-match',JSON.stringify(completed));}catch{}}
  document.documentElement.dataset.tileStyle=tileStyle;for(const[key,value]of Object.entries(BOARDS[tileStyle]))document.documentElement.style.setProperty('--board-'+key,value);
  if(s.phase==='matchEnded'){renderMatchEnd();save();clearTimeout(botTimer);return;}
- const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?'← Back to game':'<span>＋</span> New game';
+ const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?(regularReturn?'← Resume saved game':'Start a regular game'):'<span>＋</span> New game';
  if(s.phase==='ended'){
-  const next=s.practiceSession?btn('Practice again','practice-again'):btn('Next round','next-round');
+  const next=s.practiceSession?btn('Deal a new practice rack','practice-again'):btn('Next round','next-round');
   showFinishedTable('ended',roundReviewMarkup(s,next));save();clearTimeout(botTimer);return;
  }
  const board=$('#table');
@@ -920,6 +999,11 @@ function swapExposedJoker(id){
 function arrangeTile(id,insertion){if(passing||s.phase==='wallSetup')return;if(moveRackTile(s.hands[0],id,insertion)){s.rackOrder=s.hands[0].map(t=>t.id);render();$('#rack [data-tile="'+id+'"]').focus({preventScroll:true});}}
 function discardTile(id){if(passing||s.turn!==0||s.phase!=='discard'||!s.hands[0].some(t=>t.id===id))return;G.discard(s,id);selected.clear();playSound();render();}
 installRackArrangement({rack:$('#rack'),canArrange:e=>!passing&&!['wallSetup','ended','matchEnded'].includes(s.phase)&&(e?.pointerType!=='touch'||mobileArrange),onMove:arrangeTile,onPause:()=>clearTimeout(botTimer),onResume:scheduleBot});
+$('#coach-toggle').addEventListener('click',()=>{
+ s.coachCollapsed=!s.coachCollapsed;
+ if(s.coachCollapsed)$('#coach-questions').open=false;
+ renderCoach();save();scheduleBot();
+});
 $('#coach-form').addEventListener('submit',event=>{
  event.preventDefault();
  askCoach($('#coach-question').value);
@@ -927,6 +1011,12 @@ $('#coach-form').addEventListener('submit',event=>{
 $('#coach-prompts').addEventListener('click',event=>{
  const button=event.target.closest('button');
  if(button)askCoach(button.textContent);
+});
+$('#play-coach').addEventListener('click',event=>{
+ const next=event.target.closest('.coach-preview-next');
+ if(!next)return;
+ const panel=next.closest('.coach-preview');
+ renderCoachPreview(panel,panel.id==='coach-preview'?coachAdvice?.preview:submittedQuestion?.answer.preview,true);
 });
 $('#coach-questions').addEventListener('toggle',event=>{
  questionTurn=event.currentTarget.open?coachTurn():'';
@@ -955,11 +1045,12 @@ document.addEventListener('click',async e=>{
  else if(a==='joker-choices'){showJokerChoices();}
  else if(a==='learn'||a==='hint'){showLearn();}
  else if(a==='open-coach'){
-  s.guidedPlay=true;modal.close();render();
-  $('#line-heading')?.focus({preventScroll:true});
+  s.guidedPlay=true;s.coachCollapsed=false;modal.close();render();
+  $('#coach-toggle').focus();
  }
- else if(a==='close-coach'){
-  s.guidedPlay=false;$('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';render();
+ else if(a==='turn-off-coach'){
+  s.guidedPlay=false;s.coachCollapsed=false;
+  $('#coach-details').open=false;$('#coach-questions').open=false;$('#coach-question').value='';modal.close();render();
   $('.header-learn').focus({preventScroll:true});
  }
  else if(a==='learn-hands'){modal.close();pickerOpen=true;render();}

@@ -7,6 +7,16 @@ function groupsLabel(pairs,singles){
  return pairs?'pairs':'singles';
 }
 
+function missingNaturals(gaps,groupLabel){
+ if(gaps.length>3)return 'natural tiles for its '+groupLabel;
+ if(gaps.length>1&&gaps.every(g=>g.need===1))return list.format(gaps.map(g=>tileName(g.key)))+' for its '+groupLabel;
+ return list.format(gaps.map(g=>{
+  const name=tileName(g.key);
+  if(g.pair&&g.required===2)return g.need===1?'a natural '+name+' for its pair':'two natural '+name+'s for its pair';
+  return g.need===1?'a natural '+name:g.need+' natural copies of '+name;
+ }));
+}
+
 function jokerSupply(game,visible){
  // Even if every exposed joker could be redeemed, a line needing more
  // additional jokers than this upper bound cannot be finished.
@@ -93,7 +103,7 @@ export function naturalTradeoff(game,focus,other){
  const sizes=flexible.target.groups.map(([,n])=>n);
  const complete=groupsLabel(sizes.includes(2),sizes.includes(1));
  const ready=sizes.some(n=>n<=2)?b+' has its '+complete+' in place.':b+' can use a joker in every remaining set.';
- const gapTiles=gaps.length<=3?list.format(gaps.map(g=>tileName(g.key)))+' for its '+unfinished:'natural tiles for its '+unfinished;
+ const gapTiles=missingNaturals(gaps,unfinished);
  // A short wall gives the farther line fewer turns to recover the distance.
  // Calls can change turn order, so use this only as a tiebreaker.
  const seats=game.deadHand?3:4;
@@ -115,7 +125,13 @@ export function naturalTradeoff(game,focus,other){
   const need=shortWall&&preferred===waiting?'With the wall short, I’d favor '+a+'. You still need '+gapTiles+'.':
    a+comparison+' and needs '+gapTiles+'.';
   const outlook=tight?scarcity:waiting.away===1?'You can call that tile for Mahjong.':'';
-  reason=[need,outlook,ready].filter(Boolean).join(' ');
+  if(!distance&&preferred===flexible&&!flexible.jokerDebt&&sizes.some(n=>n<=2)){
+   const sameSection=waiting.target.section===flexible.target.section;
+   const completeLine=sameSection?'Line '+flexible.target.line:b;
+   const waitingLine=sameSection?'Line '+waiting.target.line:a;
+   reason='Both lines are equally close. '+completeLine+'’s '+complete+' are complete. '+waitingLine+' still needs '+gapTiles+'.';
+   if(outlook)reason+=' '+outlook;
+  }else reason=[need,outlook,ready].filter(Boolean).join(' ');
  }
  const details=naturalWaitDetails(game,waiting,visible);
  const shortage=jokerShortage(game,flexible,visible);

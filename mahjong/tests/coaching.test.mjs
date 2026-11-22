@@ -318,7 +318,7 @@ test('calling compares the staged exposure and discarding previews the selected 
  assert.match(advice.details[0],/Consecutive Run/);
  assert.match(advice.details[0],/after discarding/);
  game.phase='discard';game.turn=0;
- assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).text,/9 Crak.*tied/);
+ assert.match(turnAdvice(game,lines,{...options,selected:new Set([hand.find(t=>t.k==='C9').id])}).headline,/9 Crak or /);
  game.phase='draw';
  assert.match(turnAdvice(game,lines,options).text,/Take a tile from the wall/);
 });
@@ -332,14 +332,26 @@ test('7 and 9 Bam are a real tradeoff for the 13579 backup, including after sele
  assert.deepEqual(rows().map(r=>r.target.id),['run5','odd1']);
  for(const id of [null,9,10]){
   const tip=turnAdvice(game,rows(),{...options,selected:new Set(id==null?[]:[id])});
-  assert.match(tip.text,/Tough choice/);
+  assert.match(tip.headline,/Bam or/);
   for(const label of ['7 Bam','9 Bam','13579 · Line 1'])assert.ok(tip.text.includes(label));
-  assert.match(tip.text,/Either discard costs it a tile/);
+  assert.match(tip.reason,/Either costs 13579 · Line 1 one tile/);
   assert.equal(tip.tile,undefined);
   game.hands[0].reverse();
  }
  game.hands[0].find(t=>t.k==='B7').k='W';
  assert.equal(turnAdvice(game,rows(),options).tile.k,'W');
+});
+
+test('the 13579 comparison gives both spare tile choices and the reason they can go',()=>{
+ const {game}=guided();
+ game.phase='discard';game.turn=0;game.drawn=13;
+ game.hands[0]='B1 B1 B1 B3 B3 B3 B5 B5 B5 B7 B9 B9 B9 C2'.split(' ').map((k,id)=>({k,id}));
+ const rows=recommendHands(game.hands[0],[],{visible:visibleTileCounts(game)}).slice(0,2);
+ assert.deepEqual(rows.map(r=>r.target.id),['odd1','odd7']);
+ const tip=turnAdvice(game,rows,options);
+ assert.equal(tip.headline,'2 Crak or 5 Bam');
+ assert.match(tip.reason,/Neither pattern uses 2 Crak.*spare 5 Bam/);
+ assert.match(tip.details.join(' '),/3 tiles away/);
 });
 
 test('a lone 5 Dot is a better discard than a 5 Bam with its 6 Bam single already on the rack',()=>{
@@ -454,6 +466,9 @@ test('an exposed opponent line breaks an otherwise genuine discard tie',()=>{
   const tip=advice(selected);
   assert.equal(tip.tile.k,'B9');
   assert.match(tip.text,/Discard 9 Bam.*Rose could call 2 Dot.*2468 · Line 1/);
+  assert.equal(tip.preview.player,2);
+  assert.equal(tip.preview.tileKey,'D2');
+  assert.ok(tip.preview.targets.every(t=>t.id==='even1'));
  }
 });
 

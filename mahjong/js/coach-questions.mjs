@@ -1,7 +1,8 @@
 import {isDeadHand,NAMES,tileName,unseenCopies,visibleTileCounts,winning} from './engine.mjs?v=win-source-1';
 import {assessHand} from './recommendations.mjs?v=hand-outlook-1';
-import {handComparison} from './coaching.mjs?v=ask-coach-1';
-import {naturalWaitDetails} from './natural-outlook.mjs?v=ask-coach-1';
+import {handComparison} from './coaching.mjs?v=coach-layout-1';
+import {naturalWaitDetails} from './natural-outlook.mjs?v=coach-layout-1';
+import {charlestonQuestion} from './charleston-questions.mjs?v=charleston-questions-1';
 
 const list=new Intl.ListFormat('en',{type:'conjunction'});
 const numbers=['one','two','three','four','five','six','seven','eight','nine'];
@@ -58,7 +59,7 @@ function opponents(game,table,key,name){
  if(key){
   const tile=tileName(key),held=game.hands[0].some(t=>t.k===key);
   if(!held)return {text:tile+' isn’t on your rack.'+(details.length?' '+details[0]:''),details:details.slice(1)};
-  if(threat&&(!name||threat.reason.includes(name)))return {text:threat.reason,details};
+  if(threat&&(!name||threat.reason.includes(name)))return {text:threat.reason,preview:threat.preview,details};
   if(key==='J')return {text:'A discarded joker cannot be called.',details};
  }
  if(!details.length)return {text:name?'There’s no clear read on '+name+' from the exposed tiles.':'There’s no clear read on the other players from the exposed tiles.'};
@@ -123,15 +124,17 @@ function discardAnswer(game,lines,key,table,advice){
   }
  }
  if(threat)parts.push(threat.reason);
- return {text:parts.join(' '),details};
+ return {text:parts.join(' '),preview:threat?.preview,details};
 }
 
-export function answerCoachQuestion(game,lines,{question='',tileKey=null,table,tradeoff,advice}={}){
+export function answerCoachQuestion(game,lines,{question='',tileKey=null,selectedIds=[],table,tradeoff,advice}={}){
  const q=String(question).toLowerCase().replace(/[’‘]/g,"'").replace(/[-–]/g,' ').replace(/\b(one|two|three|four|five|six|seven|eight|nine)\b/g,n=>String(numbers.indexOf(n)+1));
  const named=tileKeys(q),key=named[0]??tileKey;
  const person=NAMES.slice(1).find(n=>new RegExp('\\b'+n+'\\b','i').test(q));
  const tableQuestion=/\b(danger\w*|risk\w*|safe\w*|feed\w*|opponents?|defen[cs]e)\b/.test(q)||person||/\b(they|others?|other players?)\b.*\b(want|need|collect|go|going|build|play|call)/.test(q);
  if(/\b(pivot|switch|stick|commit|closer|line choice|compare (?:my |the )?(?:lines|hands)|which (?:line|hand)|change (?:lines|hands))\b/.test(q))return lineAnswer(lines,tradeoff);
+ const pass=charlestonQuestion(game,lines,q,named,tileKey,selectedIds);
+ if(pass)return pass;
  if(!tableQuestion&&(/\b(odds|chance\w*|probabilit\w*|likel\w*|unseen|live|availability|left|remain\w*)\b/.test(q)||/\b(missing|need)\b.*\b(singles?|pairs?)\b/.test(q))){
   if(named.length>1){
    const facts=named.map(k=>chances(game,lines,k));
@@ -152,5 +155,6 @@ export function answerCoachQuestion(game,lines,{question='',tileKey=null,table,t
   if(!key&&advice?.text&&game.phase==='discard'&&game.turn===0&&!/\b(this|that|selected)\b/.test(q))return {text:advice.text,details:advice.details??[]};
   return discardAnswer(game,lines,key,table,advice);
  }
+ if(['charleston','charlestonChoice','courtesy','courtesyChoice'].includes(game.phase))return {text:'Ask which tiles to pass, whether to keep a rack tile, or how your two lines compare.'};
  return {text:fallback};
 }

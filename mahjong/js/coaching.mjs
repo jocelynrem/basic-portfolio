@@ -1,7 +1,7 @@
 import {compatible,evaluate,TARGETS,tileName,unseenCopies,visibleTileCounts,winning} from './engine.mjs?v=win-source-1';
 import {assessHand,compareFit} from './recommendations.mjs?v=hand-outlook-1';
 import {patternBlocks} from './hand-groups.mjs?v=dragon-notation-1';
-import {readTable} from './defense.mjs?v=table-reads-1';
+import {readTable} from './defense.mjs?v=coach-layout-1';
 
 const line=row=>row.target.name;
 function gapName(gap){
@@ -231,13 +231,14 @@ export function discardAdvice(s,lines,picked=null,table=readTable(s)){
  }
  const riskier=offensiveBest.filter(c=>risk(c)>lowestRisk);
  const flagged=chosen&&risk(chosen)>0?chosen:riskier.sort((a,b)=>risk(b)-risk(a))[0];
- const warning=flagged&&table.risks.get(flagged.tile.k).reason;
- if(warning)details.push(warning);
- const defense=chosen&&warning?warning:'';
+ const hazard=flagged&&table.risks.get(flagged.tile.k);
+ if(hazard)details.push(hazard.reason);
+ const defense=chosen&&hazard?{defense:hazard.reason,preview:hazard.preview}:{};
  if(tied.length>1)details.push('Equally ranked discards for these lines · '+tied.map(c=>tileName(c.tile.k)).join(', ')+'.');
  if(riskier.length&&(!chosen||offensiveBest.includes(chosen))){
   const rival=riskier.includes(chosen)?chosen:riskier[0];
-  return {text:'Discard '+alternatives+'. '+table.risks.get(rival.tile.k).reason,details,tile:tied.length===1?best.tile:undefined};
+  const hazard=table.risks.get(rival.tile.k);
+  return {headline:alternatives,reason:hazard.reason,text:'Discard '+alternatives+'. '+hazard.reason,preview:hazard.preview,details,tile:tied.length===1?best.tile:undefined};
  }
  // Explain why a seemingly equal discard is weaker. Use the actual missing
  // natural tiles in a viable variation, even if another suit masks the loss.
@@ -247,25 +248,35 @@ export function discardAdvice(s,lines,picked=null,table=readTable(s)){
  if(atRisk.size){
   const discards=new Set(examples.map(c=>c.tile.k));
   const reason=singlesReason([examples[0].main,...examples[0].routes],atRisk,discards);
-  if(reason)return {text:'Discard '+alternatives+'. '+reason,defense,details,tile:tied.length===1?best.tile:undefined};
+  if(reason)return {text:'Discard '+alternatives+'. '+reason,...defense,details,tile:tied.length===1?best.tile:undefined};
  }
  if(weakerSelection){
   const why=compareFit(chosen.main,best.main)?'protect '+line(focus):
    backup&&(compareFit(chosen.next,best.next)||chosen.routes.length<best.routes.length||chosen.shared<best.shared)?'protect '+line(backup):'keep your joker';
-  return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',defense,details};
+  return {text:'Keep the '+tileName(picked.k)+'. Discard '+alternatives+' to '+why+'.',...defense,details};
  }
  if(tied.length>1){
-  const pair=names.join(' and ');
   const cost=best.main.away>focus.away?line(focus):backup&&best.next.away>backup.away?line(backup):null;
-  const text=cost?'Tough choice. '+pair+' both help '+cost+'. Either discard costs it a tile.':
-   backup&&examples.every(fitsBackup)?pair+' both fit '+line(backup)+'. Either discard leaves the same distance to each line.':
-   pair+' are tied for this discard. Either leaves '+line(focus)+' the same distance from Mahjong.';
-  return {text,defense,details};
+  let reason=cost?'Either costs '+cost+' one tile.':backup?'Either keeps both lines at their current distance.':'Either keeps '+line(focus)+' just as close.';
+  if(!cost){
+   const groups=lines.map(r=>compatible(r.target,exposed)??[]);
+   const spare=examples.map(({tile})=>{
+    const held=hand.filter(t=>t.k===tile.k).length;
+    const needed=Math.max(...groups.map(g=>g.reduce((sum,[k,n])=>sum+(k===tile.k?n:0),0)));
+    return {name:tileName(tile.k),needed,extra:tile.k!=='J'&&held>needed};
+   });
+   if(spare.every(t=>t.extra)){
+    const unused=spare.find(t=>!t.needed),extra=spare.find(t=>t.needed);
+    if(unused&&extra)reason=(backup?'Neither pattern uses ':'This pattern doesn’t use ')+unused.name+', and you have a spare '+extra.name+'.';
+    else reason=backup?'Both tiles are spare for these two patterns.':'Both tiles are spare for '+line(focus)+'.';
+   }
+  }
+  return {headline:alternatives,reason,text:'Discard '+alternatives+'. '+reason,...defense,details};
  }
  const loss=best.main.away>focus.away?focus:backup&&best.next.away>backup.away?backup:null;
  const text=loss?'Tough discard. Letting the '+tileName(best.tile.k)+' go costs a tile toward '+line(loss)+'.':
   'You can let the '+tileName(best.tile.k)+' go and keep '+line(focus)+'.';
- return {text,defense,details,tile:best.tile};
+ return {text,...defense,details,tile:best.tile};
 }
 
 // Keep an uncallable discard in view through the opponents' turns. A fresh draw

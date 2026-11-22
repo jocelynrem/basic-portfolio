@@ -89,16 +89,18 @@ export function readTable(s,visible=visibleTileCounts(s)){
   reads.push({detail,count:lines.length,exposures:exposures.length});
   for(const k of Object.keys(rackCounts)){
    if(k==='J')continue;
-   const matched=new Set(),roles=new Set();
-   let fits=0,callableSet=false;
+   const matched=new Set(),roles=new Set(),callTargets=[],winTargets=[];
    for(const {target,needs} of plans){
     const need=needs.get(k);
     if(!need)continue;
     const canCall=unseenCopies(visible,k)+unseenJokers+1>=need.callSize;
     if(!canCall&&!possibleWin(needs,visible,k))continue;
-    fits++;matched.add(target.name);callableSet||=canCall;
+    if(canCall)callTargets.push(target);
+    else winTargets.push(target);
+    matched.add(target.name);
     roles.add(need.pair?'pair':need.natural?'single':'set');
    }
+   const fits=callTargets.length+winTargets.length;
    if(!fits)continue;
    // Broad matches from a lone exposure rarely distinguish two discards.
    const certain=plans.length===fits;
@@ -107,9 +109,12 @@ export function readTable(s,visible=visibleTileCounts(s)){
    if(!rank||(risks.get(k)?.rank??0)>=rank)continue;
    const subject=tileName(k);
    const line=matched.size===1?[...matched][0]:null;
-   const reason=callableSet?name+' could call '+subject+' for a set'+(line?' on '+line:' that fits the exposures')+'.':
+   const reason=callTargets.length?name+' could call '+subject+' for a set'+(line?' on '+line:' that fits the exposures')+'.':
     subject+' could give '+name+' Mahjong'+(line?' on '+line:'')+'. '+(roles.size===1&&!roles.has('set')?'It would finish a '+[...roles][0]+'.':'Only a winning call fits.');
-   risks.set(k,{rank,reason});
+   const risk={rank,reason};
+   // Keep only variations that support the kind of call described in the warning.
+   if(line)risk.preview={player,tileKey:k,lineName:line,targets:callTargets.length?callTargets:winTargets};
+   risks.set(k,risk);
   }
  }
  reads.sort((a,b)=>a.count-b.count||b.exposures-a.exposures);
