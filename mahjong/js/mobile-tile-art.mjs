@@ -15,7 +15,7 @@ const windMarkers={
  W:'M5 7l4 3v-6Z',
  S:'M30 73l3-4h-6Z'
 };
-const windInk='#25384d',jokerInk='#66325f',flowerInk='#8d4c16',markerInk='#8f561e';
+const windInk='#393d3f',jokerInk='#714265',flowerInk='#714265',markerInk='#a32146';
 
 function mark(name,x,y,size,ink){
  return `<path d="${marks[name]}" transform="translate(${x-size/2} ${y+size/2}) scale(${size/960})" fill="${ink}"/>`;

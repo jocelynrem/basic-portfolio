@@ -8,7 +8,7 @@ import {readTable} from './defense.mjs?v=coach-layout-1';
 import {naturalTradeoff} from './natural-outlook.mjs?v=coach-layout-1';
 import {answerCoachQuestion} from './coach-questions.mjs?v=coach-layout-1';
 import {trackOutlook,pivotReason,holdVerdict} from './outlook.mjs?v=backup-discards-1';
-import {displaySymbols,patternBlocks,targetBlocks} from './hand-groups.mjs?v=dragon-notation-1';
+import {displaySymbols,patternBlocks,targetBlocks,notationSuit} from './hand-groups.mjs?v=parlor-palette-1';
 import {placeJoker} from './joker-placement.mjs?v=wind-sort-1';
 import {newMatch,nextRound,finishMatch,normalizeMatch} from './match.mjs?v=wind-sort-1';
 import {practiceGame,restorePracticeChoice} from './learning.mjs?v=hand-outlook-1';
@@ -16,7 +16,7 @@ import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,BOARDS,validStyle,faceArt} from './tile-art.mjs?v=wind-letter-size-1';
+import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=parlor-palette-1';
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
@@ -130,7 +130,7 @@ function renderSeat(p){
  const exposureLabel=groups.length?`role="group" aria-label="${G.NAMES[p]} exposed tiles"`:'';
  seat.innerHTML=`<div class="seat-identity"><div class="avatar">${G.NAMES[p][0]}</div><div class="seat-name">${G.NAMES[p]}<small>${G.windFor(p,s.dealer).toUpperCase()}${p===s.dealer?' · DEALER':''}</small></div></div><div class="bot-exposed" ${exposureLabel}>${exposedMarkup(p,'opponent-tile',splitAt)}</div>`;
 }
-function arrowDiagram(dir){const paths=Array.from({length:4},(_,i)=>{const a=pos[i],b=pos[(i+dir)%4],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),offset=dir===2?(i%2?2:-2):0;return `<path d="M${a[0]+dx/l*13+offset} ${a[1]+dy/l*13}L${b[0]-dx/l*13+offset} ${b[1]-dy/l*13}" stroke="${i===0?'#f4ce87':'#9ab9a0'}" stroke-width="${i===0?2:1}" marker-end="url(#arrow${i===0?'gold':'green'})" fill="none" opacity="${i===0?1:.5}"/>`;}).join('');return `<svg class="pass-diagram" viewBox="0 0 100 100" aria-label="Everyone passes ${passNames[dir]}. You send to ${G.NAMES[dir]} and receive from ${G.NAMES[(4-dir)%4]}."><defs><marker id="arrowgold" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="#f4ce87"/></marker><marker id="arrowgreen" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="#9ab9a0"/></marker></defs>${paths}${pos.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="10" fill="${i===0?'#f1ebd4':'#3b6c5b'}" stroke="#c3d0ac" stroke-width=".5"/><text x="${x}" y="${y+1}" dominant-baseline="middle" text-anchor="middle" font-size="${i===0?5.5:5}" fill="${i===0?'#315d4c':'#e3e8cc'}" font-family="sans-serif">${G.NAMES[i]}</text>`).join('')}</svg>`;}
+function arrowDiagram(dir){const paths=Array.from({length:4},(_,i)=>{const a=pos[i],b=pos[(i+dir)%4],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),offset=dir===2?(i%2?2:-2):0;return `<path d="M${a[0]+dx/l*13+offset} ${a[1]+dy/l*13}L${b[0]-dx/l*13+offset} ${b[1]-dy/l*13}" stroke="${i===0?'var(--bubblegum-pink)':'var(--parlor-cyan-wash)'}" stroke-width="${i===0?2:1}" marker-end="url(#arrow${i===0?'gold':'green'})" fill="none" opacity="${i===0?1:.72}"/>`;}).join('');return `<svg class="pass-diagram" viewBox="0 0 100 100" aria-label="Everyone passes ${passNames[dir]}. You send to ${G.NAMES[dir]} and receive from ${G.NAMES[(4-dir)%4]}."><defs><marker id="arrowgold" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="var(--bubblegum-pink)"/></marker><marker id="arrowgreen" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="var(--parlor-cyan-wash)"/></marker></defs>${paths}${pos.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="10" fill="${i===0?'var(--white)':'var(--parlor-deep)'}" stroke="var(--parlor-cyan-wash)" stroke-width=".5"/><text x="${x}" y="${y+1}" dominant-baseline="middle" text-anchor="middle" font-size="${i===0?5.5:5}" fill="${i===0?'var(--gunmetal)':'var(--white)'}" font-family="sans-serif">${G.NAMES[i]}</text>`).join('')}</svg>`;}
 function renderCenter(){if(s.phase==='ended'||s.phase==='matchEnded')return;const el=$('#table-center');el.classList.remove('claim-center');el.classList.remove('charleston-center');
  if(['charleston','courtesy','charlestonChoice','courtesyChoice'].includes(s.phase)){el.innerHTML='';return;}
  const oldPool=$('#discards'),poolScroll=oldPool?.scrollTop||0;
@@ -365,7 +365,8 @@ function targetNotation(target,extraClass='',highlightKey=null){
    description.push(`${count} × ${G.tileName(key)}`);
    const color=notationColors[key[0]]??'honor';
    const highlight=key===highlightKey?' preview-match':'';
-   return `<span class="${color}${highlight}">${esc(displaySymbols(symbols,target.section))}</span>`;
+   const suit=notationSuit(key,target.section);
+   return `<span class="${color}${highlight}"${suit?' data-suit="'+suit+'"':''}>${esc(displaySymbols(symbols,target.section))}</span>`;
   });
   return `<span class="hand-group" aria-hidden="true">${parts.join('')}</span>`;
  }).join('');
@@ -761,7 +762,7 @@ function render(){
  const completed=finishMatch(s);
  $('.play-area').classList.toggle('guided-layout',s.guidedPlay&&!['ended','matchEnded'].includes(s.phase));
  if(completed){pinned=null;goalKey=null;selected.clear();try{localStorage.setItem('parlor-last-match',JSON.stringify(completed));}catch{}}
- document.documentElement.dataset.tileStyle=tileStyle;for(const[key,value]of Object.entries(BOARDS[tileStyle]))document.documentElement.style.setProperty('--board-'+key,value);
+ document.documentElement.dataset.tileStyle=tileStyle;
  if(s.phase==='matchEnded'){renderMatchEnd();save();clearTimeout(botTimer);return;}
  const newButton=$('.header-new-game');newButton.hidden=false;newButton.dataset.action=s.practiceSession?'return-game':'new';newButton.innerHTML=s.practiceSession?(regularReturn?'← Resume saved game':'Start a regular game'):'<span>＋</span> New game';
  if(s.phase==='ended'){

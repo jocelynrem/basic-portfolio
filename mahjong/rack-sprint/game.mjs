@@ -1,7 +1,7 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
-import { targetBlocks, displaySymbols } from '../js/hand-groups.mjs?v=dragon-notation-1';
-import { faceArt } from '../js/tile-art.mjs?v=wind-letter-size-1';
+import { targetBlocks, displaySymbols, notationSuit } from '../js/hand-groups.mjs?v=parlor-palette-1';
+import { faceArt } from '../js/tile-art.mjs?v=parlor-palette-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
@@ -36,8 +36,10 @@ function pattern(target) {
  const spoken = target.groups.map(([k,n]) => `${n} × ${tileName(k)}`).join(', ');
  const blocks = targetBlocks(target).map(block => {
   const parts = block.map(({index,symbols}) => {
-   const ink = inks[target.groups[index][0][0]] || 'honor';
-   return `<span data-ink="${ink}">${displaySymbols(symbols,target.section)}</span>`;
+   const key = target.groups[index][0];
+   const ink = inks[key[0]] || 'honor';
+   const suit = notationSuit(key,target.section);
+   return `<span data-ink="${ink}"${suit ? ' data-suit="' + suit + '"' : ''}>${displaySymbols(symbols,target.section)}</span>`;
   });
   return `<span class="pattern-group" aria-hidden="true">${parts.join('')}</span>`;
  });

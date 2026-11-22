@@ -27,3 +27,11 @@ export function patternBlocks(target){
 export function displaySymbols(symbols,section){
  return symbols.replace(/H/g,section==='2026'?'0':'D').replace(/[RG]/g,'D');
 }
+
+export function notationSuit(key,section){
+ const suit=key[0];
+ if ('BCD'.includes(suit)) return suit;
+ if (suit==='G') return 'B';
+ if (suit==='R') return 'C';
+ return suit==='H'&&section!=='2026'?'D':'';
+}

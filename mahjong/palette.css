@@ -1,0 +1,33 @@
+:root {
+  --gunmetal: #393d3f;
+  --white: #fdfdff;
+  --bubblegum-pink: #ff5d73;
+  --pacific-cyan: #62929e;
+  --mint-leaf: #65b891;
+
+  --parlor-ink: #25292b;
+  --parlor-muted: #4c5b62;
+  --parlor-felt: #244751;
+  --parlor-mat: var(--gunmetal);
+  --parlor-deep: #22353c;
+  --parlor-link: #285763;
+  --parlor-cyan-ink: #294f78;
+  --parlor-mint-ink: #24634d;
+  --parlor-pink-ink: #a32146;
+  --parlor-flower-ink: #714265;
+  --parlor-paper: #f3f7f8;
+  --parlor-cyan-wash: #e6f0f3;
+  --parlor-mint-wash: #e2f3e9;
+  --parlor-pink-wash: #fde7ed;
+  --parlor-rule: #b6cbd1;
+  --parlor-control: #637c85;
+  --parlor-focus: #163342;
+}
+
+.hand-group [data-suit]::after,
+.pattern-group [data-suit]::after {
+  content: attr(data-suit);
+  margin-inline: .12em .15em;
+  vertical-align: super;
+  font: 750 max(.54em, 9px)/0 system-ui, sans-serif;
+}
