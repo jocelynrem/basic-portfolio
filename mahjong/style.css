@@ -296,7 +296,7 @@
 /* A quieter, airy face treatment for the optional Minimal set. */
 .tile[data-tile-style="minimal"]{color:#28585b;background:#fffef8;border-color:#d6dfd9;border-bottom-color:#b1ccc3;box-shadow:0 2px 2px #25292b1c}
 /* Task-focused controls and a readable felt color for each tile set. */
-:root{--board-felt:var(--parlor-mat);--board-edge:var(--bubblegum-pink);--board-ink:var(--white);--board-muted:var(--parlor-cyan-wash);--board-accent:var(--parlor-link)}
+:root{--board-felt:var(--parlor-mat);--board-edge:var(--pacific-cyan);--board-ink:var(--white);--board-muted:var(--parlor-cyan-wash);--board-accent:var(--parlor-link)}
 :root{--green:var(--board-accent)}
 .table{background-color:var(--board-felt);border-color:var(--board-edge);color:var(--board-ink)}
 .opponent-row .seat-name small,.player-meta,.rack-under,#rack-arrange-help,.seat-wind{color:var(--board-muted)}
