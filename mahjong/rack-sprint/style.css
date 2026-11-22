@@ -41,7 +41,7 @@ h1, h2, p { margin: 0; }
  border-bottom: 1px solid var(--rule);
 }
 .wordmark { display: inline-flex; align-items: center; gap: .2em; font: 23px/1 Georgia, serif; letter-spacing: -.045em; white-space: nowrap; }
-.brand-flower { color: var(--bubblegum-pink); margin-right: .12em; font: 36px/1 Georgia, serif; }
+.brand-flower { display: block; width: .78em; height: .78em; flex: none; color: var(--bubblegum-pink); margin-right: .12em; font-size: 36px; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none; }
 .back-link span { font-size: 19px; }
 .back-link:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -154,9 +154,11 @@ body:has(.pause-dialog[open]) #play { visibility: hidden; }
  background: linear-gradient(145deg, var(--white), var(--parlor-mint-wash));
  box-shadow: 0 2px 0 var(--parlor-rule);
 }
+.sprint-tile[data-fit="yes"]::after, .review-check {
+ width: 5px; height: 8px; border: solid var(--parlor-mint-ink); border-width: 0 2px 2px 0;
+}
 .sprint-tile[data-fit="yes"]::after {
  content: ''; position: absolute; left: 50%; bottom: -13px;
- width: 5px; height: 8px; border: solid var(--parlor-mint-ink); border-width: 0 2px 2px 0;
  transform: translateX(-50%) rotate(45deg);
 }
 .sprint-tile[data-fit="no"] { background: var(--parlor-page); box-shadow: none; }
@@ -250,7 +252,10 @@ h2 { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.04
 .review-label, .review-points { font-weight: 700; font-size: 14px; }
 .review-points { white-space: nowrap; }
 .review-body { padding: 1px clamp(12px, 2.2vw, 24px) 15px; }
-.review-rack { justify-content: flex-start; flex-wrap: wrap; gap: 7px 5px; width: fit-content; max-width: 100%; padding: 10px 12px; background: var(--parlor-paper); border: 1px solid var(--parlor-rule); border-radius: 7px; }
+.review-match { width: fit-content; max-width: 100%; padding: 10px 12px; background: var(--parlor-paper); border: 1px solid var(--parlor-rule); border-radius: 7px; }
+.review-match-label { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: var(--parlor-mint-ink); font-size: 13px; font-weight: 700; }
+.review-check { display: block; flex: none; transform: translateY(-1px) rotate(45deg); }
+.review-rack { justify-content: flex-start; flex-wrap: wrap; gap: 7px 5px; }
 .review-rack .sprint-tile { flex: 0 0 clamp(24px, 4vw, 39px); margin-bottom: 14px; }
 .review-comparisons { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(225px,100%), 1fr)); gap: 12px; margin: 10px 0; }
 .review-line { display: grid; gap: 4px; justify-items: start; align-content: start; }

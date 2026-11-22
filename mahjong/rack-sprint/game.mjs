@@ -1,7 +1,7 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
 import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
-import { faceArt } from '../js/tile-art.mjs?v=charcoal-flower-1';
+import { faceArt } from '../js/tile-art.mjs?v=rose-flower-2';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;
@@ -200,9 +200,14 @@ function showResults() {
   const correct = points === 100;
   return `<details class="review-round" data-kind="${correct ? 'best' : 'miss'}" ${i === (firstMiss < 0 ? 0 : firstMiss) ? 'open' : ''}>
    <summary><span class="review-index">${String(i + 1).padStart(2,'0')}</span><span class="review-label">${!picked ? 'Time’s up' : correct ? 'Best fit' : 'Closer line available'}</span><span class="review-points">+${points}</span></summary>
-   <div class="review-body"><div class="review-comparisons">${picked && !correct ? reviewLine('Your pick',picked) : ''}${reviewLine(correct ? 'Your pick · Best fit' : 'Best fit',best)}</div>
-   <div class="review-rack" role="group" aria-label="Original rack. Highlighted tiles fit the best line.">${rackMarkup(round.rack,best)}</div>
-   <p class="review-note">${fitNote(best,picked)}</p></div></details>`;
+   <div class="review-body">
+    <div class="review-comparisons">${picked && !correct ? reviewLine('Your pick',picked) : ''}${reviewLine(correct ? 'Your pick · Best fit' : 'Best fit',best)}</div>
+    <div class="review-match" role="group" aria-labelledby="review-match-${i}">
+     <p class="review-match-label" id="review-match-${i}"><span class="review-check" aria-hidden="true"></span>Tiles used by the best fit</p>
+     <div class="review-rack">${rackMarkup(round.rack,best)}</div>
+    </div>
+    <p class="review-note">${fitNote(best,picked)}</p>
+   </div></details>`;
  }).join('');
  showScreen('results');
  focusAt('#final-score');

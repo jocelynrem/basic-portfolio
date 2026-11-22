@@ -1,5 +1,5 @@
 import {specialArt} from './special-art.mjs?v=cool-tiles-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=charcoal-flower-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=rose-flower-2';
 export const STYLES={
  modern:{name:'Modern Garden',description:'Geometric garden shapes in ink blue, soft blue, olive, coral, and mustard.',bam:'#79851c',leaf:'#9ba451',dot:'#123f50',crak:'#d56848',gold:'#d7a52b',sky:'#80a7bc'},
  minimal:{name:'Minimal',description:'Airy mint strokes, pink and orange dots, folded winds, and simple floral shapes.',bam:'#72a83c',leaf:'#b0d8ba',dot:'#28585b',crak:'#dc6739',gold:'#eaa442',mint:'#70bcb5',pink:'#df9bab'},
@@ -9,16 +9,9 @@ export const STYLES={
  mobile:{name:'Mobile',description:'Bold, rounded suit symbols and large Ranchers wind letters.',bam:'#166147',dot:'#154b75',crak:'#a83239'}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
-const flowerInk='var(--gunmetal, #393d3f)';
-const flowerMint='var(--parlor-mint-ink, #24634d)';
-const flowerCyan='var(--pacific-cyan, #62929e)';
-const flowerCenter='var(--white, #fdfdff)';
+const flowerInk='var(--tile-flower-ink, #df456e)';
+const flowerMark=new URL('../icons/flower.svg#flower',import.meta.url).href;
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];
-function flower(style){
- if(style==='deco')return `<path d="M20 35L4 24Q-1 16 7 12L13 30L8 10Q9 4 16 6L19 28L17 5Q20 1 23 5L21 28L24 6Q31 4 32 10L27 30L33 12Q41 16 36 24Z" fill="${flowerInk}"/><path d="M15 31Q20 27 25 31L20 40Z" fill="${flowerCyan}"/><path d="M20 54V38M19 49Q4 48 5 37Q15 37 19 49M21 48Q36 45 35 35Q25 36 21 48" stroke="${flowerMint}" stroke-width="1.4" fill="${flowerMint}"/>`;
- const stamens=style==='coastal'?`<path d="M20 25L30 13M23 23L32 17" stroke="${flowerCenter}" stroke-width="1.4"/><circle cx="30" cy="13" r="1.7" fill="${flowerCenter}"/><circle cx="32" cy="17" r="1.5" fill="${flowerCenter}"/>`:'';
- return `<path d="M20 53V32M20 46Q7 48 5 38Q15 34 20 46M21 48Q35 47 36 36Q26 35 21 48" fill="${flowerMint}" stroke="${flowerMint}" stroke-width="1.2"/>${[0,72,144,216,288].map(a=>`<ellipse cx="20" cy="14" rx="8.3" ry="12.5" transform="rotate(${a} 20 25)" fill="${flowerInk}" fill-opacity=".86" stroke="${flowerInk}" stroke-width=".6"/>`).join('')}<circle cx="20" cy="25" r="4.5" fill="${flowerCenter}"/>${stamens}`;
-}
 function joker(style,p){
  if(style==='deco')return `<path d="M20 3L23 23L38 27L24 31L20 53L16 31L2 27L17 23Z" fill="${p.gold}" stroke="#a77f2b" stroke-width=".6"/><path d="M20 9V46M7 27H33" stroke="#f9e6a1" stroke-width="1"/>${[0,45,90,135,180,225,270,315].map(a=>`<path d="M20 6V12" transform="rotate(${a} 20 27)" stroke="${p.dot}" stroke-width="1.6"/>`).join('')}`;
  if(style==='coastal')return `${Array.from({length:10},(_,i)=>`<path d="M20 8Q25 4 21 0Q30 4 25 13" transform="rotate(${i*36} 20 28)" fill="${p.dot}"/>`).join('')}<circle cx="20" cy="28" r="13" fill="${p.gold}" stroke="#d8a832" stroke-width="1.2"/><path d="M13 27Q15 23 17 27M23 27Q25 23 27 27M15 32Q20 38 25 32" fill="none" stroke="${p.crak}" stroke-width="1.4" stroke-linecap="round"/>`;
@@ -51,7 +44,6 @@ function modernArt(k,p){
   ];
   return `<g fill="none" stroke-width="1.1">${accents[(n-1)%3]}</g><text x="20" y="44" text-anchor="middle" fill="${ink}" font-family="Arial,sans-serif" font-size="43" font-weight="400">${n}</text>`;
  }
- if(k==='F')return `<path d="M20 52V28" stroke="${flowerMint}" stroke-width="2"/><path d="M19 43Q5 44 5 32Q17 32 19 43M21 43Q35 44 35 32Q23 32 21 43" fill="${flowerMint}"/><path d="M5 5Q19 9 20 24V29Q6 28 5 17Z" fill="${flowerInk}"/><path d="M35 5Q21 9 20 24V29Q34 28 35 17Z" fill="${flowerInk}"/><path d="M20 3V24Q10 19 12 10Z" fill="${flowerCyan}"/>`;
  if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${ink}">JOKER</text><circle cx="22" cy="16" r="4" fill="${coral}"/><path d="M9 22H19V43H9Z" fill="${sky}"/><path d="M19 22L34 49H19Z" fill="${ink}"/><path d="M19 22L4 49L10 28Z" fill="${coral}"/><path d="M19 43L28 50H19Z" fill="${gold}"/><path d="M10 46H17V53H10Z" fill="${olive}"/>`;
  if(k==='R'||k==='G'){const color=k==='R'?coral:olive;return `<g data-dragon="${k}"><path d="M9 47L3 36L13 28V15L23 9L32 15L28 23H20V28H30L36 37L30 49H20L26 42L25 36H15L10 41L15 51Z" fill="${color}"/><path d="M14 15L12 6L20 11M25 10L28 3L30 14M29 18H38L30 24M10 31L3 27L4 35" fill="${color}"/><path d="M15 33L23 38M22 44H28M17 17H22" fill="none" stroke="#fbf8eb" stroke-width="1"/><circle cx="27" cy="16" r="1.2" fill="#fbf8eb"/></g>`;}
  if(k==='H')return `<g data-dragon="H"><rect x="6" y="7" width="28" height="42" rx="1" fill="none" stroke="${sky}" stroke-width="1.6"/><path d="M6 7H14L6 15ZM34 7H26L34 15ZM6 49H14L6 41ZM34 49H26L34 41Z" fill="${sky}"/><path d="M14 7H26M14 49H26" stroke="${ink}" stroke-width=".8"/><circle cx="5" cy="28" r="2" fill="${coral}"/><circle cx="35" cy="28" r="2" fill="${coral}"/></g>`;
@@ -75,7 +67,6 @@ function minimalArt(k,p){
   return points(n).map(([x,y],i)=>`<g data-mark="dot"><circle cx="${x}" cy="${y}" r="${n>=7?4.5:6.3}" fill="${colors[i%colors.length]}"/>${n>=5?`<circle cx="${x}" cy="${y}" r="1.5" fill="#fffef7" fill-opacity=".65"/>`:''}</g>`).join('');
  }
  if(k[0]==='C')return `<text x="20" y="43" text-anchor="middle" fill="${orange}" font-family="Georgia,serif" font-size="43" font-weight="400">${n}</text><path d="M12 50H28" stroke="${mint}" stroke-width="1.6" stroke-linecap="round"/>`;
- if(k==='F')return `${Array.from({length:8},(_,i)=>`<ellipse cx="20" cy="17" rx="3.8" ry="8" transform="rotate(${i*45} 20 28)" fill="${i%2?flowerInk:flowerCyan}"/>`).join('')}<circle cx="20" cy="28" r="5" fill="${flowerMint}"/><circle cx="20" cy="28" r="2" fill="${flowerCenter}"/>`;
  if(k==='J')return `<text x="20" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="${orange}">JOKER</text><path d="M6 29L17 47L9 48Z" fill="${mint}"/><path d="M34 29L23 47L31 48Z" fill="${green}"/><path d="M20 27L31 49H9Z" fill="${pink}"/>${[[8,mint],[20,pink],[32,green]].map(([x,c])=>`<circle cx="${x}" cy="21" r="1.8" fill="${c}"/>`).join('')}`;
  if(k==='R'||k==='G'){const color=k==='R'?orange:green;return `<g data-dragon="${k}"><path d="M6 17L15 9L20 15L25 9L34 17L34 34L26 27L24 38L20 27L16 38L14 27L6 34Z" fill="${color}"/><path d="M20 28L23 49L20 53L18 47Z" fill="${mint}"/><path d="M16 15L20 20L24 15" fill="none" stroke="#fffef7" stroke-width="1.2"/><circle cx="17" cy="19" r=".9" fill="${ink}"/><circle cx="23" cy="19" r=".9" fill="${ink}"/></g>`;}
  if(k==='H')return `<g data-dragon="H"><rect x="7" y="8" width="26" height="40" rx="4" fill="none" stroke="${mint}" stroke-width="1.5"/>${[[8,10],[32,10],[8,46],[32,46]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.3" fill="${pink}"/>`).join('')}<path d="M5 20Q0 24 5 28M5 30Q0 34 5 38M35 20Q40 24 35 28M35 30Q40 34 35 38" stroke="${green}" stroke-width="2" fill="none"/></g>`;
@@ -91,6 +82,10 @@ function minimalArt(k,p){
 }
 export function faceArt(k,requestedStyle='modern'){
  const style=validStyle(requestedStyle),p=STYLES[style],n=Number(k.slice(1));let art='';
+ if(k==='F'){
+  const artClass=style==='mobile'?'mobile-tile-art':'tile-art';
+  return `<svg class="${artClass}" viewBox="0 0 60 77" aria-hidden="true" focusable="false"><use href="${flowerMark}" x="6" y="14.5" width="48" height="48" fill="${flowerInk}"/></svg>`;
+ }
  if(style==='mobile')return mobileTileArt(k,p);
  const special=specialArt(k,style,p);if(special)return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${special}</svg>`;
  if(style==='modern')return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${modernArt(k,p)}</svg>`;
@@ -114,8 +109,7 @@ export function faceArt(k,requestedStyle='modern'){
   }).join('');
  }else if(k[0]==='C'){
   art=`<text x="20" y="42" fill="${p.crak}" font-size="45" font-family="${style==='deco'?'Arial,sans-serif':'Georgia,serif'}" font-weight="${style==='deco'?600:400}" font-style="${style==='botanical'?'italic':'normal'}" text-anchor="middle">${n}</text>${style==='deco'?`<path d="M8 47L20 51L32 47M12 45L20 48L28 45" stroke="${p.gold}" stroke-width="1.1" fill="none"/>`:style==='coastal'?`<path d="M6 47Q12 43 20 47T34 47M6 51Q12 47 20 51T34 51" stroke="${p.bam}" stroke-width="1.4" fill="none"/>`:`<path d="M8 48Q20 53 33 46M24 49Q24 42 31 42Q32 47 24 49" fill="${p.leaf}" stroke="${p.bam}" stroke-width=".6"/>`}`;
- }else if(k==='F')art=flower(style);
- else if(k==='J')art=joker(style,p);
+ }else if(k==='J')art=joker(style,p);
  else if(k==='H'){const frame=style==='botanical'?'#547b94':p.dot;art=`<g data-dragon="H"><rect x="7" y="9" width="26" height="36" rx="${style==='coastal'?5:2}" fill="none" stroke="${frame}" stroke-width="2.2"/><rect x="11" y="13" width="18" height="28" rx="1" fill="none" stroke="${frame}" stroke-width=".8"/>${style==='deco'?`<path d="M4 16V6H14M26 6H36V16M4 38V48H14M26 48H36V38" stroke="${p.gold}" stroke-width=".9" fill="none"/>`:''}${style==='botanical'?`<path d="M5 13Q0 8 4 6Q8 9 5 13M35 42Q40 47 36 49Q32 46 35 42" fill="${p.leaf}"/>`:''}</g>`;}
  else if(['E','S','W','N'].includes(k)){
   const angle={N:0,E:90,S:180,W:270}[k];let surround='';

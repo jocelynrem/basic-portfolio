@@ -16,7 +16,7 @@ import {tileAdvice} from './hints.mjs?v=win-source-1';
 import {matchHandTiles} from './hand-match.mjs?v=wind-sort-1';
 import {retainRackOrder,moveRackTile} from './rack-order.mjs';
 import {installRackArrangement} from './rack-arrange.mjs?v=mobile-review-1';
-import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=charcoal-flower-1';
+import {STYLES,validStyle,faceArt} from './tile-art.mjs?v=rose-flower-2';
 const $=s=>document.querySelector(s),STORE='parlor-2026-v1';
 const landscapeLayout=matchMedia('(orientation: landscape) and (min-width: 500px) and (max-width: 1050px) and (max-height: 500px)');
 const coarsePointer=matchMedia('(any-pointer: coarse)');
