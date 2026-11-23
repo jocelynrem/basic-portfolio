@@ -330,7 +330,7 @@
 .tile svg.tile-joker-label{
  position:absolute;z-index:3;top:2px;left:50%;transform:translateX(-50%);
  width:calc(100% - 2px);max-width:36px;height:auto;margin:0;
- overflow:hidden;pointer-events:none;fill:#244b50;font:700 9.5px Arial,sans-serif;
+ overflow:hidden;pointer-events:none;fill:var(--tile-wind-joker-ink);font:700 9.5px Arial,sans-serif;
 }
 .tile.joker:is(.mini,.goal-tile,.opponent-tile,.result-tile) svg.tile-art{top:5px;height:calc(100% - 11px)}
 .goal-block{display:flex;gap:6px;flex-shrink:0;align-items:center}

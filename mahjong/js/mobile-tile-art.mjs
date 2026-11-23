@@ -16,12 +16,9 @@ const suitFrames={
 };
 
 const windMarkers={
- N:'M30 14V4m-4 4 4-4 4 4',
- E:'M45 10h10m-4-4 4 4-4 4',
- W:'M15 10H5m4-4-4 4 4 4',
- S:'M30 63v10m-4-4 4 4 4-4'
+ N:[30,7], E:[54,38.5], W:[6,38.5], S:[30,70]
 };
-const tealInk='var(--parlor-link, #285763)';
+const pinkInk='var(--tile-wind-joker-ink, #b92d65)';
 const paper='var(--white, #fdfdff)';
 
 function star(x,y,size,ink){
@@ -31,7 +28,7 @@ function lettering(text,x,y,size,ink){
  return `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="${ink}">${text}</text>`;
 }
 function centeredLabel(text,ink){
- return lettering(text,30,55,45,ink);
+ return lettering(text,30,58,52,ink);
 }
 function mobileFace(k,p,suit){
  if(suit){
@@ -43,15 +40,16 @@ function mobileFace(k,p,suit){
  }
  if(k==='H'){
   return `<g data-dragon="H" fill="none" stroke="${p.dot}" stroke-linejoin="round">
-   <path d="M18 15h24l5 5v35l-5 5H18l-5-5V20Z" stroke-width="3.2"/>
-   <path d="M22 21h16l3 3v27l-3 3H22l-3-3V24Z" stroke-width="1.6"/>
+   <path d="M16 12h28l5 5v41l-5 5H16l-5-5V17Z" stroke-width="3.2"/>
+   <path d="M20 18h20l3 3v33l-3 3H20l-3-3V21Z" stroke-width="1.6"/>
   </g>`;
  }
  if(k==='J'){
-  return `<g data-joker="true">${star(30,32,49,tealInk)}<rect x="8" y="53" width="44" height="15" rx="4" fill="${tealInk}"/>${lettering('JOKER',30,65,13,paper)}</g>`;
+  return `<g data-joker="true">${star(30,31,55,pinkInk)}<rect x="6" y="53" width="48" height="16" rx="4" fill="${pinkInk}"/>${lettering('JOKER',30,66,14,paper)}</g>`;
  }
  if(Object.hasOwn(windMarkers,k)){
-  return `<g data-wind="${k}">${centeredLabel(k,tealInk)}<path d="${windMarkers[k]}" fill="none" stroke="${tealInk}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  const [x,y]=windMarkers[k];
+  return `<g data-wind="${k}">${centeredLabel(k,pinkInk)}<circle cx="${x}" cy="${y}" r="2.3" fill="${pinkInk}"/></g>`;
  }
  return '';
 }

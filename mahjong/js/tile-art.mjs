@@ -1,5 +1,5 @@
-import {specialArt} from './special-art.mjs?v=origami-dragon-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=lotus-corners-1';
+import {specialArt} from './special-art.mjs?v=pink-winds-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=larger-tile-art-1';
 const suitInks={
  bam:'var(--tile-bam-ink, #2c6b52)',
  crak:'var(--tile-crak-ink, #ac4145)',
@@ -77,16 +77,16 @@ function minimalArt(k,p){
  };
  return label?`<g data-wind="${k}">${top}${shapes[k]}</g>`:'';
 }
-function emblemArt(style,emblem){
+function emblemArt(style,href,attributes){
  const artClass=style==='mobile'?'mobile-tile-art':'tile-art';
- return `<svg class="${artClass}" viewBox="0 0 60 77" aria-hidden="true" focusable="false">${emblem}</svg>`;
+ return `<svg class="${artClass}" viewBox="0 0 60 77" aria-hidden="true" focusable="false"><use href="${href}" x="3" y="11.5" width="54" height="54" ${attributes}/></svg>`;
 }
 export function faceArt(k,requestedStyle='modern'){
  const style=validStyle(requestedStyle),p=STYLES[style],n=Number(k.slice(1));let art='';
- if(k==='F')return emblemArt(style,`<use href="${flowerMark}" x="6" y="14.5" width="48" height="48" color="${flowerInk}"/>`);
+ if(k==='F')return emblemArt(style,flowerMark,`color="${flowerInk}"`);
  if(k==='R'||k==='G'){
   const ink=k==='R'?p.crak:p.bam;
-  return emblemArt(style,`<use data-dragon="${k}" href="${dragonMark}" x="6" y="14.5" width="48" height="48" fill="${ink}"/>`);
+  return emblemArt(style,dragonMark,`data-dragon="${k}" fill="${ink}"`);
  }
  if(style==='mobile')return mobileTileArt(k,p);
  const special=specialArt(k,style,p);if(special)return `<svg class="tile-art" viewBox="0 0 40 56" aria-hidden="true" focusable="false">${special}</svg>`;
