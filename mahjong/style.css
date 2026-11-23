@@ -312,7 +312,6 @@
 }
 #rack-count strong{color:inherit;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
 #table[data-phase=charlestonChoice] .action-bar{
- background:var(--parlor-pink-wash);border-color:var(--parlor-pink-ink);box-shadow:0 0 0 1px var(--parlor-pink-ink);
  flex-direction:column;align-items:stretch;gap:6px;
 }
 #table[data-phase=charlestonChoice] #phase-title{font-size:13px}
@@ -320,9 +319,9 @@
 .player-zone .charleston-choice .button{width:100%;font-size:11px}
 .player-zone .action-buttons.charleston-choice .button{min-height:44px}
 .player-zone .charleston-choice [data-action=second]{
- background:var(--bubblegum-pink);border-color:var(--parlor-pink-ink);color:var(--parlor-ink);font-size:13px;font-weight:750;
+ background:var(--parlor-action-pink);border-color:var(--parlor-action-pink);color:var(--white);font-size:13px;font-weight:750;
 }
-.player-zone .charleston-choice [data-action=second]:hover{background:var(--parlor-rule)}
+.player-zone .charleston-choice [data-action=second]:hover:not(:disabled){background:var(--parlor-action-pink-hover)}
 .player-zone .charleston-choice [data-action=second]:focus-visible{outline:2px solid var(--parlor-focus);outline-offset:2px}
 @media(max-width:760px){
  .player-zone .charleston-choice{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
