@@ -1,8 +1,8 @@
-import {specialArt} from './special-art.mjs?v=pink-winds-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=larger-tile-art-1';
+import {specialArt} from './special-art.mjs?v=red-pink-tiles-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=red-pink-tiles-1';
 const suitInks={
  bam:'var(--tile-bam-ink, #2c6b52)',
- crak:'var(--tile-crak-ink, #ac4145)',
+ crak:'var(--tile-crak-ink, #a83427)',
  dot:'var(--tile-dot-ink, #315f89)'
 };
 const dotAccent='#5c84a5';

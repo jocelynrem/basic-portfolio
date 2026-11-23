@@ -1,7 +1,7 @@
 import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
 import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
-import { faceArt } from '../js/tile-art.mjs?v=larger-tile-art-1';
+import { faceArt } from '../js/tile-art.mjs?v=red-pink-tiles-1';
 
 const $ = selector => document.querySelector(selector);
 const ROUND_MS = 20_000;

@@ -1,5 +1,5 @@
 // Shared silhouettes for the bird Bam, winds, and jokers.
-const pinkInk='var(--tile-wind-joker-ink, #b92d65)';
+const pinkInk='var(--tile-wind-joker-ink, #b62d7a)';
 const roseInk='var(--tile-flower-ink, #df456e)';
 
 export function specialArt(k,style,p){

@@ -18,7 +18,7 @@ const suitFrames={
 const windMarkers={
  N:[30,7], E:[54,38.5], W:[6,38.5], S:[30,70]
 };
-const pinkInk='var(--tile-wind-joker-ink, #b92d65)';
+const pinkInk='var(--tile-wind-joker-ink, #b62d7a)';
 const paper='var(--white, #fdfdff)';
 
 function star(x,y,size,ink){
