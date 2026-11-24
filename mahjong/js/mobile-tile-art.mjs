@@ -9,16 +9,18 @@ const cornerTransforms=[
 function atCorners(art){
  return cornerTransforms.map(transform=>`<g transform="${transform}">${art}</g>`).join('');
 }
+const bambooSegment='M4.8 7.5Q6 6 7.2 7.5L7.05 13.8H8.2V16H7.05L7.2 23.5Q6 25 4.8 23.5L4.95 16H3.8V13.8H4.95Z';
 const suitFrames={
- bam:atCorners(`<path d="M5.5 22V16m0-4V8q0-2.5 2.5-2.5h4m4 0h6" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/><path d="M3.2 14h4.6M14 3.2v4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`),
+ bam:atCorners(`<path d="${bambooSegment}"/><path d="${bambooSegment}" transform="rotate(-90 6 6)"/>`),
  crak:atCorners(`<path d="M5.5 25V11.5h6v-6H24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>`),
- dot:atCorners(`<circle cx="6" cy="6" r="2.05"/><circle cx="14" cy="6" r="2.05"/><circle cx="6" cy="14" r="2.05"/>`)
+ dot:atCorners(`<path d="M6 23v-8.5M14.5 6H23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/>`)
 };
 
 const windMarkers={
  N:[30,7], E:[54,38.5], W:[6,38.5], S:[30,70]
 };
-const pinkInk='var(--tile-wind-joker-ink, #b62d7a)';
+const windInk='var(--tile-wind-ink, #4b4c58)';
+const jokerInk='var(--tile-joker-ink, #a22969)';
 const paper='var(--white, #fdfdff)';
 
 function star(x,y,size,ink){
@@ -45,11 +47,11 @@ function mobileFace(k,p,suit){
   </g>`;
  }
  if(k==='J'){
-  return `<g data-joker="true">${star(30,31,55,pinkInk)}<rect x="6" y="53" width="48" height="16" rx="4" fill="${pinkInk}"/>${lettering('JOKER',30,66,14,paper)}</g>`;
+  return `<g data-joker="true">${star(30,31,55,jokerInk)}<rect x="6" y="53" width="48" height="16" rx="4" fill="${jokerInk}"/>${lettering('JOKER',30,66,14,paper)}</g>`;
  }
  if(Object.hasOwn(windMarkers,k)){
   const [x,y]=windMarkers[k];
-  return `<g data-wind="${k}">${centeredLabel(k,pinkInk)}<circle cx="${x}" cy="${y}" r="2.3" fill="${pinkInk}"/></g>`;
+  return `<g data-wind="${k}">${centeredLabel(k,windInk)}<circle cx="${x}" cy="${y}" r="2.3" fill="${windInk}"/></g>`;
  }
  return '';
 }

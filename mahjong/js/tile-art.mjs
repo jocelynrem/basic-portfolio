@@ -1,9 +1,9 @@
-import {specialArt} from './special-art.mjs?v=red-pink-tiles-1';
-import {mobileTileArt} from './mobile-tile-art.mjs?v=red-pink-tiles-1';
+import {specialArt} from './special-art.mjs?v=tile-refresh-1';
+import {mobileTileArt} from './mobile-tile-art.mjs?v=tile-refresh-1';
 const suitInks={
- bam:'var(--tile-bam-ink, #2c6b52)',
- crak:'var(--tile-crak-ink, #a83427)',
- dot:'var(--tile-dot-ink, #315f89)'
+ bam:'var(--tile-bam-ink, #285b47)',
+ crak:'var(--tile-crak-ink, #973e36)',
+ dot:'var(--tile-dot-ink, #2c567a)'
 };
 const dotAccent='#5c84a5';
 export const STYLES={
@@ -15,7 +15,7 @@ export const STYLES={
  mobile:{name:'Framed',description:'Large numerals framed by bamboo, pips, and stepped corners.',...suitInks}
 };
 export function validStyle(value){return Object.hasOwn(STYLES,value)?value:'modern';}
-const flowerInk='var(--tile-flower-ink, #df456e)';
+const flowerInk='var(--tile-flower-ink, #d3416f)';
 const flowerMark=new URL('../icons/tile-flower.svg#flower',import.meta.url).href;
 const dragonMark=new URL('../icons/dragon.svg#dragon',import.meta.url).href;
 const points=n=>({1:[[20,28]],2:[[20,14],[20,41]],3:[[9,12],[20,28],[31,44]],4:[[10,14],[30,14],[10,42],[30,42]],5:[[10,12],[30,12],[20,28],[10,44],[30,44]],6:[[10,12],[30,12],[10,28],[30,28],[10,44],[30,44]],7:[[20,7],[10,20],[30,20],[10,34],[30,34],[10,48],[30,48]],8:[[10,7],[30,7],[10,21],[30,21],[10,35],[30,35],[10,49],[30,49]],9:[[8,10],[20,10],[32,10],[8,28],[20,28],[32,28],[8,46],[20,46],[32,46]]})[n];
