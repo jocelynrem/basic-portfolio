@@ -284,7 +284,7 @@
 /* Table surfaces and tile accents. */
 .site-header{background:var(--parlor-paper)}
 .table{background-color:var(--parlor-deep);border-color:var(--parlor-rule);background-image:radial-gradient(ellipse at 50% 45%,#ffffff06,transparent 70%);box-shadow:0 0 0 1px var(--parlor-rule),inset 0 0 0 2px #25292b29,0 4px 8px #25292b12}
-.brand-flower{display:block;width:.78em;height:.78em;flex:none;color:var(--bubblegum-pink)}.seat-wind{color:var(--parlor-cyan-wash)}.opponent-row .seat-name small{color:var(--parlor-cyan-wash)}
+.brand-flower{display:block;width:.78em;height:.78em;flex:none;color:var(--parlor-link)}.seat-wind{color:var(--parlor-cyan-wash)}.opponent-row .seat-name small{color:var(--parlor-cyan-wash)}
 .tile[data-tile-style="modern"]{color:#123f50;border-color:#d0d3c6;border-bottom-color:#8ba7ae}
 .rack .tile.hand-match,.your-exposures .tile.hand-match{box-shadow:0 0 0 2px var(--mint-leaf),0 3px 3px #25292b20}
 .rack .tile.joker-usable:not(.selected){outline-color:var(--bubblegum-pink)}.rack .tile.joker-winning:not(.selected){box-shadow:0 0 7px #62929e75}

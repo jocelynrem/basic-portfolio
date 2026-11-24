@@ -41,7 +41,7 @@ h1, h2, p { margin: 0; }
  border-bottom: 1px solid var(--rule);
 }
 .wordmark { display: inline-flex; align-items: center; gap: .2em; font: 23px/1 Georgia, serif; letter-spacing: -.045em; white-space: nowrap; }
-.brand-flower { display: block; width: .78em; height: .78em; flex: none; color: var(--bubblegum-pink); margin-right: .12em; font-size: 36px; }
+.brand-flower { display: block; width: .78em; height: .78em; flex: none; color: var(--parlor-link); margin-right: .12em; font-size: 36px; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none; }
 .back-link span { font-size: 19px; }
 .back-link:hover { text-decoration: underline; text-underline-offset: 3px; }
