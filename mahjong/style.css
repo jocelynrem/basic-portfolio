@@ -799,9 +799,9 @@ main{height:auto!important;max-width:1280px;padding:12px 24px 24px}.workspace{di
 
 #hand-list.ranked-hands .hand-tiles { gap: 4px 10px; }
 #hand-list.ranked-hands .hand-tiles .hand-group { font-size: 20px; }
-.hand-group > .bam { color: #316546; }
+.hand-group > .bam { color: var(--tile-bam-ink); }
 .hand-group > .crak { color: #9a3738; }
-.hand-group > .dot { color: #345b83; }
+.hand-group > .dot { color: var(--tile-dot-ink); }
 .hand-group > .flower { color: #785020; }
 .hand-group > .honor { color: #395543; }
 .hand-tiles .line-tile-names { display: none; flex-basis: 100%; min-width: 0; color: var(--parlor-muted); font: 500 12px/1.4 var(--sans); overflow-wrap: anywhere; white-space: normal; }
