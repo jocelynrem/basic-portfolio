@@ -888,7 +888,6 @@ async function runPass(){
 function beforeFirstPass(game){return game.phase==='charleston'&&game.passRound===1&&game.passStep===0&&scoringMode(game)==='tournament';}
 function roundReviewMarkup(round,action=''){
  const winner=round.winner;
- const guided=round.guidedPlay??round.practiceSession;
  const title=winner==null?'Wall game':winner===0?'You won this round':G.NAMES[winner]+' wins this round';
  const winType=round.scoreResult?.winType===undefined?round.winType:round.scoreResult.winType;
  const source=winner==null?'':winSourceText(winType,round.scoreResult?.discarder??round.winningDiscarder);
@@ -899,14 +898,11 @@ function roundReviewMarkup(round,action=''){
   const won=player===winner;
   const score=round.scoreResult?.mode==='tournament'?round.scoreResult.deltas[player]:0;
   const distance=won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':missing===null?'No eligible line':`${missing} ${missing===1?'tile':'tiles'} away`;
-  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won&&!guided?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
+  const line=target?`<div class="review-line">${esc(targetLabel(target))}${won?' · '+target.points+' card pts':''}${target.concealed?' · Concealed':''}</div>${targetNotation(target,'review-notation')}`:'';
   const matched=groups.map(group=>`<span class="winning-group ${group.exposed?'winning-exposed':''}">${faces(group.tiles)}</span>`).join('');
-  const details=[distance,won&&target?target.points+' card points':'',score?formatScore(score)+' round points':''].filter(Boolean).join(' · ');
   const extra=extras.length?`<span class="review-extra"><span class="review-extra-label">Extra tiles</span><span class="winning-group">${faces(extras)}</span></span>`:'';
-  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${guided?(won?'Mahjong':G.isDeadHand(round,player)?'Dead hand':''):[distance,score?formatScore(score):''].filter(Boolean).join(' · ')}</span></div>${line}<div class="review-tiles">${matched}${extra}</div>${guided?`<details class="round-coach-details"><summary>Show details</summary><p>${esc(details)}</p></details>`: ''}</article>`;
+  return `<article class="review-hand${won?' review-winner':''}"><div class="review-hand-head"><strong>${G.NAMES[player]}</strong><span>${[distance,score?formatScore(score):''].filter(Boolean).join(' · ')}</span></div>${line}<div class="review-tiles">${matched}${extra}</div></article>`;
  });
- const own=hands[0];
- const lesson=winner===0&&own.target?'Your tiles completed '+own.target.name+'.':G.isDeadHand(round,0)?'Before calling, check that the exposed group fits a card line with your earlier exposures.':own.target?'Your closest finish was '+own.target.name+'. Compare the groups you built with the extra tiles below.':'';
  const wall=round.wall;
  const wallReview=winner!=null&&Array.isArray(wall)?`
   <section class="review-hand review-wall" aria-labelledby="review-wall-title">
@@ -916,7 +912,7 @@ function roundReviewMarkup(round,action=''){
    </div>
    ${wall.length?`<div class="review-tiles">${faces([...wall].reverse())}</div>`:''}
   </section>`:'';
- return `<div class="round-result"><div class="round-result-head"><div><h2>${title}</h2>${source?`<p class="round-win-source">${esc(source)}</p>`:''}</div>${action}</div>${guided&&lesson?`<p class="round-coach-note">${esc(lesson)}</p>`: ''}<div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
+ return `<div class="round-result"><div class="round-result-head"><div><h2>${title}</h2>${source?`<p class="round-win-source">${esc(source)}</p>`:''}</div>${action}</div><div class="round-hands">${cards.join('')}</div>${wallReview}</div>`;
 }
 function renderSelection(){
  document.querySelectorAll('#rack [data-tile]').forEach(t=>{

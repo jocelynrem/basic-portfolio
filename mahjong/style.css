@@ -969,7 +969,7 @@ input:focus-visible, select:focus-visible, summary:focus-visible {
 .coach-preview-next { display: inline-block; padding: 5px 0; font-size: 12px; text-decoration: underline; }
 #coach-questions, #coach-details { min-width: 0; }
 #coach-body:has(> details[open]) > details { grid-column: 1 / -1; }
-#coach-details summary, #coach-questions summary, .round-coach-details summary {
+#coach-details summary, #coach-questions summary {
   width: fit-content;
   padding: 6px 0;
   cursor: pointer;
@@ -1015,7 +1015,6 @@ input:focus-visible, select:focus-visible, summary:focus-visible {
 #coach-leader { max-width: 100%; overflow-wrap: anywhere; font: 600 20px/1.2 var(--serif); color: var(--parlor-muted); }
 #play-coach [data-action="coach-switch"] { text-align: left; text-decoration: underline; padding: 6px 0; }
 #play-coach [hidden] { display: none; }
-.round-coach-note { margin: 4px 0 12px; line-height: 1.45; }
 @media (max-width: 760px) {
   .play-coach { padding: 9px 12px; }
   #coach-details summary, #coach-questions summary { min-height: 36px; }
