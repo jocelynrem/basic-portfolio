@@ -1,4 +1,4 @@
-import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-ten-1';
+import { dealSprintRound, scorePick, TOTAL_ROUNDS } from '../js/line-sprint.mjs?v=sprint-six-1';
 import { tileName } from '../js/engine.mjs?v=win-source-1';
 import { notationBlocks } from '../js/hand-groups.mjs?v=card-notation-1';
 import { faceArt } from '../js/tile-art.mjs?v=teal-bloom-1';
@@ -193,6 +193,7 @@ function showResults() {
  phase = 'results';
  const bestCount = history.filter(entry => entry.points === 100).length;
  $('#final-score').textContent = total;
+ $('#max-score').textContent = ` / ${(TOTAL_ROUNDS * 100).toLocaleString()} pts`;
  $('#best-count').textContent = `${bestCount} of ${TOTAL_ROUNDS} best picks`;
  const firstMiss = history.findIndex(entry => entry.points < 100);
  $('#review').innerHTML = history.map(({round,index,best,points},i) => {

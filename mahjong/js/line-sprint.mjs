@@ -6,14 +6,10 @@ import {recommendHands} from './recommendations.mjs?v=hand-outlook-1';
 // and the answer choices get closer together.
 const levels=[
  {core:11,gaps:[4]},
- {core:11,gaps:[3]},
  {core:11,gaps:[2]},
  {core:10,gaps:[3,2]},
- {core:10,gaps:[2,2]},
- {core:9,gaps:[2,1]},
  {core:9,gaps:[1,1]},
  {core:8,gaps:[2,1,1]},
- {core:8,gaps:[1,1,1]},
  {core:8,gaps:[1,1,0]}
 ];
 export const TOTAL_ROUNDS=levels.length;

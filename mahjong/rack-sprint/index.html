@@ -4,12 +4,12 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <meta name="theme-color" content="#393d3f">
- <meta name="description" content="Race through 10 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
+ <meta name="description" content="Race through 6 Mahjong racks. Spot the closest card line, earn points for near misses, and review each hand.">
  <title>Rack Sprint · The Mahjong Parlor</title>
  <link rel="icon" href="../icons/flower.svg?v=teal-bloom-1" type="image/svg+xml">
  <link rel="stylesheet" href="../palette.css?v=softer-blue-1">
  <link rel="stylesheet" href="./style.css?v=pale-controls-1">
- <script type="module" src="./game.mjs?v=teal-bloom-1"></script>
+ <script type="module" src="./game.mjs?v=sprint-six-1"></script>
 </head>
 <body>
  <header class="masthead">
@@ -20,7 +20,7 @@
   <section id="intro" class="intro" aria-labelledby="intro-heading">
    <div class="intro-copy">
     <h1 id="intro-heading" class="poster-title">Rack <em>Sprint</em></h1>
-    <p>10 racks. Pick the line that needs the fewest tiles. Close picks earn points, too.</p>
+    <p>6 racks. Pick the line that needs the fewest tiles. Close picks earn points, too.</p>
     <div class="start-actions">
      <button type="button" id="start" class="primary-button">Start sprint <span aria-hidden="true">→</span></button>
      <label class="timer-toggle"><input type="checkbox" data-timer-toggle checked><span class="switch" aria-hidden="true"></span>20s timer</label>
@@ -73,7 +73,7 @@
    <div class="scorecard">
     <div class="scorecard-content">
      <h1 id="results-heading">Sprint complete</h1>
-     <p class="score-total"><strong id="final-score"></strong><span> / 1,000 pts</span></p>
+     <p class="score-total"><strong id="final-score"></strong><span id="max-score"> / 600 pts</span></p>
      <p id="best-count"></p>
      <button type="button" id="again" class="primary-button">Play again <span aria-hidden="true">↻</span></button>
     </div>
